@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(find /c/Users/bacht/OneDrive/Desktop/AI/cilicia-vs-tamerlane-master/node_modules/.bin -name tsc*)",
+      "Bash(npm install:*)",
+      "Bash(./node_modules/.bin/vite build:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(command -v npm)",
+      "Bash(where npm:*)",
+      "WebFetch(domain:www.gmtgames.com)",
+      "WebFetch(domain:boardgamegeek.com)",
+      "WebFetch(domain:cdn.1j1ju.com)",
+      "WebFetch(domain:www.commandsandcolors.net)",
+      "WebFetch(domain:www.gettingonboardgames.com)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:www.ultraboardgames.com)",
+      "WebFetch(domain:wiki.boardgamegeek.com)",
+      "WebFetch(domain:vassalengine.org)",
+      "WebFetch(domain:www.hexandcounter.blog)",
+      "WebFetch(domain:cccards.commandsandcolors.net)",
+      "WebFetch(domain:www.boardgamegeek.com)",
+      "WebFetch(domain:gmtwebsiteassets.s3.us-west-2.amazonaws.com)",
+      "WebFetch(domain:cf.geekdo-files.com)",
+      "WebFetch(domain:www.pnparcade.com)",
+      "WebFetch(domain:www.shutupandsitdown.com)",
+      "WebFetch(domain:boardgames.stackexchange.com)"
+    ]
+  }
+}
