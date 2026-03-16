@@ -25,7 +25,14 @@
       "WebFetch(domain:cf.geekdo-files.com)",
       "WebFetch(domain:www.pnparcade.com)",
       "WebFetch(domain:www.shutupandsitdown.com)",
-      "WebFetch(domain:boardgames.stackexchange.com)"
+      "WebFetch(domain:boardgames.stackexchange.com)",
+      "mcp__Supabase__list_projects",
+      "mcp__Supabase__get_cost",
+      "mcp__Supabase__confirm_cost",
+      "mcp__Supabase__create_project",
+      "mcp__Supabase__get_project_url",
+      "mcp__Supabase__get_publishable_keys",
+      "mcp__Supabase__apply_migration"
     ]
   }
 }
