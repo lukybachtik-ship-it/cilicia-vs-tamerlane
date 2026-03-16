@@ -32,7 +32,11 @@
       "mcp__Supabase__create_project",
       "mcp__Supabase__get_project_url",
       "mcp__Supabase__get_publishable_keys",
-      "mcp__Supabase__apply_migration"
+      "mcp__Supabase__apply_migration",
+      "mcp__Vercel__deploy_to_vercel",
+      "mcp__Vercel__list_teams",
+      "mcp__Vercel__list_projects",
+      "mcp__Vercel__search_vercel_documentation"
     ]
   }
 }
