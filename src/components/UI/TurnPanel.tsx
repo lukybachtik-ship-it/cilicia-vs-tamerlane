@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useGame } from '../../state/GameContext';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { CARD_DEFINITIONS } from '../../constants/cardDefinitions';
+import { RulesModal } from './RulesModal';
 
 const PHASE_LABELS: Record<string, string> = {
   play_card: '1. Zahraj kartu',
@@ -25,6 +27,7 @@ const PHASE_HINTS: Record<string, string> = {
 
 export function TurnPanel() {
   const { state, dispatch } = useGame();
+  const [rulesOpen, setRulesOpen] = useState(false);
 
   const selectedUnit = state.selectedUnitId
     ? state.units.find(u => u.id === state.selectedUnitId)
@@ -40,9 +43,20 @@ export function TurnPanel() {
 
   return (
     <div className="flex flex-col gap-3 text-sm">
+      {/* Rules modal */}
+      {rulesOpen && <RulesModal onClose={() => setRulesOpen(false)} />}
+
       {/* Turn counter */}
       <div className="bg-gray-800 rounded-lg p-3 flex flex-col gap-1">
-        <div className="text-gray-400 text-xs">Tah</div>
+        <div className="flex items-center justify-between">
+          <div className="text-gray-400 text-xs">Tah</div>
+          <button
+            onClick={() => setRulesOpen(true)}
+            className="text-gray-400 hover:text-yellow-300 text-[10px] border border-gray-600 hover:border-yellow-600 rounded px-1.5 py-0.5 transition-colors"
+          >
+            ? Pravidla
+          </button>
+        </div>
         <div className="text-white font-bold text-lg">#{state.turnNumber}</div>
         <div
           className={`font-bold text-base ${
@@ -59,18 +73,18 @@ export function TurnPanel() {
         </div>
       </div>
 
-      {/* Score */}
+      {/* Score — each column shows how many enemy units that faction has KILLED */}
       <div className="bg-gray-800 rounded-lg p-3">
-        <div className="text-gray-400 text-xs mb-2">Ztráty (cíl: 5)</div>
+        <div className="text-gray-400 text-xs mb-2">Zabito nepřátel (cíl: 5)</div>
         <div className="flex justify-between">
           <div className="text-center">
             <div className="text-blue-400 text-xs">Kilikie</div>
-            <div className="text-white font-bold text-xl">{ciliciaLosses}/5</div>
+            <div className="text-white font-bold text-xl">{tamerlaneLosses}/5</div>
           </div>
           <div className="text-gray-500 self-center">vs</div>
           <div className="text-center">
             <div className="text-red-400 text-xs">Tamerlán</div>
-            <div className="text-white font-bold text-xl">{tamerlaneLosses}/5</div>
+            <div className="text-white font-bold text-xl">{ciliciaLosses}/5</div>
           </div>
         </div>
       </div>

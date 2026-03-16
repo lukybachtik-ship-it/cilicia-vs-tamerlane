@@ -4,7 +4,12 @@ import { TurnPanel } from './UI/TurnPanel';
 import { CombatLog } from './UI/CombatLog';
 import { PhaseIndicator } from './UI/PhaseIndicator';
 import { VictoryModal } from './UI/VictoryModal';
+import { UnitLegend } from './UI/UnitLegend';
+import { ScenarioSelect } from './UI/ScenarioSelect';
+import { TutorialHint } from './UI/TutorialHint';
 import { useGame } from '../state/GameContext';
+import { playEndTurnSound } from '../utils/sounds';
+import { ALL_SCENARIOS } from '../constants/scenarios';
 
 const PHASE_HINTS: Record<string, string> = {
   play_card: 'Vyber kartu ze své ruky.',
@@ -17,11 +22,16 @@ const PHASE_HINTS: Record<string, string> = {
 };
 
 export function Game() {
-  const { state, dispatch } = useGame();
+  const { state, dispatch, undo, canUndo, showScenarioSelect, openScenarioSelect } = useGame();
 
+  const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const inActivatePhase = state.currentPhase === 'activate_units';
   const canConfirm = inActivatePhase && state.activatedUnitIds.length > 0;
   const canEndTurn = state.currentPhase === 'move' || state.currentPhase === 'attack';
+
+  if (showScenarioSelect) {
+    return <ScenarioSelect />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
@@ -33,7 +43,15 @@ export function Game() {
             {' '}vs{' '}
             <span className="text-red-400">Tamerlán</span>
           </h1>
-          <div className="text-gray-500 text-[10px]">Taktická tahová válečná hra</div>
+          {scenario && (
+            <button
+              onClick={openScenarioSelect}
+              className="text-gray-600 hover:text-gray-400 text-[10px] transition-colors"
+              title="Změnit scénář"
+            >
+              📋 {scenario.nameCs} ·  změnit
+            </button>
+          )}
         </div>
         <PhaseIndicator />
         <div
@@ -55,9 +73,11 @@ export function Game() {
           <CardHand />
         </aside>
 
-        {/* Center: Board */}
-        <main className="flex-1 flex items-center justify-center p-4 overflow-auto">
+        {/* Center: Board + tutorial + legend */}
+        <main className="flex-1 flex flex-col items-center justify-center p-4 overflow-auto gap-3">
           <Board />
+          <TutorialHint />
+          <UnitLegend />
         </main>
 
         {/* Right panel: Turn info + Combat log */}
@@ -73,9 +93,22 @@ export function Game() {
       </div>
 
       {/* Action bar */}
-      {(inActivatePhase || canEndTurn) && (
+      {(inActivatePhase || canEndTurn || canUndo) && (
         <div className="bg-gray-800 border-t border-gray-700 px-6 py-2 flex items-center gap-4 flex-shrink-0">
           <span className="text-gray-400 text-xs flex-1">{PHASE_HINTS[state.currentPhase]}</span>
+
+          {/* Undo button */}
+          {canUndo && (
+            <button
+              onClick={undo}
+              className="px-4 py-1.5 rounded font-bold text-sm border border-gray-600
+                         bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
+              title="Vzít zpět poslední akci (max 12 kroků)"
+            >
+              ↩ Zpět
+            </button>
+          )}
+
           {inActivatePhase && (
             <button
               onClick={() => canConfirm && dispatch({ type: 'CONFIRM_ACTIVATIONS' })}
@@ -91,7 +124,7 @@ export function Game() {
           )}
           {canEndTurn && (
             <button
-              onClick={() => dispatch({ type: 'END_TURN' })}
+              onClick={() => { playEndTurnSound(); dispatch({ type: 'END_TURN' }); }}
               className="px-5 py-1.5 rounded font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white transition-colors"
             >
               ⏭ Konec tahu

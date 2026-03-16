@@ -1,4 +1,5 @@
 import type { Position } from '../types/unit';
+import type { GameState } from '../types/game';
 
 export type GameAction =
   | { type: 'PLAY_CARD'; cardInstanceId: string }
@@ -11,4 +12,5 @@ export type GameAction =
   | { type: 'MOVE_UNIT'; unitId: string; targetPosition: Position }
   | { type: 'ATTACK_UNIT'; attackerId: string; defenderId: string }
   | { type: 'END_TURN' }
-  | { type: 'RESTART_GAME' };
+  | { type: 'RESTART_GAME'; scenarioId?: string }
+  | { type: 'SET_STATE'; state: GameState };

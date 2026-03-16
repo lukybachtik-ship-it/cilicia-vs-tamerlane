@@ -27,6 +27,9 @@ export interface CombatLogEntry {
 }
 
 export interface GameState {
+  // Scenario
+  scenarioId: string;
+
   // Board terrain
   terrain: TerrainCell[];
 

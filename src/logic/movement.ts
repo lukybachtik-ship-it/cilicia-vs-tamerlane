@@ -1,7 +1,7 @@
 import type { Position, UnitInstance } from '../types/unit';
 import type { GameState } from '../types/game';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
-import { posKey, isOnBoard } from '../utils/helpers';
+import { posKey, isOnBoard, getNeighbors } from '../utils/helpers';
 
 function getTerrainAt(pos: Position, state: GameState) {
   return state.terrain.find(
@@ -66,29 +66,24 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
     if (steps >= maxMove) continue;
 
-    // Expand to all 8 neighbors
-    for (let dr = -1; dr <= 1; dr++) {
-      for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        const next: Position = { row: pos.row + dr, col: pos.col + dc };
-        if (!isOnBoard(next)) continue;
-        if (isOccupied(next, state.units, unit.id)) continue;
+    // Expand to all 6 hex neighbours
+    for (const next of getNeighbors(pos)) {
+      if (isOccupied(next, state.units, unit.id)) continue;
 
-        const terrain = getTerrainAt(next, state);
-        const terrainType = terrain?.terrain ?? 'plain';
+      const terrain = getTerrainAt(next, state);
+      const terrainType = terrain?.terrain ?? 'plain';
 
-        // Cavalry cannot enter fortress
-        if (isCavalry(unit) && terrainType === 'fortress') continue;
+      // Cavalry cannot enter fortress
+      if (isCavalry(unit) && terrainType === 'fortress') continue;
 
-        const nextSteps = steps + 1;
-        const prevBest = visited.get(posKey(next));
-        if (prevBest !== undefined && prevBest <= nextSteps) continue;
+      const nextSteps = steps + 1;
+      const prevBest = visited.get(posKey(next));
+      if (prevBest !== undefined && prevBest <= nextSteps) continue;
 
-        visited.set(posKey(next), nextSteps);
+      visited.set(posKey(next), nextSteps);
 
-        const mustStop = terrainType === 'forest' || terrainType === 'fortress';
-        queue.push({ pos: next, steps: nextSteps, stopped: mustStop });
-      }
+      const mustStop = terrainType === 'forest' || terrainType === 'fortress';
+      queue.push({ pos: next, steps: nextSteps, stopped: mustStop });
     }
   }
 

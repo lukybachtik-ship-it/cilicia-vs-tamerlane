@@ -1,4 +1,5 @@
 import type { Position } from '../types/unit';
+import { hexDistance, getHexNeighbors } from './hexGrid';
 
 let idCounter = 0;
 export function generateId(prefix = 'id'): string {
@@ -21,9 +22,9 @@ export function isOnBoard(pos: Position): boolean {
   return pos.row >= 1 && pos.row <= 9 && pos.col >= 1 && pos.col <= 9;
 }
 
-/** Chebyshev distance: diagonal counts as 1. */
+/** Hex distance (replaces Chebyshev — now delegates to hexDistance). */
 export function chebyshevDistance(a: Position, b: Position): number {
-  return Math.max(Math.abs(a.row - b.row), Math.abs(a.col - b.col));
+  return hexDistance(a, b);
 }
 
 export function posKey(pos: Position): string {
@@ -41,14 +42,7 @@ export function getZone(col: number): 'left' | 'center' | 'right' {
   return 'right';
 }
 
-/** Get all 8 neighbors of a position (including diagonals). */
+/** Get all 6 hex neighbours of a position (delegates to getHexNeighbors). */
 export function getNeighbors(pos: Position): Position[] {
-  const neighbors: Position[] = [];
-  for (let dr = -1; dr <= 1; dr++) {
-    for (let dc = -1; dc <= 1; dc++) {
-      if (dr === 0 && dc === 0) continue;
-      neighbors.push({ row: pos.row + dr, col: pos.col + dc });
-    }
-  }
-  return neighbors.filter(isOnBoard);
+  return getHexNeighbors(pos);
 }
