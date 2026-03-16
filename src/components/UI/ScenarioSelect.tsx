@@ -1,4 +1,3 @@
-import React from 'react';
 import { useGame } from '../../state/GameContext';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
 

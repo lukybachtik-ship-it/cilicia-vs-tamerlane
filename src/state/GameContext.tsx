@@ -15,6 +15,8 @@ interface GameContextValue {
   // Scenario selection
   showScenarioSelect: boolean;
   openScenarioSelect: () => void;
+  // Online multiplayer: start game directly with a given state (skips ScenarioSelect)
+  startOnlineGame: (gameState: GameState) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -58,6 +60,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     [state]
   );
 
+  // For online multiplayer: apply a pre-built state and bypass ScenarioSelect
+  const startOnlineGame = useCallback((gameState: GameState) => {
+    setShowScenarioSelect(false);
+    setHistory([]);
+    rawDispatch({ type: 'SET_STATE', state: gameState });
+  }, []);
+
   return (
     <GameContext.Provider
       value={{
@@ -67,6 +76,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         canUndo: history.length > 0,
         showScenarioSelect,
         openScenarioSelect,
+        startOnlineGame,
       }}
     >
       {children}

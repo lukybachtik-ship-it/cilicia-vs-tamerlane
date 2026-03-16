@@ -7,7 +7,9 @@ import { VictoryModal } from './UI/VictoryModal';
 import { UnitLegend } from './UI/UnitLegend';
 import { ScenarioSelect } from './UI/ScenarioSelect';
 import { TutorialHint } from './UI/TutorialHint';
+import { ConnectionBadge } from './UI/ConnectionBadge';
 import { useGame } from '../state/GameContext';
+import { useMultiplayer } from '../state/MultiplayerContext';
 import { playEndTurnSound } from '../utils/sounds';
 import { ALL_SCENARIOS } from '../constants/scenarios';
 
@@ -23,11 +25,16 @@ const PHASE_HINTS: Record<string, string> = {
 
 export function Game() {
   const { state, dispatch, undo, canUndo, showScenarioSelect, openScenarioSelect } = useGame();
+  const { mode, myPlayer } = useMultiplayer();
 
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const inActivatePhase = state.currentPhase === 'activate_units';
   const canConfirm = inActivatePhase && state.activatedUnitIds.length > 0;
   const canEndTurn = state.currentPhase === 'move' || state.currentPhase === 'attack';
+
+  // In online mode: block all interactions when it's not our turn
+  const isOnline = mode === 'online';
+  const isMyTurn = !isOnline || state.currentPlayer === myPlayer;
 
   if (showScenarioSelect) {
     return <ScenarioSelect />;
@@ -54,19 +61,22 @@ export function Game() {
           )}
         </div>
         <PhaseIndicator />
-        <div
-          className={`text-xs font-bold px-3 py-1 rounded-full ${
-            state.currentPlayer === 'cilicia'
-              ? 'bg-blue-900 text-blue-300'
-              : 'bg-red-900 text-red-300'
-          }`}
-        >
-          {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} na tahu
+        <div className="flex items-center gap-3">
+          <ConnectionBadge />
+          <div
+            className={`text-xs font-bold px-3 py-1 rounded-full ${
+              state.currentPlayer === 'cilicia'
+                ? 'bg-blue-900 text-blue-300'
+                : 'bg-red-900 text-red-300'
+            }`}
+          >
+            {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} na tahu
+          </div>
         </div>
       </header>
 
       {/* Main layout */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Left panel: Card hand */}
         <aside className="w-72 bg-gray-850 border-r border-gray-700 p-3 overflow-y-auto flex-shrink-0"
           style={{ backgroundColor: '#1a1f2e' }}>
@@ -90,10 +100,23 @@ export function Game() {
             <CombatLog />
           </div>
         </aside>
+
+        {/* Online multiplayer: overlay when it's the opponent's turn */}
+        {isOnline && !isMyTurn && state.currentPhase !== 'game_over' && (
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center z-20 pointer-events-all">
+            <div className="bg-gray-900 border border-gray-700 rounded-2xl px-8 py-6 text-center shadow-2xl">
+              <div className="text-4xl mb-3 animate-pulse">⏳</div>
+              <p className="text-gray-300 text-lg font-semibold">Čekám na soupeře…</p>
+              <p className="text-gray-500 text-sm mt-1">
+                {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} hraje
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Action bar */}
-      {(inActivatePhase || canEndTurn || canUndo) && (
+      {/* Action bar — hidden when it's not our turn in online mode */}
+      {(inActivatePhase || canEndTurn || canUndo) && isMyTurn && (
         <div className="bg-gray-800 border-t border-gray-700 px-6 py-2 flex items-center gap-4 flex-shrink-0">
           <span className="text-gray-400 text-xs flex-1">{PHASE_HINTS[state.currentPhase]}</span>
 

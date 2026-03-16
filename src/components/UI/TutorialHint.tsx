@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useGame } from '../../state/GameContext';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 

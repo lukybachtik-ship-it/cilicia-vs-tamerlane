@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { UNIT_ICONS } from '../../constants/unitIcons';
 import type { UnitType } from '../../types/unit';
