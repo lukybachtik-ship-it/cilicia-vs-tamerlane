@@ -1,7 +1,8 @@
 import { useGame } from '../../state/GameContext';
+import { playSelectSound } from '../../utils/sounds';
 
 export function VictoryModal() {
-  const { state, dispatch } = useGame();
+  const { state, openScenarioSelect } = useGame();
   if (!state.victor) return null;
 
   const isCilicia = state.victor === 'cilicia';
@@ -25,7 +26,7 @@ export function VictoryModal() {
           Tamerlán ztráty: {state.destroyedUnits.filter(u => u.faction === 'tamerlane').length}
         </div>
         <button
-          onClick={() => dispatch({ type: 'RESTART_GAME' })}
+          onClick={() => { playSelectSound(); openScenarioSelect(); }}
           className="bg-white text-black font-bold px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Hrát znovu

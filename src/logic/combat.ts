@@ -34,6 +34,8 @@ export interface CombatResult {
   // Special ability follow-ups
   hitAndRunPosition: { row: number; col: number } | null;
   breakthroughPosition: { row: number; col: number } | null;
+  // Support system
+  supportBlocked: boolean;
 }
 
 /**
@@ -103,9 +105,21 @@ export function resolveAttack(
     else if (hitNumbers.has(d)) hits++;
   }
 
-  // 8. Fortress defender ignores the first retreat result
+  // 8a. Fortress defender ignores the first retreat result
   let retreats = rawRetreats;
   if (defenderTerrain === 'fortress' && retreats > 0) {
+    retreats -= 1;
+  }
+
+  // 8b. Support: unit flanked by 2+ adjacent friendly units ignores 1 retreat
+  const adjacentAllies = state.units.filter(
+    u =>
+      u.id !== defender.id &&
+      u.faction === defender.faction &&
+      chebyshevDistance(u.position, defender.position) === 1
+  ).length;
+  const supportBlocked = adjacentAllies >= 2 && retreats > 0;
+  if (supportBlocked) {
     retreats -= 1;
   }
 
@@ -202,6 +216,7 @@ export function resolveAttack(
     logEntry,
     hitAndRunPosition,
     breakthroughPosition,
+    supportBlocked,
   };
 }
 

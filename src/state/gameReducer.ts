@@ -40,13 +40,17 @@ function resetUnitForTurn(u: UnitInstance): UnitInstance {
 // ─── Reducer ─────────────────────────────────────────────────────────────────
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
-  if (state.victor && action.type !== 'RESTART_GAME') return state;
+  if (state.victor && action.type !== 'RESTART_GAME' && action.type !== 'SET_STATE') return state;
 
   switch (action.type) {
 
+    // ── Restore snapshot (undo) ──────────────────────────────────────────────
+    case 'SET_STATE':
+      return action.state;
+
     // ── Restart ─────────────────────────────────────────────────────────────
     case 'RESTART_GAME':
-      return buildInitialState();
+      return buildInitialState(action.scenarioId);
 
     // ── Play a card ──────────────────────────────────────────────────────────
     case 'PLAY_CARD': {

@@ -2,36 +2,14 @@ import type { Position } from '../types/unit';
 import type { GameState } from '../types/game';
 import type { UnitInstance } from '../types/unit';
 import { posKey } from '../utils/helpers';
+import { getHexLineCells } from '../utils/hexGrid';
 
 /**
- * Bresenham line — returns all INTERMEDIATE cells between from and to
+ * Hex line — returns all INTERMEDIATE cells between from and to
  * (neither the start nor the end cell).
  */
 export function getLineCells(from: Position, to: Position): Position[] {
-  const cells: Position[] = [];
-  let x0 = from.col - 1; // convert to 0-indexed for algorithm
-  let y0 = from.row - 1;
-  const x1 = to.col - 1;
-  const y1 = to.row - 1;
-
-  const dx = Math.abs(x1 - x0);
-  const dy = Math.abs(y1 - y0);
-  const sx = x0 < x1 ? 1 : -1;
-  const sy = y0 < y1 ? 1 : -1;
-  let err = dx - dy;
-
-  while (true) {
-    const isStart = x0 === (from.col - 1) && y0 === (from.row - 1);
-    const isEnd = x0 === x1 && y0 === y1;
-    if (!isStart && !isEnd) {
-      cells.push({ row: y0 + 1, col: x0 + 1 });
-    }
-    if (isEnd) break;
-    const e2 = 2 * err;
-    if (e2 > -dy) { err -= dy; x0 += sx; }
-    if (e2 < dx) { err += dx; y0 += sy; }
-  }
-  return cells;
+  return getHexLineCells(from, to);
 }
 
 function getTerrainAt(pos: Position, state: GameState) {
