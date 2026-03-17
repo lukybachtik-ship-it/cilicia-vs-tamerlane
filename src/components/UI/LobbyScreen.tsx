@@ -76,7 +76,9 @@ export function LobbyScreen() {
 
       setView('create_waiting');
     } catch (e) {
-      setErrorMsg('Nepodařilo se vytvořit místnost. Zkus to znovu.');
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('createRoom failed:', msg);
+      setErrorMsg(`Nepodařilo se vytvořit místnost: ${msg}`);
     } finally {
       setIsLoading(false);
     }
@@ -206,6 +208,10 @@ export function LobbyScreen() {
               </button>
             ))}
           </div>
+
+          {errorMsg && (
+            <p className="text-red-400 text-sm text-center mb-4">{errorMsg}</p>
+          )}
 
           <div className="text-center">
             <button onClick={() => setView('home')} className="text-gray-600 hover:text-gray-400 text-sm transition-colors">
