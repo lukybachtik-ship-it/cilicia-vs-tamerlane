@@ -116,6 +116,7 @@ export function LobbyScreen() {
 
   function handleLocalGame() {
     mp.setMode('local');
+    mp.setConnectionStatus('connected');
     // ScenarioSelect will show automatically (showScenarioSelect starts as true)
     // Dispatch RESTART_GAME without scenarioId to trigger ScenarioSelect from Game component
     dispatch({ type: 'RESTART_GAME' });
