@@ -28,8 +28,8 @@ export function CardDisplay({ card, isPlayable, isSelected, onClick, faceDown }:
 
   if (faceDown) {
     return (
-      <div className="w-24 h-32 rounded-lg bg-gray-700 border-2 border-gray-600 flex items-center justify-center">
-        <span className="text-gray-500 text-2xl">🂠</span>
+      <div className="w-12 h-16 rounded-md bg-gray-700 border border-gray-600 flex items-center justify-center">
+        <span className="text-gray-500 text-lg">🂠</span>
       </div>
     );
   }
@@ -48,9 +48,9 @@ export function CardDisplay({ card, isPlayable, isSelected, onClick, faceDown }:
     <div
       onClick={isPlayable ? onClick : undefined}
       className={`
-        w-28 h-36 rounded-lg border-2 ${categoryColor}
+        w-24 h-[7.5rem] rounded-lg border-2 ${categoryColor}
         ${playableClass} ${selectedClass}
-        flex flex-col p-1.5 gap-1 transition-all duration-150 select-none
+        flex flex-col p-1.5 gap-0.5 transition-all duration-150 select-none
         text-left
       `}
     >

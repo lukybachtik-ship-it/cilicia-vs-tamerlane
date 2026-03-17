@@ -45,14 +45,14 @@ export function TurnPanel() {
     state.currentPhase === 'move' || state.currentPhase === 'attack';
 
   return (
-    <div className="flex flex-col gap-3 text-sm">
+    <div className="flex flex-col gap-2 text-sm">
       {/* Rules modal */}
       {rulesOpen && <RulesModal onClose={() => setRulesOpen(false)} />}
 
       {/* Turn counter */}
-      <div className="bg-gray-800 rounded-lg p-3 flex flex-col gap-1">
+      <div className="bg-gray-800 rounded-lg p-2 flex flex-col gap-0.5">
         <div className="flex items-center justify-between">
-          <div className="text-gray-400 text-xs">Tah</div>
+          <span className="text-gray-400 text-xs">Tah <span className="text-white font-bold">#{state.turnNumber}</span></span>
           <button
             onClick={() => setRulesOpen(true)}
             className="text-gray-400 hover:text-yellow-300 text-[10px] border border-gray-600 hover:border-yellow-600 rounded px-1.5 py-0.5 transition-colors"
@@ -60,70 +60,60 @@ export function TurnPanel() {
             ? Pravidla
           </button>
         </div>
-        <div className="text-white font-bold text-lg">#{state.turnNumber}</div>
         <div
-          className={`font-bold text-base ${
+          className={`font-bold text-sm ${
             state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'
           }`}
         >
           {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} hraje
         </div>
-        <div className="text-yellow-300 text-xs mt-1">
+        <div className="text-yellow-300 text-xs">
           {PHASE_LABELS[state.currentPhase]}
-        </div>
-        <div className="text-gray-400 text-[10px] leading-tight mt-0.5">
-          {PHASE_HINTS[state.currentPhase]}
         </div>
       </div>
 
-      {/* Turn countdown (only for scenarios with a turn limit) */}
+      {/* Turn countdown — shown inline when turn limit is active */}
       {turnsLeft !== null && (
-        <div className={`rounded-lg p-2 text-center ${
+        <div className={`rounded px-2 py-1 flex items-center justify-between ${
           turnsLeft <= 2
             ? 'bg-red-950 border border-red-700'
             : turnsLeft <= 4
             ? 'bg-yellow-950 border border-yellow-700'
             : 'bg-gray-800'
         }`}>
-          <div className="text-gray-400 text-[10px]">Zbývající tahy</div>
-          <div className={`font-bold text-2xl ${
+          <span className="text-gray-400 text-[10px]">Zbývající tahy:</span>
+          <span className={`font-bold text-base ml-2 ${
             turnsLeft <= 2 ? 'text-red-400' : turnsLeft <= 4 ? 'text-yellow-300' : 'text-white'
           }`}>
-            {turnsLeft > 0 ? turnsLeft : '⚠ Poslední tah!'}
-          </div>
-          <div className="text-gray-500 text-[9px]">
-            {scenario?.ciliciaLabel ?? 'Kilikie'} vyhrává přežitím
-          </div>
+            {turnsLeft > 0 ? turnsLeft : '⚠!'}
+          </span>
         </div>
       )}
 
-      {/* Score — each column shows how many enemy units that faction has KILLED */}
-      <div className="bg-gray-800 rounded-lg p-3">
-        <div className="text-gray-400 text-xs mb-2">Zabito nepřátel</div>
-        <div className="flex justify-between">
-          <div className="text-center">
-            <div className="text-blue-400 text-xs">{scenario?.ciliciaLabel ?? 'Kilikie'}</div>
-            <div className="text-white font-bold text-xl">
+      {/* Score + objectives */}
+      <div className="bg-gray-800 rounded-lg p-2">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-gray-400 text-[10px]">Zabito nepřátel</span>
+        </div>
+        <div className="flex justify-between text-center">
+          <div>
+            <div className="text-blue-400 text-[10px]">{scenario?.ciliciaLabel ?? 'Kilikie'}</div>
+            <div className="text-white font-bold text-lg leading-tight">
               {tamerlaneLosses}/{scenario?.killThresholdTamerlane ?? 5}
             </div>
           </div>
-          <div className="text-gray-500 self-center">vs</div>
-          <div className="text-center">
-            <div className="text-red-400 text-xs">{scenario?.tamerlaneLabel ?? 'Tamerlán'}</div>
-            <div className="text-white font-bold text-xl">
+          <div className="text-gray-500 self-center text-xs">vs</div>
+          <div>
+            <div className="text-red-400 text-[10px]">{scenario?.tamerlaneLabel ?? 'Tamerlán'}</div>
+            <div className="text-white font-bold text-lg leading-tight">
               {ciliciaLosses}/{scenario?.killThresholdCilicia ?? 5}
             </div>
           </div>
         </div>
-        {/* Scenario objectives */}
         {scenario && (
-          <div className="mt-2 pt-2 border-t border-gray-700 space-y-1">
-            <div className="text-blue-300 text-[9px] leading-tight">
-              🔵 {scenario.victoryObjectiveCiliciaCs}
-            </div>
-            <div className="text-red-300 text-[9px] leading-tight">
-              🔴 {scenario.victoryObjectiveTamerlaneCs}
-            </div>
+          <div className="mt-1.5 pt-1.5 border-t border-gray-700 space-y-0.5">
+            <div className="text-blue-300 text-[9px] leading-tight">🔵 {scenario.victoryObjectiveCiliciaCs}</div>
+            <div className="text-red-300 text-[9px] leading-tight">🔴 {scenario.victoryObjectiveTamerlaneCs}</div>
           </div>
         )}
       </div>

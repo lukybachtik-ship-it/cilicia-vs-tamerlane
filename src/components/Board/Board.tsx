@@ -272,10 +272,10 @@ export function Board() {
 
   // ── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col items-center select-none">
+    <div className="flex flex-col items-center select-none w-full" style={{ maxWidth: SVG_WIDTH }}>
       <svg
-        width={SVG_WIDTH}
-        height={SVG_HEIGHT}
+        width="100%"
+        height="auto"
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
         style={{ display: 'block' }}
       >

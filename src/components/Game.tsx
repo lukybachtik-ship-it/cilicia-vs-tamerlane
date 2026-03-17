@@ -50,9 +50,9 @@ export function Game() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
+    <div className="h-screen overflow-hidden bg-gray-900 text-gray-100 flex flex-col">
       {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-4 py-2 flex items-center justify-between flex-shrink-0">
+      <header className="bg-gray-800 border-b border-gray-700 px-4 py-1.5 flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-sm font-bold text-gray-200">
             ⚔ <span className="text-blue-400">Kilikie</span>
@@ -87,13 +87,13 @@ export function Game() {
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* Left panel: Card hand */}
-        <aside className="w-72 bg-gray-850 border-r border-gray-700 p-3 overflow-y-auto flex-shrink-0"
+        <aside className="w-64 bg-gray-850 border-r border-gray-700 p-2 overflow-y-auto flex-shrink-0"
           style={{ backgroundColor: '#1a1f2e' }}>
           <CardHand />
         </aside>
 
-        {/* Center: Board + tutorial + legend */}
-        <main className="flex-1 flex flex-col items-center justify-center p-4 overflow-auto gap-3">
+        {/* Center: Board — scales to fill available space; hints below are scrollable */}
+        <main className="flex-1 min-h-0 flex flex-col items-center justify-start p-2 overflow-y-auto gap-2">
           <Board />
           <TutorialHint />
           <UnitLegend />
@@ -101,7 +101,7 @@ export function Game() {
 
         {/* Right panel: Turn info + Combat log */}
         <aside
-          className="w-64 border-l border-gray-700 p-3 flex flex-col gap-3 overflow-y-auto flex-shrink-0"
+          className="w-60 border-l border-gray-700 p-2 flex flex-col gap-2 overflow-y-auto flex-shrink-0"
           style={{ backgroundColor: '#1a1f2e' }}
         >
           <TurnPanel />
@@ -138,7 +138,7 @@ export function Game() {
 
       {/* Action bar — always visible to show phase hint; buttons hidden when not our turn */}
       {state.currentPhase !== 'game_over' && (
-        <div className="bg-gray-800 border-t border-gray-700 px-6 py-2 flex items-center gap-4 flex-shrink-0">
+        <div className="bg-gray-800 border-t border-gray-700 px-4 py-1.5 flex items-center gap-3 flex-shrink-0">
           <span className="text-gray-400 text-xs flex-1">{PHASE_HINTS[state.currentPhase]}</span>
 
           {/* Buttons only shown on our turn */}
