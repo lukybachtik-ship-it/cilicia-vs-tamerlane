@@ -1,11 +1,16 @@
 import { useGame } from '../../state/GameContext';
 import { playSelectSound } from '../../utils/sounds';
+import { ALL_SCENARIOS } from '../../constants/scenarios';
 
 export function VictoryModal() {
   const { state, openScenarioSelect } = useGame();
   if (!state.victor) return null;
 
+  const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const isCilicia = state.victor === 'cilicia';
+  const victorLabel = isCilicia
+    ? (scenario?.ciliciaLabel ?? 'Kilikie')
+    : (scenario?.tamerlaneLabel ?? 'Tamerlán');
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
@@ -17,7 +22,7 @@ export function VictoryModal() {
       >
         <div className="text-5xl mb-4">{isCilicia ? '🏰' : '⚔️'}</div>
         <h2 className={`text-2xl font-bold mb-2 ${isCilicia ? 'text-blue-300' : 'text-red-300'}`}>
-          {isCilicia ? 'Kilikie vítězí!' : 'Tamerlán vítězí!'}
+          {victorLabel} vítězí!
         </h2>
         <p className="text-gray-300 text-sm mb-6">{state.victoryCause}</p>
         <div className="text-gray-400 text-xs mb-4">

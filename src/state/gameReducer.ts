@@ -408,8 +408,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'END_TURN': {
       if (state.currentPhase === 'play_card') return state; // can't end before playing
 
-      // Check fortress victory at end of turn
-      const { victor, cause } = checkVictory(state);
+      // Check victory at end of turn (includes turn-limit survival check)
+      const { victor, cause } = checkVictory(state, true);
       if (victor) {
         return { ...state, victor, victoryCause: cause, currentPhase: 'game_over' };
       }

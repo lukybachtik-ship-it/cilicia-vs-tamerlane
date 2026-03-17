@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGame } from '../../state/GameContext';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { CARD_DEFINITIONS } from '../../constants/cardDefinitions';
+import { ALL_SCENARIOS } from '../../constants/scenarios';
 import { RulesModal } from './RulesModal';
 
 const PHASE_LABELS: Record<string, string> = {
@@ -33,8 +34,10 @@ export function TurnPanel() {
     ? state.units.find(u => u.id === state.selectedUnitId)
     : null;
 
+  const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const ciliciaLosses = state.destroyedUnits.filter(u => u.faction === 'cilicia').length;
   const tamerlaneLosses = state.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
+  const turnsLeft = scenario?.turnLimit != null ? scenario.turnLimit - state.turnNumber : null;
 
   const inActivatePhase = state.currentPhase === 'activate_units';
   const canConfirm = inActivatePhase && state.activatedUnitIds.length > 0;
@@ -73,20 +76,56 @@ export function TurnPanel() {
         </div>
       </div>
 
+      {/* Turn countdown (only for scenarios with a turn limit) */}
+      {turnsLeft !== null && (
+        <div className={`rounded-lg p-2 text-center ${
+          turnsLeft <= 2
+            ? 'bg-red-950 border border-red-700'
+            : turnsLeft <= 4
+            ? 'bg-yellow-950 border border-yellow-700'
+            : 'bg-gray-800'
+        }`}>
+          <div className="text-gray-400 text-[10px]">Zbývající tahy</div>
+          <div className={`font-bold text-2xl ${
+            turnsLeft <= 2 ? 'text-red-400' : turnsLeft <= 4 ? 'text-yellow-300' : 'text-white'
+          }`}>
+            {turnsLeft > 0 ? turnsLeft : '⚠ Poslední tah!'}
+          </div>
+          <div className="text-gray-500 text-[9px]">
+            {scenario?.ciliciaLabel ?? 'Kilikie'} vyhrává přežitím
+          </div>
+        </div>
+      )}
+
       {/* Score — each column shows how many enemy units that faction has KILLED */}
       <div className="bg-gray-800 rounded-lg p-3">
-        <div className="text-gray-400 text-xs mb-2">Zabito nepřátel (cíl: 5)</div>
+        <div className="text-gray-400 text-xs mb-2">Zabito nepřátel</div>
         <div className="flex justify-between">
           <div className="text-center">
-            <div className="text-blue-400 text-xs">Kilikie</div>
-            <div className="text-white font-bold text-xl">{tamerlaneLosses}/5</div>
+            <div className="text-blue-400 text-xs">{scenario?.ciliciaLabel ?? 'Kilikie'}</div>
+            <div className="text-white font-bold text-xl">
+              {tamerlaneLosses}/{scenario?.killThresholdTamerlane ?? 5}
+            </div>
           </div>
           <div className="text-gray-500 self-center">vs</div>
           <div className="text-center">
-            <div className="text-red-400 text-xs">Tamerlán</div>
-            <div className="text-white font-bold text-xl">{ciliciaLosses}/5</div>
+            <div className="text-red-400 text-xs">{scenario?.tamerlaneLabel ?? 'Tamerlán'}</div>
+            <div className="text-white font-bold text-xl">
+              {ciliciaLosses}/{scenario?.killThresholdCilicia ?? 5}
+            </div>
           </div>
         </div>
+        {/* Scenario objectives */}
+        {scenario && (
+          <div className="mt-2 pt-2 border-t border-gray-700 space-y-1">
+            <div className="text-blue-300 text-[9px] leading-tight">
+              🔵 {scenario.victoryObjectiveCiliciaCs}
+            </div>
+            <div className="text-red-300 text-[9px] leading-tight">
+              🔴 {scenario.victoryObjectiveTamerlaneCs}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Played card info */}
