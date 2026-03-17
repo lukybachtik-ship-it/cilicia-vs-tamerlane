@@ -16,15 +16,6 @@ const PHASE_LABELS: Record<string, string> = {
   game_over: '🏆 Konec hry',
 };
 
-const PHASE_HINTS: Record<string, string> = {
-  play_card: 'Vyber kartu ze své ruky.',
-  select_section: 'Klikni na sekci pro Generální ofenzívu.',
-  discard_drawn: 'Průzkum: klikni na kartu k zahození.',
-  activate_units: 'Klikni na jednotky k aktivaci. Pak "Potvrdit aktivaci".',
-  move: 'Vyber aktivovanou jednotku → klikni na zelené pole k pohybu. Pak zaútoč nebo "Konec tahu".',
-  attack: 'Vyber aktivovanou jednotku → klikni na červeně označeného nepřítele.',
-  game_over: '',
-};
 
 export function TurnPanel() {
   const { state, dispatch } = useGame();
