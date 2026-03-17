@@ -66,6 +66,45 @@ export const UNIT_ICONS: Record<string, React.ReactNode> = {
     </>
   ),
 
+  // 👁  Eye — scout
+  scout: (
+    <>
+      {/* Eye outline */}
+      <ellipse cx={0} cy={-1} rx={8} ry={5} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" style={PI} />
+      {/* Pupil */}
+      <circle cx={0} cy={-1} r={2.5} fill="white" style={PI} />
+      {/* Speed dash below */}
+      <line x1="-5" y1="6" x2="5" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round" style={PI} />
+    </>
+  ),
+
+  // ⚙  Catapult arm — siege machine
+  siege_machine: (
+    <>
+      {/* Base frame */}
+      <line x1="-8" y1="7" x2="8" y2="7" stroke="white" strokeWidth="2.5" strokeLinecap="round" style={PI} />
+      {/* Upright arm */}
+      <line x1="-3" y1="7" x2="3" y2="-6" stroke="white" strokeWidth="2.2" strokeLinecap="round" style={PI} />
+      {/* Sling bucket */}
+      <circle cx={3} cy={-7} r={2.5} fill="none" stroke="white" strokeWidth="1.8" style={PI} />
+      {/* Wheels */}
+      <circle cx={-6} cy={8} r={2} fill="none" stroke="white" strokeWidth="1.5" style={PI} />
+      <circle cx={6} cy={8} r={2} fill="none" stroke="white" strokeWidth="1.5" style={PI} />
+    </>
+  ),
+
+  // ★  Five-point star — elite guard
+  elite_guard: (
+    <polygon
+      points="0,-10 2.4,-3.3 9.5,-3.1 3.9,1.3 5.9,8.1 0,4 -5.9,8.1 -3.9,1.3 -9.5,-3.1 -2.4,-3.3"
+      fill="rgba(255,255,255,0.2)"
+      stroke="white"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+      style={PI}
+    />
+  ),
+
   // 🏹+⟩  Bow arc + arrow + chevron — horse archers
   horse_archers: (
     <>

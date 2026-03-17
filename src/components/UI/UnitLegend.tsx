@@ -13,6 +13,9 @@ const UNIT_ORDER: UnitType[] = [
   'light_cavalry',
   'heavy_cavalry',
   'horse_archers',
+  'scout',
+  'siege_machine',
+  'elite_guard',
 ];
 
 // Scale down icon paths to fit a smaller circle (board uses r=19, legend uses r=16)
@@ -91,12 +94,16 @@ export function UnitLegend() {
           {/* Terrain + status legend */}
           <div className="mt-3 pt-2 border-t border-gray-700 flex flex-wrap gap-x-4 gap-y-1 text-[9px] text-gray-500">
             <span className="font-semibold text-gray-400">Terén:</span>
-            <span>🌲 Les  (+1 obrana)</span>
-            <span>⛰ Kopec  (+1 obrana, vyšší dosah)</span>
-            <span>🏰 Pevnost  (+2 obrana)</span>
-            <span className="ml-4 font-semibold text-gray-400">Status:</span>
-            <span>🟠 Pohyb  (pohyboval se)</span>
-            <span>🟣 Útok  (zaútočil)</span>
+            <span>🌲 Les  (+1 obrana, stop)</span>
+            <span>⛰ Kopec  (+1 obrana)</span>
+            <span>🏰 Pevnost  (+2 obrana, stop)</span>
+            <span className="font-semibold text-gray-400">Speciální:</span>
+            <span>👁 Zvěd: ignoruje terénní stop</span>
+            <span>⚙ Obléhací stroj: +2 kostky vs. 🏰</span>
+            <span>★ Elitní garda: 5 kostek útoku</span>
+            <span className="font-semibold text-gray-400">Status:</span>
+            <span>🟠 Pohyboval se</span>
+            <span>🟣 Zaútočil</span>
           </div>
         </div>
       )}

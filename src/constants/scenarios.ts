@@ -37,22 +37,22 @@ export const SCENARIO_STANDARD: ScenarioDefinition = {
     { position: { row: 7, col: 6 }, terrain: 'forest',   elevation: 0 },
   ],
   ciliciaUnits: [
-    { id: 'cil_li_1', definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 2 } },
-    { id: 'cil_li_2', definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 4 } },
-    { id: 'cil_li_3', definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 6 } },
-    { id: 'cil_li_4', definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 8 } },
+    { id: 'cil_sc_1', definitionType: 'scout',           faction: 'cilicia', position: { row: 2, col: 1 } }, // scout replaces light cavalry on flank
+    { id: 'cil_li_1', definitionType: 'light_infantry',  faction: 'cilicia', position: { row: 2, col: 2 } },
+    { id: 'cil_li_2', definitionType: 'light_infantry',  faction: 'cilicia', position: { row: 2, col: 4 } },
+    { id: 'cil_li_3', definitionType: 'light_infantry',  faction: 'cilicia', position: { row: 2, col: 6 } },
+    { id: 'cil_li_4', definitionType: 'light_infantry',  faction: 'cilicia', position: { row: 2, col: 8 } },
     { id: 'cil_hi_1', definitionType: 'heavy_infantry',  faction: 'cilicia', position: { row: 2, col: 5 } },
     { id: 'cil_ar_1', definitionType: 'archers',          faction: 'cilicia', position: { row: 1, col: 3 } },
     { id: 'cil_ar_2', definitionType: 'archers',          faction: 'cilicia', position: { row: 1, col: 5 } },
     { id: 'cil_ar_3', definitionType: 'archers',          faction: 'cilicia', position: { row: 1, col: 7 } },
-    { id: 'cil_lc_1', definitionType: 'light_cavalry',    faction: 'cilicia', position: { row: 2, col: 1 } },
-    { id: 'cil_lc_2', definitionType: 'light_cavalry',    faction: 'cilicia', position: { row: 2, col: 9 } },
+    { id: 'cil_lc_2', definitionType: 'light_cavalry',   faction: 'cilicia', position: { row: 2, col: 9 } },
   ],
   tamerlaneUnits: [
     { id: 'tam_hi_1', definitionType: 'heavy_infantry',  faction: 'tamerlane', position: { row: 8, col: 4 } },
     { id: 'tam_hi_2', definitionType: 'heavy_infantry',  faction: 'tamerlane', position: { row: 8, col: 5 } },
     { id: 'tam_hi_3', definitionType: 'heavy_infantry',  faction: 'tamerlane', position: { row: 8, col: 6 } },
-    { id: 'tam_li_1', definitionType: 'light_infantry',  faction: 'tamerlane', position: { row: 8, col: 2 } },
+    { id: 'tam_sc_1', definitionType: 'scout',           faction: 'tamerlane', position: { row: 8, col: 2 } }, // scout replaces light infantry on flank
     { id: 'tam_li_2', definitionType: 'light_infantry',  faction: 'tamerlane', position: { row: 8, col: 8 } },
     { id: 'tam_ha_1', definitionType: 'horse_archers',   faction: 'tamerlane', position: { row: 7, col: 1 } },
     { id: 'tam_ha_2', definitionType: 'horse_archers',   faction: 'tamerlane', position: { row: 7, col: 3 } },
@@ -96,13 +96,13 @@ export const SCENARIO_ANKARA: ScenarioDefinition = {
     { id: 'cil_ar_1', definitionType: 'archers', faction: 'cilicia', position: { row: 1, col: 3 } },
     { id: 'cil_ar_2', definitionType: 'archers', faction: 'cilicia', position: { row: 1, col: 5 } },
     { id: 'cil_ar_3', definitionType: 'archers', faction: 'cilicia', position: { row: 1, col: 7 } },
-    // Málo jezdectva
-    { id: 'cil_lc_1', definitionType: 'light_cavalry', faction: 'cilicia', position: { row: 1, col: 1 } },
+    // Jezdectvo + zvěd na křídle
+    { id: 'cil_sc_1', definitionType: 'scout',         faction: 'cilicia', position: { row: 1, col: 1 } }, // zvěd nahrazuje lehkou jízdu
     { id: 'cil_lc_2', definitionType: 'light_cavalry', faction: 'cilicia', position: { row: 1, col: 9 } },
   ],
   tamerlaneUnits: [
     // Masivní jízdní křídla
-    { id: 'tam_ha_1', definitionType: 'horse_archers', faction: 'tamerlane', position: { row: 9, col: 1 } },
+    { id: 'tam_sc_1', definitionType: 'scout',         faction: 'tamerlane', position: { row: 9, col: 1 } }, // zvěd místo jízdního lučištníka
     { id: 'tam_ha_2', definitionType: 'horse_archers', faction: 'tamerlane', position: { row: 8, col: 1 } },
     { id: 'tam_ha_3', definitionType: 'horse_archers', faction: 'tamerlane', position: { row: 9, col: 9 } },
     { id: 'tam_ha_4', definitionType: 'horse_archers', faction: 'tamerlane', position: { row: 8, col: 9 } },
@@ -147,8 +147,8 @@ export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
     { position: { row: 6, col: 6 }, terrain: 'forest',   elevation: 0 },
   ],
   ciliciaUnits: [
-    // Pevná obranná linie s těžkou pěchotou v pevnostech
-    { id: 'cil_hi_1', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 3 } },
+    // Pevná obranná linie — elitní garda v levé pevnosti
+    { id: 'cil_eg_1', definitionType: 'elite_guard',   faction: 'cilicia', position: { row: 3, col: 3 } }, // elitní garda v pevnosti
     { id: 'cil_hi_2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 5 } },
     { id: 'cil_hi_3', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 7 } },
     { id: 'cil_li_1', definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 2 } },
@@ -161,13 +161,13 @@ export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
     { id: 'cil_ar_3', definitionType: 'archers', faction: 'cilicia', position: { row: 1, col: 7 } },
   ],
   tamerlaneUnits: [
-    // Početná armáda – musí proniknout lesem
+    // Početná armáda – musí proniknout lesem; obléhací stroje na průlom
     { id: 'tam_hc_1', definitionType: 'heavy_cavalry',  faction: 'tamerlane', position: { row: 9, col: 2 } },
     { id: 'tam_hc_2', definitionType: 'heavy_cavalry',  faction: 'tamerlane', position: { row: 9, col: 8 } },
     { id: 'tam_lc_1', definitionType: 'light_cavalry',  faction: 'tamerlane', position: { row: 9, col: 4 } },
     { id: 'tam_lc_2', definitionType: 'light_cavalry',  faction: 'tamerlane', position: { row: 9, col: 6 } },
-    { id: 'tam_ha_1', definitionType: 'horse_archers',  faction: 'tamerlane', position: { row: 8, col: 1 } },
-    { id: 'tam_ha_2', definitionType: 'horse_archers',  faction: 'tamerlane', position: { row: 8, col: 9 } },
+    { id: 'tam_os_1', definitionType: 'siege_machine',  faction: 'tamerlane', position: { row: 8, col: 1 } }, // obléhací stroj místo JL
+    { id: 'tam_os_2', definitionType: 'siege_machine',  faction: 'tamerlane', position: { row: 8, col: 9 } }, // obléhací stroj místo JL
     { id: 'tam_hi_1', definitionType: 'heavy_infantry', faction: 'tamerlane', position: { row: 9, col: 5 } },
     { id: 'tam_li_1', definitionType: 'light_infantry', faction: 'tamerlane', position: { row: 8, col: 3 } },
     { id: 'tam_li_2', definitionType: 'light_infantry', faction: 'tamerlane', position: { row: 8, col: 5 } },

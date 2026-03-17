@@ -116,12 +116,18 @@ export function TurnPanel() {
             {UNIT_DEFINITIONS[selectedUnit.definitionType].nameCs}
           </div>
           <div className="text-gray-300 text-[10px] mt-0.5">
-            HP: {selectedUnit.hp}/3 | Útok: {UNIT_DEFINITIONS[selectedUnit.definitionType].attack + selectedUnit.attackBonus}
+            HP: {selectedUnit.hp}/{UNIT_DEFINITIONS[selectedUnit.definitionType].maxHp} | Útok: {UNIT_DEFINITIONS[selectedUnit.definitionType].attack + selectedUnit.attackBonus}
           </div>
           <div className="text-gray-400 text-[10px]">
             Pohyb: {UNIT_DEFINITIONS[selectedUnit.definitionType].move + selectedUnit.moveBonus}
             {' '}| Dosah: {UNIT_DEFINITIONS[selectedUnit.definitionType].rangeMin}–{UNIT_DEFINITIONS[selectedUnit.definitionType].rangeMax}
           </div>
+          {UNIT_DEFINITIONS[selectedUnit.definitionType].ignoresTerrainStop && (
+            <div className="text-cyan-400 text-[10px]">🌲 Ignoruje terénní stop</div>
+          )}
+          {UNIT_DEFINITIONS[selectedUnit.definitionType].siegeBonus && (
+            <div className="text-orange-400 text-[10px]">🏰 +2 kostky vs. pevnost</div>
+          )}
           {selectedUnit.isActivated && (
             <div className="text-green-400 text-[10px]">✓ Aktivována</div>
           )}

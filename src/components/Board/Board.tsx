@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../../state/GameContext';
+import { useMultiplayer } from '../../state/MultiplayerContext';
 import { getZone, posEqual } from '../../utils/helpers';
 import {
   hexCenter,
@@ -57,9 +58,34 @@ interface LungeOffset {
 // ── Component ─────────────────────────────────────────────────────────────────
 export function Board() {
   const { state, dispatch } = useGame();
+  const { mode, myPlayer } = useMultiplayer();
   const [hoveredCell, setHoveredCell]   = useState<Position | null>(null);
   const [attackFlash, setAttackFlash]   = useState<Position | null>(null);
   const [lungeOffset, setLungeOffset]   = useState<LungeOffset | null>(null);
+
+  // Track previous unit positions to detect remote moves and play sounds
+  const prevPositionsRef = useRef<Map<string, { row: number; col: number }>>(new Map());
+
+  useEffect(() => {
+    const prevMap = prevPositionsRef.current;
+    const isOnline = mode === 'online';
+    const isOpponentTurn = state.currentPlayer !== myPlayer;
+
+    if (isOnline && isOpponentTurn) {
+      for (const unit of state.units) {
+        const prev = prevMap.get(unit.id);
+        if (prev && (prev.row !== unit.position.row || prev.col !== unit.position.col)) {
+          playMoveSound();
+          break; // one sound per remote state update
+        }
+      }
+    }
+
+    // Update tracked positions
+    prevPositionsRef.current = new Map(
+      state.units.map(u => [u.id, { row: u.position.row, col: u.position.col }])
+    );
+  }, [state.units, mode, myPlayer, state.currentPlayer]);
 
   const rows = Array.from({ length: 9 }, (_, i) => i + 1);
   const cols = Array.from({ length: 9 }, (_, i) => i + 1);

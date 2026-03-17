@@ -15,6 +15,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: false,
     movedAttackPenalty: false,
     meleeAttackPenalty: false,
+    ignoresTerrainStop: false,
+    siegeBonus: false,
     nameCs: 'Lehká pěchota',
     abbrevCs: 'LP',
   },
@@ -32,6 +34,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: false,
     movedAttackPenalty: false,
     meleeAttackPenalty: false,
+    ignoresTerrainStop: false,
+    siegeBonus: false,
     nameCs: 'Těžká pěchota',
     abbrevCs: 'TP',
   },
@@ -49,6 +53,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: true,
     movedAttackPenalty: true,
     meleeAttackPenalty: true,  // -1 die when attacking at dist=1
+    ignoresTerrainStop: false,
+    siegeBonus: false,
     nameCs: 'Střelci',
     abbrevCs: 'ST',
   },
@@ -66,6 +72,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: false,
     movedAttackPenalty: false,
     meleeAttackPenalty: false,
+    ignoresTerrainStop: false,
+    siegeBonus: false,
     nameCs: 'Lehká jízda',
     abbrevCs: 'LJ',
   },
@@ -83,6 +91,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: false,
     movedAttackPenalty: false,
     meleeAttackPenalty: false,
+    ignoresTerrainStop: false,
+    siegeBonus: false,
     nameCs: 'Těžká jízda',
     abbrevCs: 'TJ',
   },
@@ -100,7 +110,74 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: true,
     movedAttackPenalty: false,
     meleeAttackPenalty: true,  // -1 die when attacking at dist=1
+    ignoresTerrainStop: false,
+    siegeBonus: false,
     nameCs: 'Jízdní lučištníci',
     abbrevCs: 'JL',
+  },
+
+  // ── New unit types ────────────────────────────────────────────────────────
+
+  // Scout: fast, weak in combat, ignores terrain stop (moves freely through forest/fortress)
+  scout: {
+    type: 'scout',
+    unitClass: 'light',
+    move: 3,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 1,
+    maxHp: 3,
+    hitAndRun: true,    // retreats after melee attack
+    breakthrough: false,
+    parthianShot: false,
+    reducedMeleeDefense: true,
+    movedAttackPenalty: false,
+    meleeAttackPenalty: false,
+    ignoresTerrainStop: true,  // key ability: passes through forest/fortress without stopping
+    siegeBonus: false,
+    nameCs: 'Zvěd',
+    abbrevCs: 'ZV',
+  },
+
+  // Siege Machine: very slow, strong vs fortress defenders (+2 dice), medium range
+  siege_machine: {
+    type: 'siege_machine',
+    unitClass: 'heavy',
+    move: 1,
+    rangeMin: 1,
+    rangeMax: 2,
+    attack: 3,
+    maxHp: 3,
+    hitAndRun: false,
+    breakthrough: false,
+    parthianShot: false,
+    reducedMeleeDefense: true,  // vulnerable in melee counter-attack
+    movedAttackPenalty: true,   // can't fire accurately after moving
+    meleeAttackPenalty: true,   // penalty at melee range
+    ignoresTerrainStop: false,
+    siegeBonus: true,           // key ability: +2 dice vs fortress defenders
+    nameCs: 'Obléhací stroj',
+    abbrevCs: 'OS',
+  },
+
+  // Elite Guard: slow, very powerful in melee, heavy armour
+  elite_guard: {
+    type: 'elite_guard',
+    unitClass: 'heavy',
+    move: 1,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 5,
+    maxHp: 3,
+    hitAndRun: false,
+    breakthrough: false,
+    parthianShot: false,
+    reducedMeleeDefense: false,
+    movedAttackPenalty: false,
+    meleeAttackPenalty: false,
+    ignoresTerrainStop: false,
+    siegeBonus: false,
+    nameCs: 'Elitní garda',
+    abbrevCs: 'EG',
   },
 };

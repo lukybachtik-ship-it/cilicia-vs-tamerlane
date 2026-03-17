@@ -34,6 +34,7 @@ function isCavalry(unit: UnitInstance): boolean {
  */
 export function getValidMoves(unit: UnitInstance, state: GameState): Position[] {
   const def = UNIT_DEFINITIONS[unit.definitionType];
+  const ignoresStop = def.ignoresTerrainStop;
   const maxMove = def.move + unit.moveBonus;
 
   // For General Offensive activated units, move is limited to 1
@@ -82,7 +83,7 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
       visited.set(posKey(next), nextSteps);
 
-      const mustStop = terrainType === 'forest' || terrainType === 'fortress';
+      const mustStop = !ignoresStop && (terrainType === 'forest' || terrainType === 'fortress');
       queue.push({ pos: next, steps: nextSteps, stopped: mustStop });
     }
   }

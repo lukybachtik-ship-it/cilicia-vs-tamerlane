@@ -83,6 +83,11 @@ export function resolveAttack(
 
   diceCount = Math.max(1, diceCount - terrainPenalty);
 
+  // 4b. Siege Machine bonus: +2 dice vs fortress defenders (applied after penalty so it's net +1)
+  if (attackerDef.siegeBonus && defenderTerrain === 'fortress' && !isCounter) {
+    diceCount += 2;
+  }
+
   // 5. Cilicia passive: if counter-attack AND attacker (Cilicia unit) is on fortress/hill → +1
   if (isCounter && attacker.faction === 'cilicia') {
     if (attackerTerrain === 'fortress' || attackerTerrain === 'hill') {

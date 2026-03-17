@@ -6,7 +6,10 @@ export type UnitType =
   | 'archers'
   | 'light_cavalry'
   | 'heavy_cavalry'
-  | 'horse_archers';
+  | 'horse_archers'
+  | 'scout'
+  | 'siege_machine'
+  | 'elite_guard';
 
 export type FactionId = 'cilicia' | 'tamerlane';
 
@@ -30,6 +33,8 @@ export interface UnitDefinition {
   reducedMeleeDefense: boolean; // Archers & Horse Archers: only 1 die in counter-attack
   movedAttackPenalty: boolean;  // Archers: if moved this turn, attack = 1
   meleeAttackPenalty: boolean;  // Archers: melee attack (dist=1) uses -1 die
+  ignoresTerrainStop: boolean;  // Scout: doesn't stop when entering forest/fortress
+  siegeBonus: boolean;          // Siege Machine: +2 dice when attacking fortress defenders
   // Czech display name
   nameCs: string;
   abbrevCs: string; // short 2-3 char abbreviation
