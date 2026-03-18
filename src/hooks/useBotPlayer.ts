@@ -37,8 +37,21 @@ export function useBotPlayer() {
   // Deduplicate: track the last "state key" we acted on so we don't double-fire
   const lastKeyRef = useRef('');
 
+  // Track units that have been selected in the move phase but had nothing to do
+  // (no valid move targets and no valid attack targets). Without this, the bot
+  // loops: select unit → nothing to do → deselect → nextUnitToMove returns same
+  // unit → select again → infinite loop.
+  const exhaustedInMoveRef = useRef<Set<string>>(new Set());
+  const lastTurnRef = useRef(-1);
+
   useEffect(() => {
     if (!isBotTurn || !botPlayer) return;
+
+    // Reset exhausted set when a new turn begins
+    if (state.turnNumber !== lastTurnRef.current) {
+      lastTurnRef.current = state.turnNumber;
+      exhaustedInMoveRef.current.clear();
+    }
 
     // Build a key that changes whenever meaningful state changes
     const unitStates = state.units
@@ -92,13 +105,17 @@ export function useBotPlayer() {
         } else if (state.activatedUnitIds.length > 0) {
           timer = setTimeout(() => dispatch({ type: 'CONFIRM_ACTIVATIONS' }), DELAY_MS);
         }
-        // (if no eligible units at all, the card was played but nothing to activate
-        //  — this shouldn't happen in practice with a well-played card)
         break;
       }
 
       // ── Move phase ────────────────────────────────────────────────────────────
       case 'move': {
+        // Clear exhausted list at the start of move phase (when nothing selected)
+        if (!state.selectedUnitId) {
+          // Only clear if the set was populated from a previous attempt
+          // (we check by seeing if the turn matches — already handled above)
+        }
+
         const selected = state.selectedUnitId
           ? state.units.find(u => u.id === state.selectedUnitId)
           : null;
@@ -127,19 +144,20 @@ export function useBotPlayer() {
               break;
             }
           }
-          // Nothing to do with this unit — deselect
+          // Nothing to do with this unit — mark exhausted and deselect
+          // so we don't loop by re-selecting it on the next tick.
+          exhaustedInMoveRef.current.add(selected.id);
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: null }), 200);
           break;
         }
 
-        // Step B: nothing selected — find next unit to work on
-        // First look for units that still need to move
-        const moveId = nextUnitToMove(state, botPlayer);
+        // Step B: nothing selected — find next unit to work on (skip exhausted units)
+        const moveId = nextUnitToMove(state, botPlayer, exhaustedInMoveRef.current);
         if (moveId) {
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: moveId }), DELAY_MS);
           break;
         }
-        // Then look for units that can attack (but haven't moved yet or already moved)
+        // Then look for units that can actually attack (nextUnitToAttack already filters by valid targets)
         const attackId = nextUnitToAttack(state, botPlayer);
         if (attackId) {
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: attackId }), DELAY_MS);
@@ -152,9 +170,9 @@ export function useBotPlayer() {
 
       // ── Attack phase ──────────────────────────────────────────────────────────
       case 'attack': {
-        if (isBotUnitSelected(state, botPlayer) && state.validAttackTargets.length > 0) {
+        if (isBotUnitSelected(state, botPlayer)) {
           const selected = state.units.find(u => u.id === state.selectedUnitId)!;
-          if (!selected.hasAttacked) {
+          if (!selected.hasAttacked && state.validAttackTargets.length > 0) {
             const defenderId = chooseBotAttackTarget(state.validAttackTargets, state);
             if (defenderId) {
               timer = setTimeout(
@@ -164,24 +182,19 @@ export function useBotPlayer() {
               break;
             }
           }
-          // Deselect and try next
+          // Already attacked or no targets — deselect and move to next unit
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: null }), 200);
           break;
         }
 
-        if (isBotUnitSelected(state, botPlayer) && state.validAttackTargets.length === 0) {
-          // Selected but no attack targets — deselect
-          timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: null }), 200);
-          break;
-        }
-
-        // Find next unit to attack
+        // Find next unit to attack. nextUnitToAttack only returns units with
+        // actual valid targets, so when it returns null we can safely end turn.
         const attackId = nextUnitToAttack(state, botPlayer);
         if (attackId) {
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: attackId }), DELAY_MS);
           break;
         }
-        // All done
+        // All units have attacked or have no valid targets — end turn
         timer = setTimeout(() => dispatch({ type: 'END_TURN' }), DELAY_MS);
         break;
       }

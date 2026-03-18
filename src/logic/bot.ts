@@ -208,21 +208,36 @@ export function chooseBotAttackTarget(
 
 /**
  * Returns the ID of the first activated bot unit that hasn't moved yet
- * (excluding directFireLocked units like archers who used Direct Fire).
+ * (excluding directFireLocked units and units already marked exhausted by the hook).
  */
-export function nextUnitToMove(state: GameState, botFaction: PlayerTurn): string | null {
+export function nextUnitToMove(
+  state: GameState,
+  botFaction: PlayerTurn,
+  skip?: Set<string>
+): string | null {
   const unit = state.units.find(
-    u => u.faction === botFaction && u.isActivated && !u.hasMoved && !u.directFireLocked
+    u =>
+      u.faction === botFaction &&
+      u.isActivated &&
+      !u.hasMoved &&
+      !u.directFireLocked &&
+      (!skip || !skip.has(u.id))
   );
   return unit?.id ?? null;
 }
 
 /**
- * Returns the ID of the first activated bot unit that hasn't attacked yet.
+ * Returns the ID of the first activated bot unit that hasn't attacked yet
+ * AND actually has valid attack targets from its current position.
+ * Using getValidAttackTargets avoids infinite select→no-targets→deselect loops.
  */
 export function nextUnitToAttack(state: GameState, botFaction: PlayerTurn): string | null {
   const unit = state.units.find(
-    u => u.faction === botFaction && u.isActivated && !u.hasAttacked
+    u =>
+      u.faction === botFaction &&
+      u.isActivated &&
+      !u.hasAttacked &&
+      getValidAttackTargets(u, state).length > 0
   );
   return unit?.id ?? null;
 }
