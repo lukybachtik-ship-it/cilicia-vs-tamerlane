@@ -137,7 +137,7 @@ export function useBotPlayer() {
           // this is the trigger that transitions move→attack phase.
           const allMoved = nextUnitToMove(state, botPlayer, exhaustedInMoveRef.current) === null;
           if (allMoved && !selected.hasAttacked && state.validAttackTargets.length > 0) {
-            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state);
+            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state, botPlayer);
             if (defenderId) {
               timer = setTimeout(
                 () => dispatch({ type: 'ATTACK_UNIT', attackerId: selected.id, defenderId }),
@@ -177,7 +177,7 @@ export function useBotPlayer() {
         if (isBotUnitSelected(state, botPlayer)) {
           const selected = state.units.find(u => u.id === state.selectedUnitId)!;
           if (!selected.hasAttacked && state.validAttackTargets.length > 0) {
-            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state);
+            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state, botPlayer);
             if (defenderId) {
               timer = setTimeout(
                 () => dispatch({ type: 'ATTACK_UNIT', attackerId: selected.id, defenderId }),
