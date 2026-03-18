@@ -10,6 +10,7 @@ import { TutorialHint } from './UI/TutorialHint';
 import { ConnectionBadge } from './UI/ConnectionBadge';
 import { useGame } from '../state/GameContext';
 import { useMultiplayer } from '../state/MultiplayerContext';
+import { useBotPlayer } from '../hooks/useBotPlayer';
 import { playEndTurnSound } from '../utils/sounds';
 import { ALL_SCENARIOS } from '../constants/scenarios';
 
@@ -34,16 +35,18 @@ const OPPONENT_PHASE_LABELS: Record<string, string> = {
 
 export function Game() {
   const { state, dispatch, undo, canUndo, showScenarioSelect, openScenarioSelect } = useGame();
-  const { mode, myPlayer } = useMultiplayer();
+  const { mode, myPlayer, botPlayer } = useMultiplayer();
+  useBotPlayer();
 
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const inActivatePhase = state.currentPhase === 'activate_units';
   const canConfirm = inActivatePhase && state.activatedUnitIds.length > 0;
   const canEndTurn = state.currentPhase === 'move' || state.currentPhase === 'attack';
 
-  // In online mode: block all interactions when it's not our turn
+  // Block interactions when it's not our turn (online or bot mode)
   const isOnline = mode === 'online';
-  const isMyTurn = !isOnline || state.currentPlayer === myPlayer;
+  const isBot = mode === 'bot';
+  const isMyTurn = mode === 'local' || state.currentPlayer === myPlayer;
 
   if (showScenarioSelect) {
     return <ScenarioSelect />;
@@ -130,6 +133,22 @@ export function Game() {
                     Aktivováno {state.activatedUnitIds.length} jednotek
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bot mode: semi-transparent overlay while bot is thinking */}
+        {isBot && state.currentPlayer === botPlayer && state.currentPhase !== 'game_over' && (
+          <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center z-20 pointer-events-none">
+            <div className="bg-gray-900 border border-purple-700 rounded-2xl px-8 py-5 text-center shadow-2xl min-w-56">
+              <div className="text-3xl mb-2 animate-pulse">🤖</div>
+              <p className="text-gray-300 text-base font-semibold">Bot přemýšlí…</p>
+              <p className={`text-sm font-bold mt-1 ${state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'}`}>
+                {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'}
+              </p>
+              <div className="text-purple-400 text-xs mt-2">
+                {OPPONENT_PHASE_LABELS[state.currentPhase] ?? state.currentPhase}
               </div>
             </div>
           </div>

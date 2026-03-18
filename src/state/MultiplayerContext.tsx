@@ -10,7 +10,8 @@ export type ConnectionStatus =
   | 'error';
 
 export interface MultiplayerState {
-  mode: 'local' | 'online';
+  mode: 'local' | 'online' | 'bot';
+  botPlayer: PlayerTurn | null;  // which faction the bot controls (null unless mode='bot')
   roomCode: string | null;
   myPlayer: PlayerTurn | null;
   opponentConnected: boolean;
@@ -19,7 +20,8 @@ export interface MultiplayerState {
 }
 
 interface MultiplayerContextValue extends MultiplayerState {
-  setMode: (mode: 'local' | 'online') => void;
+  setMode: (mode: 'local' | 'online' | 'bot') => void;
+  setBotPlayer: (player: PlayerTurn | null) => void;
   setRoomCode: (code: string) => void;
   setMyPlayer: (player: PlayerTurn) => void;
   setOpponentConnected: (val: boolean) => void;
@@ -35,6 +37,7 @@ const PLAYER_KEY = (roomCode: string) => `ctg_player_${roomCode}`;
 export function MultiplayerProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<MultiplayerState>({
     mode: 'local',
+    botPlayer: null,
     roomCode: null,
     myPlayer: null,
     opponentConnected: false,
@@ -42,8 +45,12 @@ export function MultiplayerProvider({ children }: { children: React.ReactNode })
     error: null,
   });
 
-  const setMode = useCallback((mode: 'local' | 'online') => {
+  const setMode = useCallback((mode: 'local' | 'online' | 'bot') => {
     setState(s => ({ ...s, mode }));
+  }, []);
+
+  const setBotPlayer = useCallback((player: PlayerTurn | null) => {
+    setState(s => ({ ...s, botPlayer: player }));
   }, []);
 
   const setRoomCode = useCallback((code: string) => {
@@ -77,6 +84,7 @@ export function MultiplayerProvider({ children }: { children: React.ReactNode })
   const leaveGame = useCallback(() => {
     setState({
       mode: 'local',
+      botPlayer: null,
       roomCode: null,
       myPlayer: null,
       opponentConnected: false,
@@ -90,6 +98,7 @@ export function MultiplayerProvider({ children }: { children: React.ReactNode })
       value={{
         ...state,
         setMode,
+        setBotPlayer,
         setRoomCode,
         setMyPlayer,
         setOpponentConnected,

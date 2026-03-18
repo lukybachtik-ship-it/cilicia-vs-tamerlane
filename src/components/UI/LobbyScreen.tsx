@@ -6,7 +6,9 @@ import { supabase } from '../../lib/supabase';
 import { buildInitialState } from '../../constants/scenarioSetup';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
 
-type LobbyView = 'home' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining';
+import type { PlayerTurn } from '../../types/game';
+
+type LobbyView = 'home' | 'bot_setup' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining';
 
 const SCENARIO_ICONS: Record<string, string> = {
   standard: '⚔️',
@@ -24,6 +26,7 @@ export function LobbyScreen() {
   const [joinCode, setJoinCode] = useState(pendingJoinCode);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [botSide, setBotSide] = useState<PlayerTurn>('cilicia'); // human plays this side
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Clear session storage once consumed
@@ -114,6 +117,16 @@ export function LobbyScreen() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function handleBotGame(scenarioId: string) {
+    const humanPlayer: PlayerTurn = botSide;
+    const botFaction: PlayerTurn = botSide === 'cilicia' ? 'tamerlane' : 'cilicia';
+    mp.setMode('bot');
+    mp.setBotPlayer(botFaction);
+    mp.setMyPlayer(humanPlayer);
+    mp.setConnectionStatus('connected');
+    dispatch({ type: 'RESTART_GAME', scenarioId });
   }
 
   function handleLocalGame() {
@@ -263,6 +276,80 @@ export function LobbyScreen() {
     );
   }
 
+  // Bot setup view
+  if (view === 'bot_setup') {
+    return (
+      <FullscreenContainer>
+        <div className="w-full max-w-3xl mx-4">
+          <div className="text-center mb-5">
+            <h2 className="text-2xl font-bold text-white">🤖 Hra s botem</h2>
+            <p className="text-gray-500 text-sm mt-1">Vyber svou stranu a scénář</p>
+          </div>
+
+          {/* Side selection */}
+          <div className="mb-5">
+            <div className="text-gray-400 text-xs text-center mb-2">Hraješ jako:</div>
+            <div className="flex gap-3 justify-center">
+              {(['cilicia', 'tamerlane'] as PlayerTurn[]).map(side => (
+                <button
+                  key={side}
+                  onClick={() => setBotSide(side)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 font-bold text-sm transition-all ${
+                    botSide === side
+                      ? side === 'cilicia'
+                        ? 'border-blue-500 bg-blue-950 text-blue-300'
+                        : 'border-red-500 bg-red-950 text-red-300'
+                      : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-500'
+                  }`}
+                >
+                  {side === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'}
+                  {botSide === side && <span className="text-[10px] opacity-70">(ty)</span>}
+                </button>
+              ))}
+            </div>
+            <p className="text-gray-600 text-[10px] text-center mt-1">
+              Bot hraje za {botSide === 'cilicia' ? '🔴 Tamerlána' : '🔵 Kilikiję'}.
+              {' '}Kilikie vždy hraje jako první.
+            </p>
+          </div>
+
+          {/* Scenario selection */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            {ALL_SCENARIOS.map(scenario => (
+              <button
+                key={scenario.id}
+                onClick={() => handleBotGame(scenario.id)}
+                className="group flex flex-col gap-2 p-4 rounded-2xl border transition-all duration-200 text-left
+                           border-gray-700 bg-gray-900 hover:border-purple-500 hover:bg-gray-800
+                           hover:shadow-[0_0_24px_rgba(168,85,247,0.2)]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{SCENARIO_ICONS[scenario.id] ?? '🗡'}</span>
+                  <div>
+                    <div className="text-white font-bold text-sm leading-tight">{scenario.nameCs}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{scenario.difficultyCs}</div>
+                  </div>
+                </div>
+                <p className="text-gray-400 text-xs leading-relaxed">{scenario.descriptionCs}</p>
+                <div className="mt-auto w-full text-center py-1.5 rounded-lg text-xs font-bold
+                                bg-gray-800 group-hover:bg-purple-700 text-gray-400 group-hover:text-white
+                                border border-gray-700 group-hover:border-purple-500 transition-all">
+                  Hrát →
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <button onClick={() => setView('home')} className="text-gray-600 hover:text-gray-400 text-sm transition-colors">
+              ← Zpět
+            </button>
+          </div>
+        </div>
+      </FullscreenContainer>
+    );
+  }
+
   // Home view
   return (
     <FullscreenContainer>
@@ -300,6 +387,19 @@ export function LobbyScreen() {
             <div>
               <div className="text-white font-bold">Připojit se ke hře</div>
               <div className="text-gray-500 text-xs">Zadat kód místnosti od soupeře</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setView('bot_setup')}
+            className="flex items-center gap-4 p-5 rounded-2xl border border-gray-700 bg-gray-900
+                       hover:border-purple-500 hover:bg-gray-800 hover:shadow-[0_0_24px_rgba(168,85,247,0.2)]
+                       transition-all duration-200 text-left"
+          >
+            <span className="text-3xl">🤖</span>
+            <div>
+              <div className="text-white font-bold">Hra s botem</div>
+              <div className="text-gray-500 text-xs">Hrát proti počítačovému protivníkovi</div>
             </div>
           </button>
 
