@@ -4,7 +4,7 @@ import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 import { rollDice } from '../utils/dice';
 import { generateId, chebyshevDistance } from '../utils/helpers';
 import { hasLOS } from './los';
-import { getRetreatPosition } from './movement';
+import { getRetreatPosition, getPanicRetreatPosition } from './movement';
 
 function getTerrainType(pos: { row: number; col: number }, state: GameState) {
   return (
@@ -135,7 +135,10 @@ export function resolveAttack(
   let defenderNewPosition: { row: number; col: number } | null = defender.position;
 
   if (!defenderDestroyed && retreats > 0) {
-    const retreatPos = getRetreatPosition(defender, state.units);
+    // Militia panic: flee 2 hexes instead of 1
+    const retreatPos = defenderDef.panicRetreat
+      ? getPanicRetreatPosition(defender, state.units, state.gridRows, state.gridCols)
+      : getRetreatPosition(defender, state.units, state.gridRows, state.gridCols);
     if (retreatPos) {
       defenderNewPosition = retreatPos;
       defenderRetreated = true;
@@ -198,7 +201,7 @@ export function resolveAttack(
 
     if (attackerDef2.hitAndRun && range === 1 && !defenderDestroyed) {
       // Light cavalry: free 1-step retreat for attacker after attack
-      const retreatPos = getRetreatPosition(attacker, state.units);
+      const retreatPos = getRetreatPosition(attacker, state.units, state.gridRows, state.gridCols);
       if (retreatPos) hitAndRunPosition = retreatPos;
     }
 

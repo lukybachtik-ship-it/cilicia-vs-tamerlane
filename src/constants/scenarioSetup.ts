@@ -1,5 +1,6 @@
 import type { UnitInstance } from '../types/unit';
 import type { GameState } from '../types/game';
+import { UNIT_DEFINITIONS } from './unitDefinitions';
 import { buildDeck, dealInitialHands } from '../logic/cards';
 import { ALL_SCENARIOS, SCENARIO_STANDARD } from './scenarios';
 
@@ -7,9 +8,10 @@ import { ALL_SCENARIOS, SCENARIO_STANDARD } from './scenarios';
 function hydrateUnit(
   raw: Omit<UnitInstance, 'hp' | 'hasMoved' | 'hasAttacked' | 'isActivated' | 'attackBonus' | 'moveBonus' | 'directFireLocked' | 'parthianPhase'>
 ): UnitInstance {
+  const def = UNIT_DEFINITIONS[raw.definitionType];
   return {
     ...raw,
-    hp: 3,
+    hp: def.maxHp, // use definition's maxHp (e.g. militia has 2)
     hasMoved: false,
     hasAttacked: false,
     isActivated: false,
@@ -35,6 +37,8 @@ export function buildInitialState(scenarioId?: string): GameState {
 
   return {
     scenarioId: scenario.id,
+    gridRows: scenario.gridRows ?? 9,
+    gridCols: scenario.gridCols ?? 9,
     terrain: scenario.terrain,
     units,
     destroyedUnits: [],
@@ -49,6 +53,7 @@ export function buildInitialState(scenarioId?: string): GameState {
     activatedUnitIds: [],
     pendingDrawnCards: [],
     generalOffensiveSection: null,
+    pendingReinforcement: null,
     combatLog: [],
     victor: null,
     victoryCause: null,

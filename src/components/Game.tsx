@@ -21,6 +21,7 @@ const PHASE_HINTS: Record<string, string> = {
   activate_units: 'Klikni na žlutě zvýrazněné jednotky k aktivaci, pak "Potvrdit".',
   move: 'Vyber aktivovanou jednotku → klikni na zelené pole. Po pohybu můžeš zaútočit nebo ukončit tah.',
   attack: 'Vyber aktivovanou jednotku → klikni na červeně označeného nepřítele.',
+  choose_reinforcement_flank: 'Posily přicházejí! Vyber, na které křídlo dorazí.',
   game_over: '',
 };
 
@@ -155,8 +156,32 @@ export function Game() {
         )}
       </div>
 
+      {/* Reinforcement flank choice overlay */}
+      {state.currentPhase === 'choose_reinforcement_flank' && state.pendingReinforcement && isMyTurn && (
+        <div className="bg-gray-900 border-t-2 border-yellow-500 px-4 py-3 flex-shrink-0">
+          <div className="text-yellow-400 font-bold text-sm mb-2 text-center">
+            ⚔️ Posily přicházejí! — {state.pendingReinforcement.count}×{' '}
+            {state.pendingReinforcement.unitType} pro {state.pendingReinforcement.faction === 'tamerlane' ? 'Tamerlána' : 'Křižáky'}
+          </div>
+          <div className="text-gray-300 text-xs mb-3 text-center">
+            Vyber, na které křídlo posily dorazí:
+          </div>
+          <div className="flex gap-3 justify-center">
+            {(['left', 'center', 'right'] as const).map(flank => (
+              <button
+                key={flank}
+                onClick={() => dispatch({ type: 'CHOOSE_REINFORCEMENT_FLANK', flank })}
+                className="px-6 py-2 rounded font-bold text-sm bg-yellow-600 hover:bg-yellow-500 text-white transition-colors"
+              >
+                {flank === 'left' ? '◀ Levé' : flank === 'center' ? '⬆ Střed' : 'Pravé ▶'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Action bar — always visible to show phase hint; buttons hidden when not our turn */}
-      {state.currentPhase !== 'game_over' && (
+      {state.currentPhase !== 'game_over' && state.currentPhase !== 'choose_reinforcement_flank' && (
         <div className="bg-gray-800 border-t border-gray-700 px-4 py-1.5 flex items-center gap-3 flex-shrink-0">
           <span className="text-gray-400 text-xs flex-1">{PHASE_HINTS[state.currentPhase]}</span>
 

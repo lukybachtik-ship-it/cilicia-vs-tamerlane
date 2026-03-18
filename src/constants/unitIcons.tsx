@@ -121,4 +121,13 @@ export const UNIT_ICONS: Record<string, React.ReactNode> = {
       />
     </>
   ),
+
+  // ⊕  Circle with cross — militia (peasant soldiers, fragile)
+  militia: (
+    <>
+      <circle cx={0} cy={0} r={8} fill="none" stroke="white" strokeWidth="1.5" style={PI} />
+      <line x1={0} y1={-8} x2={0} y2={8}   stroke="white" strokeWidth="1.5" style={PI} />
+      <line x1={-8} y1={0} x2={8} y2={0}   stroke="white" strokeWidth="1.5" style={PI} />
+    </>
+  ),
 };

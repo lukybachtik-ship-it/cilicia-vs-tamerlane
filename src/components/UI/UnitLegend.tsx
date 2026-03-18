@@ -16,6 +16,7 @@ const UNIT_ORDER: UnitType[] = [
   'scout',
   'siege_machine',
   'elite_guard',
+  'militia',
 ];
 
 // Scale down icon paths to fit a smaller circle (board uses r=19, legend uses r=16)

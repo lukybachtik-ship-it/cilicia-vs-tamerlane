@@ -121,5 +121,91 @@ export function checkVictory(
     }
   }
 
+  // ── Aškelon: Přepad za úsvitu ──────────────────────────────────────────────
+  if (state.scenarioId === 'ascalon') {
+    // Crusaders win: any Crusader unit stands on the tent hex
+    const tentHex = state.terrain.find(t => t.terrain === 'tent');
+    if (tentHex) {
+      const onTent = state.units.find(
+        u =>
+          u.faction === 'cilicia' &&
+          u.position.row === tentHex.position.row &&
+          u.position.col === tentHex.position.col
+      );
+      if (onTent) {
+        return {
+          victor: 'cilicia',
+          cause: `${scenario?.ciliciaLabel ?? 'Křižáci'} dobyli velitelský stan!`,
+        };
+      }
+    }
+
+    // Turn limit: Turks defend until end of turn 10
+    if (
+      isEndOfTurn &&
+      scenario?.turnLimit !== null &&
+      scenario?.turnLimit !== undefined &&
+      state.currentPlayer === 'tamerlane' &&
+      state.turnNumber >= scenario.turnLimit
+    ) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Turci'} ubránili tábor do úsvitu!`,
+      };
+    }
+  }
+
+  // ── Povstání v Kilíkii ─────────────────────────────────────────────────────
+  if (state.scenarioId === 'kilicie_uprising') {
+    const villages = state.terrain.filter(t => t.terrain === 'village');
+    const villagesHeldByTamerlane = villages.filter(v =>
+      state.units.some(
+        u =>
+          u.faction === 'tamerlane' &&
+          u.position.row === v.position.row &&
+          u.position.col === v.position.col
+      )
+    ).length;
+
+    // Tamerlane early win: holds 3+ villages at end of any turn
+    if (isEndOfTurn && villagesHeldByTamerlane >= 3) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Tamerlán'} znovu ovládl ${villagesHeldByTamerlane} vesnice!`,
+      };
+    }
+
+    // Tamerlane win: all militia destroyed
+    const militiaAlive = state.units.filter(
+      u => u.faction === 'cilicia' && u.definitionType === 'militia'
+    ).length;
+    if (militiaAlive === 0) {
+      const startingMilitia = 6; // defined in scenario
+      const militiaDestroyed = state.destroyedUnits.filter(
+        u => u.faction === 'cilicia' && u.definitionType === 'militia'
+      ).length;
+      if (militiaDestroyed >= startingMilitia) {
+        return {
+          victor: 'tamerlane',
+          cause: `${scenario?.tamerlaneLabel ?? 'Tamerlán'} potlačil povstání — všechny milice zničeny!`,
+        };
+      }
+    }
+
+    // Cilicia survival win: end of turn 16 with Tamerlane holding < 3 villages
+    if (
+      isEndOfTurn &&
+      scenario?.turnLimit !== null &&
+      scenario?.turnLimit !== undefined &&
+      state.currentPlayer === 'tamerlane' &&
+      state.turnNumber >= scenario.turnLimit
+    ) {
+      return {
+        victor: 'cilicia',
+        cause: `${scenario?.ciliciaLabel ?? 'Křižáci'} udrželi povstání naživu — vesnice jsou svobodné!`,
+      };
+    }
+  }
+
   return { victor: null, cause: null };
 }

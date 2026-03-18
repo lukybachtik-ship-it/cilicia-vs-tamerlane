@@ -23,6 +23,8 @@ const TERRAIN_BG: Record<TerrainType, string> = {
   forest: 'bg-green-900',
   hill: 'bg-yellow-900',
   fortress: 'bg-gray-700',
+  village: 'bg-amber-900',
+  tent: 'bg-yellow-700',
 };
 
 const TERRAIN_LABEL: Record<TerrainType, string> = {
@@ -30,6 +32,8 @@ const TERRAIN_LABEL: Record<TerrainType, string> = {
   forest: '🌲',
   hill: '⛰',
   fortress: '🏰',
+  village: '🏘',
+  tent: '⛺',
 };
 
 const ZONE_BORDER: Record<'left' | 'center' | 'right', string> = {

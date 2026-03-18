@@ -9,13 +9,14 @@ export type UnitType =
   | 'horse_archers'
   | 'scout'
   | 'siege_machine'
-  | 'elite_guard';
+  | 'elite_guard'
+  | 'militia';
 
 export type FactionId = 'cilicia' | 'tamerlane';
 
 export interface Position {
-  row: number; // 1–9, row 1 = Cilicia home (top), row 9 = Tamerlane home (bottom)
-  col: number; // 1–9
+  row: number; // 1–N, row 1 = Cilicia home (top), row N = Tamerlane home (bottom)
+  col: number; // 1–M
 }
 
 export interface UnitDefinition {
@@ -35,6 +36,7 @@ export interface UnitDefinition {
   meleeAttackPenalty: boolean;  // Archers: melee attack (dist=1) uses -1 die
   ignoresTerrainStop: boolean;  // Scout: doesn't stop when entering forest/fortress
   siegeBonus: boolean;          // Siege Machine: +2 dice when attacking fortress defenders
+  panicRetreat: boolean;        // Militia: retreat result = 2 hexes instead of 1
   // Czech display name
   nameCs: string;
   abbrevCs: string; // short 2-3 char abbreviation
@@ -55,4 +57,6 @@ export interface UnitInstance {
   directFireLocked: boolean; // Direct Fire card: cannot move this turn
   // Parthian Shot sub-state
   parthianPhase: 'none' | 'pre_attack' | 'post_attack'; // which half of split move
+  // Scenario-specific
+  sleepsUntilTurn?: number; // Ascalon: unit cannot be activated before this turn number
 }

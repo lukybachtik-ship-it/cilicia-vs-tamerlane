@@ -6,8 +6,7 @@ import {
   hexCenter,
   hexDistance,
   hexPolygonPoints,
-  SVG_WIDTH,
-  SVG_HEIGHT,
+  getSvgSize,
   HEX_SIZE,
   HEX_WIDTH,
   HEX_MARGIN,
@@ -32,6 +31,8 @@ const TERRAIN_FILL: Record<TerrainType, string> = {
   forest:   'url(#grad-forest)',
   hill:     'url(#grad-hill)',
   fortress: 'url(#grad-fortress)',
+  village:  'url(#grad-village)',
+  tent:     'url(#grad-tent)',
 };
 
 const TERRAIN_STROKE: Record<TerrainType, string> = {
@@ -39,6 +40,8 @@ const TERRAIN_STROKE: Record<TerrainType, string> = {
   forest:   '#2d5c33',
   hill:     '#6b4f2e',
   fortress: '#666666',
+  village:  '#8B4513',
+  tent:     '#cc9900',
 };
 
 const TERRAIN_EMOJI: Record<TerrainType, string> = {
@@ -46,6 +49,8 @@ const TERRAIN_EMOJI: Record<TerrainType, string> = {
   forest:   '🌲',
   hill:     '⛰',
   fortress: '🏰',
+  village:  '🏘',
+  tent:     '⛺',
 };
 
 // ── Lunge animation state type ─────────────────────────────────────────────────
@@ -87,8 +92,8 @@ export function Board() {
     );
   }, [state.units, mode, myPlayer, state.currentPlayer]);
 
-  const rows = Array.from({ length: 9 }, (_, i) => i + 1);
-  const cols = Array.from({ length: 9 }, (_, i) => i + 1);
+  const rows = Array.from({ length: state.gridRows }, (_, i) => i + 1);
+  const cols = Array.from({ length: state.gridCols }, (_, i) => i + 1);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function getTerrainAt(row: number, col: number): TerrainType {
@@ -272,11 +277,11 @@ export function Board() {
 
   // ── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col items-center select-none w-full" style={{ maxWidth: SVG_WIDTH }}>
+    <div className="flex flex-col items-center select-none w-full">
       <svg
         width="100%"
         height="auto"
-        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+        viewBox={`0 0 ${getSvgSize(state.gridRows, state.gridCols).width} ${getSvgSize(state.gridRows, state.gridCols).height}`}
         style={{ display: 'block' }}
       >
         {/* ── Definitions ──────────────────────────────────────────────── */}
@@ -296,6 +301,14 @@ export function Board() {
           <linearGradient id="grad-fortress" x1="0" y1="0" x2="0.5" y2="1">
             <stop offset="0%"   stopColor="#555555" />
             <stop offset="100%" stopColor="#3d3d3d" />
+          </linearGradient>
+          <linearGradient id="grad-village" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#8B5E3C" />
+            <stop offset="100%" stopColor="#6B4226" />
+          </linearGradient>
+          <linearGradient id="grad-tent" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#b8860b" />
+            <stop offset="100%" stopColor="#8B6914" />
           </linearGradient>
 
           <marker id="arrow-move"   markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
@@ -454,13 +467,13 @@ export function Board() {
         {/* ── Zone separator lines ─────────────────────────────────────── */}
         <line
           x1={sep1x} y1={HEX_MARGIN / 2}
-          x2={sep1x} y2={SVG_HEIGHT - HEX_MARGIN / 2}
+          x2={sep1x} y2={getSvgSize(state.gridRows, state.gridCols).height - HEX_MARGIN / 2}
           stroke="rgba(255,255,255,0.12)" strokeWidth={1} strokeDasharray="4,4"
           style={{ pointerEvents: 'none' }}
         />
         <line
           x1={sep2x} y1={HEX_MARGIN / 2}
-          x2={sep2x} y2={SVG_HEIGHT - HEX_MARGIN / 2}
+          x2={sep2x} y2={getSvgSize(state.gridRows, state.gridCols).height - HEX_MARGIN / 2}
           stroke="rgba(255,255,255,0.12)" strokeWidth={1} strokeDasharray="4,4"
           style={{ pointerEvents: 'none' }}
         />
@@ -474,7 +487,9 @@ export function Board() {
           const isSelected   = unit.id === state.selectedUnitId;
           const isActivated  = unit.isActivated;
           const isAttackTarget = state.validAttackTargets.includes(unit.id);
+          const isSleeping   = unit.sleepsUntilTurn !== undefined && state.turnNumber < unit.sleepsUntilTurn;
           const isEligible   =
+            !isSleeping &&
             state.currentPhase === 'activate_units' &&
             !!state.playedCard &&
             canCardActivateUnit(state.playedCard, unit, state.activatedUnitIds, state);
@@ -482,11 +497,13 @@ export function Board() {
           const terrain   = getTerrainAt(unit.position.row, unit.position.col);
           const elevation = getTerrainElevation(unit.position.row, unit.position.col);
 
-          const fill = isActivated  ? '#14532d'
-            : isCilicia             ? '#1e3a8a'
+          const fill = isSleeping             ? '#374151'
+            : isActivated                     ? '#14532d'
+            : isCilicia                       ? '#1e3a8a'
             : '#7f1d1d';
-          const stroke = isActivated ? '#22c55e'
-            : isCilicia             ? '#3b82f6'
+          const stroke = isSleeping           ? '#6b7280'
+            : isActivated                     ? '#22c55e'
+            : isCilicia                       ? '#3b82f6'
             : '#ef4444';
 
           const ringColor = isSelected     ? '#ffffff'
@@ -629,6 +646,20 @@ export function Board() {
                   ▲{elevation}
                 </text>
               )}
+
+              {/* Sleeping unit indicator — shown as "Zzz" overlay */}
+              {isSleeping && (
+                <text
+                  x={0} y={4}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize="13"
+                  style={{ pointerEvents: 'none' }}
+                  opacity={0.9}
+                >
+                  💤
+                </text>
+              )}
             </g>
           );
         })}
@@ -638,8 +669,8 @@ export function Board() {
 
         {/* ── Bottom label ─────────────────────────────────────────────── */}
         <text
-          x={SVG_WIDTH / 2}
-          y={SVG_HEIGHT - 8}
+          x={getSvgSize(state.gridRows, state.gridCols).width / 2}
+          y={getSvgSize(state.gridRows, state.gridCols).height - 8}
           textAnchor="middle"
           fontSize="8"
           fill="rgba(107,114,128,0.8)"

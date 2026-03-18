@@ -36,15 +36,11 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
   const def = UNIT_DEFINITIONS[unit.definitionType];
   const ignoresStop = def.ignoresTerrainStop;
   const maxMove = def.move + unit.moveBonus;
-
-  // For General Offensive activated units, move is limited to 1
-  // (moveBonus is set to 0 and the caller sets max; we just trust the bonus field)
+  const { gridRows, gridCols } = state;
 
   const reachable: Position[] = [];
-  // Map from posKey → steps used
   const visited = new Map<string, number>();
 
-  // Queue: [position, stepsUsed, mustStopHere]
   const queue: Array<{ pos: Position; steps: number; stopped: boolean }> = [
     { pos: unit.position, steps: 0, stopped: false },
   ];
@@ -56,7 +52,6 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
     const { pos, steps, stopped } = item;
 
     if (stopped && steps > 0) {
-      // Can stop here but not continue further
       reachable.push(pos);
       continue;
     }
@@ -67,8 +62,7 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
     if (steps >= maxMove) continue;
 
-    // Expand to all 6 hex neighbours
-    for (const next of getNeighbors(pos)) {
+    for (const next of getNeighbors(pos, gridRows, gridCols)) {
       if (isOccupied(next, state.units, unit.id)) continue;
 
       const terrain = getTerrainAt(next, state);
@@ -93,12 +87,14 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
 /**
  * Get the retreat position for a unit (one step toward its home row).
- * Cilicia retreats toward row 1, Tamerlane toward row 9.
+ * Cilicia retreats toward row 1, Tamerlane toward the last row (gridRows).
  * Returns null if blocked by board edge or another unit.
  */
 export function getRetreatPosition(
   unit: UnitInstance,
-  units: UnitInstance[]
+  units: UnitInstance[],
+  gridRows = 9,
+  gridCols = 9
 ): Position | null {
   const direction = unit.faction === 'cilicia' ? -1 : 1;
   const candidate: Position = {
@@ -106,7 +102,30 @@ export function getRetreatPosition(
     col: unit.position.col,
   };
 
-  if (!isOnBoard(candidate)) return null;
+  if (!isOnBoard(candidate, gridRows, gridCols)) return null;
   if (isOccupied(candidate, units, unit.id)) return null;
   return candidate;
+}
+
+/**
+ * Panic retreat for militia: tries to flee 2 hexes toward home row.
+ * Falls back to 1 hex if 2nd hex is blocked.
+ */
+export function getPanicRetreatPosition(
+  unit: UnitInstance,
+  units: UnitInstance[],
+  gridRows = 9,
+  gridCols = 9
+): Position | null {
+  const direction = unit.faction === 'cilicia' ? -1 : 1;
+  const step1: Position = { row: unit.position.row + direction, col: unit.position.col };
+  const step2: Position = { row: unit.position.row + 2 * direction, col: unit.position.col };
+
+  // Try to flee 2 steps
+  const step1Valid = isOnBoard(step1, gridRows, gridCols) && !isOccupied(step1, units, unit.id);
+  const step2Valid = isOnBoard(step2, gridRows, gridCols) && !isOccupied(step2, units, unit.id);
+
+  if (step1Valid && step2Valid) return step2;
+  if (step1Valid) return step1;
+  return null; // blocked → takes damage (handled by caller)
 }

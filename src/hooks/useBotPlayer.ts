@@ -202,6 +202,38 @@ export function useBotPlayer() {
         timer = setTimeout(() => dispatch({ type: 'END_TURN' }), DELAY_MS);
         break;
       }
+
+      // ── Reinforcement flank choice (Kilíkie scenario) ────────────────────────
+      case 'choose_reinforcement_flank': {
+        if (!state.pendingReinforcement) break;
+
+        // Bot strategy: pick the flank where Tamerlane has fewest units
+        // (spread out to cover more villages)
+        const flanks: Array<'left' | 'center' | 'right'> = ['left', 'center', 'right'];
+        const colRanges: Record<string, [number, number]> = {
+          left: [1, 3], center: [4, 6], right: [7, 9],
+        };
+
+        let bestFlank: 'left' | 'center' | 'right' = 'center';
+        let minTamerlaneUnits = Infinity;
+
+        for (const flank of flanks) {
+          const [colMin, colMax] = colRanges[flank];
+          const unitsInFlank = state.units.filter(
+            u => u.faction === 'tamerlane' && u.position.col >= colMin && u.position.col <= colMax
+          ).length;
+          if (unitsInFlank < minTamerlaneUnits) {
+            minTamerlaneUnits = unitsInFlank;
+            bestFlank = flank;
+          }
+        }
+
+        timer = setTimeout(
+          () => dispatch({ type: 'CHOOSE_REINFORCEMENT_FLANK', flank: bestFlank }),
+          DELAY_MS
+        );
+        break;
+      }
     }
 
     return () => {
@@ -217,6 +249,7 @@ export function useBotPlayer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     state.units.map(u => `${u.hasMoved}${u.hasAttacked}${u.isActivated}`).join(''),
     state.victor,
+    state.pendingReinforcement,
     botPlayer,
     dispatch,
   ]);

@@ -1,6 +1,6 @@
 import type { Position } from './unit';
 
-export type TerrainType = 'plain' | 'forest' | 'hill' | 'fortress';
+export type TerrainType = 'plain' | 'forest' | 'hill' | 'fortress' | 'village' | 'tent';
 
 export interface TerrainCell {
   position: Position;

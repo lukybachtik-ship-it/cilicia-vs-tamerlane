@@ -17,6 +17,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: false,
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Lehká pěchota',
     abbrevCs: 'LP',
   },
@@ -36,6 +37,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: false,
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Těžká pěchota',
     abbrevCs: 'TP',
   },
@@ -55,6 +57,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: true,  // -1 die when attacking at dist=1
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Střelci',
     abbrevCs: 'ST',
   },
@@ -74,6 +77,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: false,
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Lehká jízda',
     abbrevCs: 'LJ',
   },
@@ -93,6 +97,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: false,
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Těžká jízda',
     abbrevCs: 'TJ',
   },
@@ -112,6 +117,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: true,  // -1 die when attacking at dist=1
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Jízdní lučištníci',
     abbrevCs: 'JL',
   },
@@ -135,6 +141,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: false,
     ignoresTerrainStop: true,  // key ability: passes through forest/fortress without stopping
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Zvěd',
     abbrevCs: 'ZV',
   },
@@ -156,6 +163,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: true,   // penalty at melee range
     ignoresTerrainStop: false,
     siegeBonus: true,           // key ability: +2 dice vs fortress defenders
+    panicRetreat: false,
     nameCs: 'Obléhací stroj',
     abbrevCs: 'OS',
   },
@@ -177,7 +185,31 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: false,
     ignoresTerrainStop: false,
     siegeBonus: false,
+    panicRetreat: false,
     nameCs: 'Elitní garda',
     abbrevCs: 'EG',
+  },
+
+  // Militia: weak village defenders, panics easily (retreat = 2 hexes)
+  // Cilicia-aligned; found in Kilíkie uprising scenario
+  militia: {
+    type: 'militia',
+    unitClass: 'light',
+    move: 2,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 1,
+    maxHp: 2,           // only 2 HP — fragile
+    hitAndRun: false,
+    breakthrough: false,
+    parthianShot: false,
+    reducedMeleeDefense: false,
+    movedAttackPenalty: false,
+    meleeAttackPenalty: false,
+    ignoresTerrainStop: false,
+    siegeBonus: false,
+    panicRetreat: true, // key: retreat result moves 2 hexes instead of 1
+    nameCs: 'Milice',
+    abbrevCs: 'ML',
   },
 };

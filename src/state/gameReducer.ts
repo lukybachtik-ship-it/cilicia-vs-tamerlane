@@ -3,12 +3,13 @@ import type { UnitInstance } from '../types/unit';
 import type { GameAction } from './actions';
 import { CARD_DEFINITIONS } from '../constants/cardDefinitions';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
+import { ALL_SCENARIOS } from '../constants/scenarios';
 import { buildInitialState } from '../constants/scenarioSetup';
 import { getValidMoves } from '../logic/movement';
 import { resolveAttack, getValidAttackTargets } from '../logic/combat';
 import { drawCards, canCardActivateUnit } from '../logic/cards';
 import { checkVictory } from '../logic/victory';
-import { getZone, posEqual } from '../utils/helpers';
+import { getZone, posEqual, generateId } from '../utils/helpers';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,11 @@ function resetUnitForTurn(u: UnitInstance): UnitInstance {
     directFireLocked: false,
     parthianPhase: 'none',
   };
+}
+
+/** True if this unit is still sleeping (cannot be activated). */
+function isSleeping(unit: UnitInstance, turnNumber: number): boolean {
+  return unit.sleepsUntilTurn !== undefined && turnNumber < unit.sleepsUntilTurn;
 }
 
 // ─── Reducer ─────────────────────────────────────────────────────────────────
@@ -131,10 +137,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!state.playedCard) return state;
 
       // Auto-activate all current-player units in that section with move capped to 1
+      // Skip sleeping units
       const eligibleUnits = state.units.filter(
         u =>
           u.faction === state.currentPlayer &&
-          getZone(u.position.col) === action.section
+          getZone(u.position.col) === action.section &&
+          !isSleeping(u, state.turnNumber)
       );
 
       const activatedIds = eligibleUnits.map(u => u.id);
@@ -164,6 +172,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (!state.playedCard) return state;
       const unit = getUnit(state, action.unitId);
       if (!unit || unit.faction !== state.currentPlayer) return state;
+
+      // Cannot activate sleeping units
+      if (isSleeping(unit, state.turnNumber)) return state;
 
       if (!canCardActivateUnit(state.playedCard, unit, state.activatedUnitIds, state)) {
         return state;
@@ -337,7 +348,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           newLog.push(cr.logEntry);
         }
         if (cr.defenderDestroyed) {
-          // In the counter, defender = original attacker
           newUnits = newUnits.filter(u => u.id !== attacker.id);
           newDestroyed = [...newDestroyed, { ...attacker, hp: 0 }];
         } else {
@@ -404,6 +414,51 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    // ── Choose reinforcement flank (Kilíkie scenario) ─────────────────────────
+    case 'CHOOSE_REINFORCEMENT_FLANK': {
+      if (state.currentPhase !== 'choose_reinforcement_flank') return state;
+      const pending = state.pendingReinforcement;
+      if (!pending) return state;
+
+      const spawnPoints = pending.spawnPositions[action.flank];
+      const def = UNIT_DEFINITIONS[pending.unitType];
+
+      // Spawn units at chosen positions (skip occupied spots)
+      const newUnits = [...state.units];
+      let spawned = 0;
+      for (const pos of spawnPoints) {
+        if (spawned >= pending.count) break;
+        const occupied = newUnits.some(u => u.position.row === pos.row && u.position.col === pos.col);
+        if (!occupied) {
+          newUnits.push({
+            id: generateId('reinf'),
+            definitionType: pending.unitType,
+            faction: pending.faction,
+            hp: def.maxHp,
+            position: pos,
+            hasMoved: false,
+            hasAttacked: false,
+            isActivated: false,
+            attackBonus: 0,
+            moveBonus: 0,
+            directFireLocked: false,
+            parthianPhase: 'none',
+          });
+          spawned++;
+        }
+      }
+
+      return {
+        ...state,
+        units: newUnits,
+        pendingReinforcement: null,
+        currentPhase: 'play_card',
+        selectedUnitId: null,
+        validMoveTargets: [],
+        validAttackTargets: [],
+      };
+    }
+
     // ── End Turn ─────────────────────────────────────────────────────────────
     case 'END_TURN': {
       if (state.currentPhase === 'play_card') return state; // can't end before playing
@@ -421,6 +476,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const nextPlayer: GameState['currentPlayer'] =
         state.currentPlayer === 'cilicia' ? 'tamerlane' : 'cilicia';
 
+      // Advance turn counter (increments after Tamerlane's turn)
+      const nextTurn = state.currentPlayer === 'tamerlane'
+        ? state.turnNumber + 1
+        : state.turnNumber;
+
       // Draw 1 card for the player who just ended (refill to 4)
       const hand =
         state.currentPlayer === 'cilicia' ? state.ciliciaHand : state.tamerlaneHand;
@@ -434,6 +494,28 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newHand = [...hand, ...drawn];
 
+      // ── Reinforcement wave check (after Tamerlane ends his turn) ──────────
+      // Waves fire when the NEW turn number equals triggerAfterTurn + 1
+      // (i.e., Tamerlane just completed the trigger turn and the new turn begins)
+      let pendingReinforcement = state.pendingReinforcement;
+      let nextPhase: GameState['currentPhase'] = 'play_card';
+
+      if (state.currentPlayer === 'tamerlane') {
+        const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
+        const waves = scenario?.reinforcementWaves ?? [];
+        const triggeredWave = waves.find(w => w.triggerAfterTurn === state.turnNumber);
+
+        if (triggeredWave) {
+          pendingReinforcement = {
+            count: triggeredWave.count,
+            unitType: triggeredWave.unitType,
+            faction: triggeredWave.faction,
+            spawnPositions: triggeredWave.spawnPositions,
+          };
+          nextPhase = 'choose_reinforcement_flank';
+        }
+      }
+
       return {
         ...state,
         units: resetUnits,
@@ -443,14 +525,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ? { ciliciaHand: newHand }
           : { tamerlaneHand: newHand }),
         currentPlayer: nextPlayer,
-        currentPhase: 'play_card',
-        turnNumber: state.currentPlayer === 'tamerlane'
-          ? state.turnNumber + 1
-          : state.turnNumber,
+        currentPhase: nextPhase,
+        turnNumber: nextTurn,
         playedCard: null,
         activatedUnitIds: [],
         pendingDrawnCards: [],
         generalOffensiveSection: null,
+        pendingReinforcement,
         selectedUnitId: null,
         validMoveTargets: [],
         validAttackTargets: [],
