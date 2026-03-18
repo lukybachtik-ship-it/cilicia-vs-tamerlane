@@ -22,8 +22,11 @@ function UrlRoomHandler() {
 function LobbyOrGame() {
   const { mode, connectionStatus } = useMultiplayer();
 
-  // Show game when: local mode explicitly chosen (non-idle) OR online and successfully connected
-  const showGame = (mode === 'local' && connectionStatus !== 'idle') || (mode === 'online' && connectionStatus === 'connected');
+  // Show game when: local mode explicitly chosen, online connected, or bot game started
+  const showGame =
+    (mode === 'local' && connectionStatus !== 'idle') ||
+    (mode === 'online' && connectionStatus === 'connected') ||
+    (mode === 'bot' && connectionStatus === 'connected');
 
   return showGame ? <Game /> : <LobbyScreen />;
 }

@@ -5,10 +5,11 @@ import { createRoom, joinRoom, getRoomState } from '../../services/multiplayerSe
 import { supabase } from '../../lib/supabase';
 import { buildInitialState } from '../../constants/scenarioSetup';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
+import { HowToContent } from './HowToContent';
 
 import type { PlayerTurn } from '../../types/game';
 
-type LobbyView = 'home' | 'bot_setup' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining';
+type LobbyView = 'home' | 'tutorial' | 'bot_setup' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining';
 
 const SCENARIO_ICONS: Record<string, string> = {
   standard: '⚔️',
@@ -276,6 +277,25 @@ export function LobbyScreen() {
     );
   }
 
+  // Tutorial view
+  if (view === 'tutorial') {
+    return (
+      <FullscreenContainer>
+        <div className="w-full max-w-3xl mx-4 flex flex-col" style={{ maxHeight: '90vh' }}>
+          <div className="flex items-center justify-between mb-4 flex-shrink-0">
+            <h2 className="text-2xl font-bold text-white">📖 Jak hrát</h2>
+            <button onClick={() => setView('home')} className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+              ✕ Zavřít
+            </button>
+          </div>
+          <div className="overflow-y-auto flex-1 rounded-2xl border border-gray-700 bg-gray-900 p-6">
+            <HowToContent />
+          </div>
+        </div>
+      </FullscreenContainer>
+    );
+  }
+
   // Bot setup view
   if (view === 'bot_setup') {
     return (
@@ -413,6 +433,19 @@ export function LobbyScreen() {
             <div>
               <div className="text-white font-bold">Lokální hra (hotseat)</div>
               <div className="text-gray-500 text-xs">Dva hráči na jednom zařízení</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setView('tutorial')}
+            className="flex items-center gap-4 p-5 rounded-2xl border border-gray-700 bg-gray-900
+                       hover:border-yellow-600 hover:bg-gray-800 hover:shadow-[0_0_24px_rgba(202,138,4,0.15)]
+                       transition-all duration-200 text-left"
+          >
+            <span className="text-3xl">📖</span>
+            <div>
+              <div className="text-white font-bold">Jak hrát — návod</div>
+              <div className="text-gray-500 text-xs">Pravidla, průběh tahu, boj, terén</div>
             </div>
           </button>
         </div>
