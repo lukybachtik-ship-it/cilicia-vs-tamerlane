@@ -10,7 +10,6 @@ import type { Position } from '../types/unit';
 import { CARD_DEFINITIONS } from '../constants/cardDefinitions';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 import { canCardActivateUnit } from './cards';
-import { getValidMoves } from './movement';
 import { getValidAttackTargets } from './combat';
 import { hexDistance } from '../utils/hexGrid';
 
