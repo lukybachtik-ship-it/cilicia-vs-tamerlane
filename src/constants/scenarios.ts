@@ -317,11 +317,11 @@ export const SCENARIO_KILICIE_UPRISING: ScenarioDefinition = {
   tags: ['epický', 'posily', 'milice', 'více front', 'asymetrická'],
   gridRows: 11,
   gridCols: 9,
-  killThresholdCilicia: 99, // Tamerlán nevyhraje prostým zabíjením — vítěz je ve vesnicích
-  killThresholdTamerlane: 5,
+  killThresholdCilicia: 99, // Tamerlán tímto nevyhrává — jen vesnicemi nebo milicemi
+  killThresholdTamerlane: 5, // Kilikie může vyhrát zabitím 5 nepřátel
   turnLimit: 16,
-  victoryObjectiveCiliciaCs: 'Udržet alespoň 3 z 5 vesnic do konce kola 16',
-  victoryObjectiveTamerlaneCs: 'Obsadit 3 vesnice NEBO zničit všechny milice (nebo 5 nepřátel)',
+  victoryObjectiveCiliciaCs: 'Přežít 16 tahů nebo zničit 5 nepřátel',
+  victoryObjectiveTamerlaneCs: 'Obsadit 4 vesnice NEBO zničit všechny milice',
   terrain: [
     // ── Vesnice (cílové hexy) ────────────────────────────────────────────
     { position: { row: 3, col: 2 }, terrain: 'village', elevation: 0 }, // levá-blízká

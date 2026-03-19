@@ -15,16 +15,18 @@ export function checkVictory(
   const killCilicia = scenario?.killThresholdCilicia ?? 5;
   const killTamerlane = scenario?.killThresholdTamerlane ?? 5;
 
-  // ── Kill thresholds ────────────────────────────────────────────────────────
+  // ── Kill thresholds (skipped in Kilíkie — vítěz je určen vesnicemi/milicemi) ─
   const ciliciaLosses = state.destroyedUnits.filter(u => u.faction === 'cilicia').length;
   const tamerlaneLosses = state.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
 
-  if (ciliciaLosses >= killCilicia) {
+  // V Kilíkii Tamerlán nemůže vyhrát prostým zabíjením — pouze vesnicemi nebo milicemi
+  if (state.scenarioId !== 'kilicie_uprising' && ciliciaLosses >= killCilicia) {
     return {
       victor: 'tamerlane',
       cause: `${scenario?.tamerlaneLabel ?? 'Tamerlán'} zničil ${killCilicia} nepřátelských jednotek!`,
     };
   }
+  // Kilikie může vyhrát zabitím nepřátel v každém scénáři
   if (tamerlaneLosses >= killTamerlane) {
     return {
       victor: 'cilicia',
@@ -167,8 +169,8 @@ export function checkVictory(
       )
     ).length;
 
-    // Tamerlane early win: holds 3+ villages at end of any turn
-    if (isEndOfTurn && villagesHeldByTamerlane >= 3) {
+    // Tamerlane early win: holds 4+ villages at end of any turn
+    if (isEndOfTurn && villagesHeldByTamerlane >= 4) {
       return {
         victor: 'tamerlane',
         cause: `${scenario?.tamerlaneLabel ?? 'Tamerlán'} znovu ovládl ${villagesHeldByTamerlane} vesnice!`,
