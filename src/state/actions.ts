@@ -8,6 +8,7 @@ export type GameAction =
   | { type: 'ACTIVATE_UNIT'; unitId: string }
   | { type: 'DEACTIVATE_UNIT'; unitId: string }
   | { type: 'CONFIRM_ACTIVATIONS' }
+  | { type: 'CONFIRM_MOVEMENT' }
   | { type: 'SELECT_UNIT'; unitId: string | null }
   | { type: 'MOVE_UNIT'; unitId: string; targetPosition: Position }
   | { type: 'ATTACK_UNIT'; attackerId: string; defenderId: string }

@@ -224,6 +224,18 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    // ── Confirm movement → attack phase ──────────────────────────────────────
+    case 'CONFIRM_MOVEMENT': {
+      if (state.currentPhase !== 'move') return state;
+      return {
+        ...state,
+        currentPhase: 'attack',
+        selectedUnitId: null,
+        validMoveTargets: [],
+        validAttackTargets: [],
+      };
+    }
+
     // ── Select a unit ────────────────────────────────────────────────────────
     case 'SELECT_UNIT': {
       if (action.unitId === null) {
@@ -259,13 +271,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         !unit.hasAttacked &&
         unit.faction === state.currentPlayer
       ) {
-        validAttackTargets = getValidAttackTargets(unit, state);
-      } else if (
-        state.currentPhase === 'move' &&
-        unit.isActivated &&
-        unit.faction === state.currentPlayer
-      ) {
-        // Show attack targets in move phase too (for planning)
         validAttackTargets = getValidAttackTargets(unit, state);
       } else {
         validAttackTargets = [];
@@ -315,7 +320,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     // ── Attack ───────────────────────────────────────────────────────────────
     case 'ATTACK_UNIT': {
-      if (state.currentPhase !== 'attack' && state.currentPhase !== 'move') return state;
+      if (state.currentPhase !== 'attack') return state;
 
       const attacker = getUnit(state, action.attackerId);
       const defender = getUnit(state, action.defenderId);
@@ -383,9 +388,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
 
-      // Switch to attack phase if still in move phase
-      const nextPhase =
-        state.currentPhase === 'move' ? 'attack' : state.currentPhase;
+      const nextPhase = state.currentPhase;
 
       // Check victory
       const tmpState: GameState = {
@@ -453,6 +456,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         units: newUnits,
         pendingReinforcement: null,
         currentPhase: 'play_card',
+        currentPlayer: 'cilicia', // Now hand over to Kilikie
         selectedUnitId: null,
         validMoveTargets: [],
         validAttackTargets: [],
@@ -461,7 +465,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     // ── End Turn ─────────────────────────────────────────────────────────────
     case 'END_TURN': {
-      if (state.currentPhase === 'play_card') return state; // can't end before playing
+      // Can only end turn from attack phase (or play_card guard below)
+      if (state.currentPhase === 'play_card' || state.currentPhase === 'move') return state;
 
       // Check victory at end of turn (includes turn-limit survival check)
       const { victor, cause } = checkVictory(state, true);
@@ -499,6 +504,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // (i.e., Tamerlane just completed the trigger turn and the new turn begins)
       let pendingReinforcement = state.pendingReinforcement;
       let nextPhase: GameState['currentPhase'] = 'play_card';
+      // When a reinforcement wave triggers, keep currentPlayer as tamerlane
+      // so that Tamerlán (human or bot) makes the flank choice — not Kilikie.
+      let phasePlayer = nextPlayer;
 
       if (state.currentPlayer === 'tamerlane') {
         const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
@@ -513,6 +521,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             spawnPositions: triggeredWave.spawnPositions,
           };
           nextPhase = 'choose_reinforcement_flank';
+          phasePlayer = 'tamerlane'; // Tamerlane chooses even though their turn just ended
         }
       }
 
@@ -524,7 +533,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...(state.currentPlayer === 'cilicia'
           ? { ciliciaHand: newHand }
           : { tamerlaneHand: newHand }),
-        currentPlayer: nextPlayer,
+        currentPlayer: phasePlayer,
         currentPhase: nextPhase,
         turnNumber: nextTurn,
         playedCard: null,

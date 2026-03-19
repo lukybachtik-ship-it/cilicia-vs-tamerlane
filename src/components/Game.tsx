@@ -19,8 +19,8 @@ const PHASE_HINTS: Record<string, string> = {
   select_section: 'Klikni na sekci pro Generální ofenzívu.',
   discard_drawn: 'Průzkum: klikni na kartu k zahození.',
   activate_units: 'Klikni na žlutě zvýrazněné jednotky k aktivaci, pak "Potvrdit".',
-  move: 'Vyber aktivovanou jednotku → klikni na zelené pole. Po pohybu můžeš zaútočit nebo ukončit tah.',
-  attack: 'Vyber aktivovanou jednotku → klikni na červeně označeného nepřítele.',
+  move: 'Vyber aktivovanou jednotku → klikni na zelené pole. Pak klikni "Potvrdit pohyb" pro přechod k útoku.',
+  attack: 'Vyber aktivovanou jednotku → klikni na červeně označeného nepřítele. Pak "Ukončit kolo".',
   choose_reinforcement_flank: 'Posily přicházejí! Vyber, na které křídlo dorazí.',
   game_over: '',
 };
@@ -41,8 +41,9 @@ export function Game() {
 
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const inActivatePhase = state.currentPhase === 'activate_units';
+  const inMovePhase = state.currentPhase === 'move';
+  const inAttackPhase = state.currentPhase === 'attack';
   const canConfirm = inActivatePhase && state.activatedUnitIds.length > 0;
-  const canEndTurn = state.currentPhase === 'move' || state.currentPhase === 'attack';
 
   // Block interactions when it's not our turn (online or bot mode)
   const isOnline = mode === 'online';
@@ -212,12 +213,20 @@ export function Game() {
                   ✓ Potvrdit aktivaci{state.activatedUnitIds.length > 0 ? ` (${state.activatedUnitIds.length})` : ''}
                 </button>
               )}
-              {canEndTurn && (
+              {inMovePhase && (
+                <button
+                  onClick={() => dispatch({ type: 'CONFIRM_MOVEMENT' })}
+                  className="px-5 py-1.5 rounded font-bold text-sm bg-yellow-600 hover:bg-yellow-500 text-white transition-colors"
+                >
+                  ✓ Potvrdit pohyb
+                </button>
+              )}
+              {inAttackPhase && (
                 <button
                   onClick={() => { playEndTurnSound(); dispatch({ type: 'END_TURN' }); }}
                   className="px-5 py-1.5 rounded font-bold text-sm bg-blue-600 hover:bg-blue-500 text-white transition-colors"
                 >
-                  ⏭ Konec tahu
+                  ⏭ Ukončit kolo
                 </button>
               )}
             </>

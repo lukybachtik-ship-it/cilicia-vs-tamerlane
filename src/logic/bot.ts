@@ -61,7 +61,9 @@ export function chooseBotCard(state: GameState, botFaction: PlayerTurn): string 
   for (const card of hand) {
     const def = CARD_DEFINITIONS[card.id];
     const activatable = state.units.filter(
-      u => u.faction === botFaction && canCardActivateUnit(card, u, [], state)
+      u => u.faction === botFaction &&
+           canCardActivateUnit(card, u, [], state) &&
+           !(u.sleepsUntilTurn !== undefined && state.turnNumber < u.sleepsUntilTurn)
     );
     let score = activatable.length * 10;
     score += def.attackBonus * (kilicieAggression ? 10 : 5);
@@ -89,7 +91,9 @@ export function chooseBotNextActivation(state: GameState, botFaction: PlayerTurn
   if (!card) return null;
 
   const eligible = state.units.filter(
-    u => u.faction === botFaction && canCardActivateUnit(card, u, state.activatedUnitIds, state)
+    u => u.faction === botFaction &&
+         canCardActivateUnit(card, u, state.activatedUnitIds, state) &&
+         !(u.sleepsUntilTurn !== undefined && state.turnNumber < u.sleepsUntilTurn)
   );
   if (eligible.length === 0) return null;
 

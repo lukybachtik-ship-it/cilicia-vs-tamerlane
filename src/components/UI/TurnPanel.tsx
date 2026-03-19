@@ -5,6 +5,10 @@ import { CARD_DEFINITIONS } from '../../constants/cardDefinitions';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
 import { RulesModal } from './RulesModal';
 
+function formatKillThreshold(n: number): string {
+  return n >= 99 ? '–' : String(n);
+}
+
 const PHASE_LABELS: Record<string, string> = {
   play_card: '1. Zahraj kartu',
   select_section: '1b. Vyber sekci',
@@ -31,9 +35,9 @@ export function TurnPanel() {
   const turnsLeft = scenario?.turnLimit != null ? scenario.turnLimit - state.turnNumber : null;
 
   const inActivatePhase = state.currentPhase === 'activate_units';
+  const inMovePhase = state.currentPhase === 'move';
+  const inAttackPhase = state.currentPhase === 'attack';
   const canConfirm = inActivatePhase && state.activatedUnitIds.length > 0;
-  const canEndTurn =
-    state.currentPhase === 'move' || state.currentPhase === 'attack';
 
   return (
     <div className="flex flex-col gap-2 text-sm">
@@ -90,14 +94,14 @@ export function TurnPanel() {
           <div>
             <div className="text-blue-400 text-[10px]">{scenario?.ciliciaLabel ?? 'Kilikie'}</div>
             <div className="text-white font-bold text-lg leading-tight">
-              {tamerlaneLosses}/{scenario?.killThresholdTamerlane ?? 5}
+              {tamerlaneLosses}/{formatKillThreshold(scenario?.killThresholdTamerlane ?? 5)}
             </div>
           </div>
           <div className="text-gray-500 self-center text-xs">vs</div>
           <div>
             <div className="text-red-400 text-[10px]">{scenario?.tamerlaneLabel ?? 'Tamerlán'}</div>
             <div className="text-white font-bold text-lg leading-tight">
-              {ciliciaLosses}/{scenario?.killThresholdCilicia ?? 5}
+              {ciliciaLosses}/{formatKillThreshold(scenario?.killThresholdCilicia ?? 5)}
             </div>
           </div>
         </div>
@@ -108,6 +112,57 @@ export function TurnPanel() {
           </div>
         )}
       </div>
+
+      {/* Reinforcement schedule */}
+      {scenario?.reinforcementWaves && scenario.reinforcementWaves.length > 0 && (
+        <div className="bg-gray-800 rounded-lg p-2">
+          <div className="text-orange-400 text-[10px] font-bold mb-1">
+            ⚔️ Posily {scenario.tamerlaneLabel}
+          </div>
+          {scenario.reinforcementWaves.map((wave, i) => {
+            const arrived = state.turnNumber > wave.triggerAfterTurn;
+            return (
+              <div key={i} className={`text-[9px] leading-tight ${arrived ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+                Po tahu {wave.triggerAfterTurn}: {wave.count}× {UNIT_DEFINITIONS[wave.unitType].nameCs}
+                {arrived && ' ✓'}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Ascalon: sleeping unit wake-up schedule */}
+      {state.scenarioId === 'ascalon' && (() => {
+        const wakeGroups: Record<number, string[]> = {};
+        // Collect from both current units and destroyed units (to show all waves)
+        const allUnits = [...state.units, ...state.destroyedUnits];
+        for (const u of allUnits) {
+          if (u.faction === 'tamerlane' && u.sleepsUntilTurn !== undefined) {
+            const t = u.sleepsUntilTurn;
+            if (!wakeGroups[t]) wakeGroups[t] = [];
+            const name = UNIT_DEFINITIONS[u.definitionType].nameCs;
+            if (!wakeGroups[t].includes(name)) wakeGroups[t].push(name);
+          }
+        }
+        const turns = Object.keys(wakeGroups).map(Number).sort((a, b) => a - b);
+        if (turns.length === 0) return null;
+        return (
+          <div className="bg-gray-800 rounded-lg p-2">
+            <div className="text-orange-400 text-[10px] font-bold mb-1">
+              🔔 Turecké posily (probuzení)
+            </div>
+            {turns.map(t => {
+              const arrived = state.turnNumber >= t;
+              return (
+                <div key={t} className={`text-[9px] leading-tight ${arrived ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+                  Kolo {t}: {wakeGroups[t].join(', ')}
+                  {arrived && ' ✓'}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Played card info */}
       {state.playedCard && (
@@ -200,12 +255,20 @@ export function TurnPanel() {
             ✓ Potvrdit aktivaci {state.activatedUnitIds.length > 0 ? `(${state.activatedUnitIds.length})` : ''}
           </button>
         )}
-        {canEndTurn && (
+        {inMovePhase && (
+          <button
+            onClick={() => dispatch({ type: 'CONFIRM_MOVEMENT' })}
+            className="bg-yellow-700 hover:bg-yellow-600 text-white text-sm py-2 rounded font-bold"
+          >
+            ✓ Potvrdit pohyb
+          </button>
+        )}
+        {inAttackPhase && (
           <button
             onClick={() => dispatch({ type: 'END_TURN' })}
             className="bg-blue-700 hover:bg-blue-600 text-white text-sm py-2 rounded font-bold"
           >
-            ⏭ Konec tahu
+            ⏭ Ukončit kolo
           </button>
         )}
       </div>

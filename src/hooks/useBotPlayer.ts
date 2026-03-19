@@ -104,23 +104,23 @@ export function useBotPlayer() {
           timer = setTimeout(() => dispatch({ type: 'ACTIVATE_UNIT', unitId: nextId }), DELAY_MS);
         } else if (state.activatedUnitIds.length > 0) {
           timer = setTimeout(() => dispatch({ type: 'CONFIRM_ACTIVATIONS' }), DELAY_MS);
+        } else {
+          // No units can be activated (e.g. all sleeping) — skip to end turn
+          timer = setTimeout(() => dispatch({ type: 'END_TURN' }), DELAY_MS);
         }
         break;
       }
 
       // ── Move phase ────────────────────────────────────────────────────────────
-      // Strategy: FIRST move ALL units, THEN attack.
-      // Attacking from move phase triggers a move→attack phase transition, so
-      // the bot must finish all moves before making any attack (otherwise units
-      // that haven't moved yet get stuck in attack phase with no move option).
+      // Strategy: move ALL units first, then dispatch CONFIRM_MOVEMENT to
+      // transition to the attack phase. Attacks happen only in attack phase.
       case 'move': {
         const selected = state.selectedUnitId
           ? state.units.find(u => u.id === state.selectedUnitId)
           : null;
 
-        // Step A: a bot unit is currently selected
+        // Step A: a bot unit is currently selected — try to move it
         if (selected && selected.faction === botPlayer) {
-          // Try to move the unit (movement only — no attacking yet)
           if (!selected.hasMoved && !selected.directFireLocked && state.validMoveTargets.length > 0) {
             const moveTo = chooseBotMoveTarget(state.validMoveTargets, selected.id, state, botPlayer);
             if (moveTo) {
@@ -131,44 +131,20 @@ export function useBotPlayer() {
               break;
             }
           }
-
-          // Can't (or chose not to) move this unit.
-          // Attack ONLY if all other units are already moved/exhausted —
-          // this is the trigger that transitions move→attack phase.
-          const allMoved = nextUnitToMove(state, botPlayer, exhaustedInMoveRef.current) === null;
-          if (allMoved && !selected.hasAttacked && state.validAttackTargets.length > 0) {
-            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state, botPlayer);
-            if (defenderId) {
-              timer = setTimeout(
-                () => dispatch({ type: 'ATTACK_UNIT', attackerId: selected.id, defenderId }),
-                DELAY_MS
-              );
-              break;
-            }
-          }
-
-          // Nothing to do with this unit — mark exhausted so we don't loop.
+          // Nothing to do with this unit — mark exhausted so we don't loop
           exhaustedInMoveRef.current.add(selected.id);
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: null }), 200);
           break;
         }
 
-        // Step B: nothing selected — pick the next unit to work on
-        // Priority 1: move unmoved units (skip exhausted ones)
+        // Step B: nothing selected — pick the next unmoved unit
         const moveId = nextUnitToMove(state, botPlayer, exhaustedInMoveRef.current);
         if (moveId) {
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: moveId }), DELAY_MS);
           break;
         }
-        // Priority 2: all moves done — find a unit that can attack to trigger
-        // the move→attack phase transition (remaining units attack in attack phase)
-        const attackId = nextUnitToAttack(state, botPlayer);
-        if (attackId) {
-          timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: attackId }), DELAY_MS);
-          break;
-        }
-        // No unit can do anything — end turn
-        timer = setTimeout(() => dispatch({ type: 'END_TURN' }), DELAY_MS);
+        // All units moved (or have nothing to move) — confirm movement to attack phase
+        timer = setTimeout(() => dispatch({ type: 'CONFIRM_MOVEMENT' }), DELAY_MS);
         break;
       }
 
