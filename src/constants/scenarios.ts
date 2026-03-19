@@ -309,8 +309,8 @@ export const SCENARIO_ASCALON: ScenarioDefinition = {
 export const SCENARIO_KILICIE_UPRISING: ScenarioDefinition = {
   id: 'kilicie_uprising',
   nameCs: 'Povstání v Kilíkii',
-  descriptionCs: 'Kilická milice povstala proti Tamerlánovu jhu. Křižáci musí přes celou zemi stihnout pomoci před tím, než Tamerlán znovu dobyje všechny vesnice. Epická mapa, více front, přicházející posily.',
-  flavourCs: 'Rok 1400. Tamerlán zpustošil Kilíkii a vyžaduje tributy. Vesničané se zvedají k odporu — ale jsou slabí. Křižáčtí rytíři se vydávají na pochod. Každá hodina se počítá.',
+  descriptionCs: 'Kilická milice povstala proti Tamerlánovu jhu. Křižáci vyslali předvoj, ale hlavní síla přijde pozdě. Tamerlánova rychlá jízda musí překonat tvrdohlavé vesničany i rytířský předvoj.',
+  flavourCs: 'Rok 1400. Tamerlán zpustošil Kilíkii a vyžaduje tributy. Vesničané se zvedají k odporu — ale jsou slabí. Křižáčtí rytíři se vydávají na pochod a dávají předvoj vpřed. Každá hodina se počítá.',
   ciliciaLabel: 'Křižáci & Milice',
   tamerlaneLabel: 'Tamerlánova vojska',
   difficultyCs: '🗺️ Epická asymetrie',
@@ -339,20 +339,25 @@ export const SCENARIO_KILICIE_UPRISING: ScenarioDefinition = {
     { position: { row: 2, col: 4 }, terrain: 'hill',    elevation: 1 }, // severní výšina L
     { position: { row: 2, col: 6 }, terrain: 'hill',    elevation: 1 }, // severní výšina P
   ],
-  // ── Křižáci (5 jednotek) — vstupují ze severu (řady 1–2) ───────────────
+  // ── Křižáci (8 jednotek) — hlavní síla na severu (řady 1–2), předvoj ve středu (řady 4–5) ──
   ciliciaUnits: [
+    // Hlavní síla — severní hrana (řady 1–2)
     { id: 'kil_cil_lc_1', definitionType: 'light_cavalry', faction: 'cilicia', position: { row: 1, col: 1 } },
     { id: 'kil_cil_hi_1', definitionType: 'heavy_infantry',faction: 'cilicia', position: { row: 1, col: 3 } },
     { id: 'kil_cil_ar_1', definitionType: 'archers',        faction: 'cilicia', position: { row: 2, col: 5 } },
     { id: 'kil_cil_li_1', definitionType: 'light_infantry', faction: 'cilicia', position: { row: 1, col: 7 } },
     { id: 'kil_cil_lc_2', definitionType: 'light_cavalry', faction: 'cilicia', position: { row: 1, col: 9 } },
-    // Místní milice — rozmístěny u vesnic
-    { id: 'kil_ml_1',     definitionType: 'militia',        faction: 'cilicia', position: { row: 3, col: 2 } },
-    { id: 'kil_ml_2',     definitionType: 'militia',        faction: 'cilicia', position: { row: 3, col: 8 } },
-    { id: 'kil_ml_3',     definitionType: 'militia',        faction: 'cilicia', position: { row: 6, col: 4 } },
-    { id: 'kil_ml_4',     definitionType: 'militia',        faction: 'cilicia', position: { row: 6, col: 6 } },
-    { id: 'kil_ml_5',     definitionType: 'militia',        faction: 'cilicia', position: { row: 9, col: 3 } },
-    { id: 'kil_ml_6',     definitionType: 'militia',        faction: 'cilicia', position: { row: 9, col: 7 } },
+    // Předvoj — vyslaný dopředu (řady 4–5), tvoří obrannou linii před vesnicemi
+    { id: 'kil_cil_hi_2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 4, col: 5 } }, // na centrální výšině
+    { id: 'kil_cil_lc_3', definitionType: 'light_cavalry',  faction: 'cilicia', position: { row: 5, col: 2 } }, // levý bok
+    { id: 'kil_cil_lc_4', definitionType: 'light_cavalry',  faction: 'cilicia', position: { row: 5, col: 8 } }, // pravý bok
+    // Místní milice — stojí přímo na vesnicích
+    { id: 'kil_ml_1',     definitionType: 'militia',        faction: 'cilicia', position: { row: 3, col: 2 } }, // levá přední vesnice
+    { id: 'kil_ml_2',     definitionType: 'militia',        faction: 'cilicia', position: { row: 3, col: 8 } }, // pravá přední vesnice
+    { id: 'kil_ml_3',     definitionType: 'militia',        faction: 'cilicia', position: { row: 6, col: 5 } }, // centrální vesnice (přímo na ní)
+    { id: 'kil_ml_4',     definitionType: 'militia',        faction: 'cilicia', position: { row: 6, col: 4 } }, // podpora centra
+    { id: 'kil_ml_5',     definitionType: 'militia',        faction: 'cilicia', position: { row: 9, col: 2 } }, // levá vzdálená vesnice (přímo na ní)
+    { id: 'kil_ml_6',     definitionType: 'militia',        faction: 'cilicia', position: { row: 9, col: 8 } }, // pravá vzdálená vesnice (přímo na ní)
   ],
   // ── Tamerlán (7 jednotek) — vstupuje z jihu (řady 10–11) ───────────────
   tamerlaneUnits: [
