@@ -4,10 +4,10 @@ import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { hasAvailableAbility } from '../../logic/abilities';
 
 const ABILITY_LABEL: Record<string, string> = {
-  warcry:         '🔥 Válečný řev',
-  pilum:          '🎯 Pilum salva',
-  betrayal:       '🗡 Zrada',
-  ambush_signal:  '📯 Signál přepadu',
+  warcry:         'Válečný řev',
+  pilum:          'Pilum salva',
+  betrayal:       'Zrada',
+  ambush_signal:  'Signál přepadu',
 };
 
 const ABILITY_HINT: Record<string, string> = {
@@ -42,7 +42,7 @@ export function AbilityButton() {
     return (
       <div className="flex items-center gap-2">
         <span className="text-yellow-300 text-xs font-bold animate-pulse">
-          🗡 Klikni na sousedního nepřátelského kondotiéra
+          Zrada — klikni na sousedního nepřátelského kondotiéra
         </span>
         <button
           onClick={() => dispatch({ type: 'CANCEL_BETRAYAL' })}

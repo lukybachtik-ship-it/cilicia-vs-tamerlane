@@ -258,23 +258,27 @@ export function checkVictory(
 
   // ── Vercellae ──────────────────────────────────────────────────────────────
   if (state.scenarioId === 'vercellae') {
-    // Cilicia wins by taking the wagenburg (any Cilicia unit on wagenburg hex)
-    const wagenburg = state.terrain.find(t => t.terrain === 'wagenburg');
-    if (wagenburg) {
-      const onWagenburg = state.units.some(
+    // Wagenburg positions (fixed by scenario)
+    const wbPositions = [
+      { row: 8, col: 4 },
+      { row: 8, col: 6 },
+    ];
+    // Cilicia wins by occupying BOTH wagenburg hexes (must kill defenders first)
+    const bothOccupied = wbPositions.every(p =>
+      state.units.some(
         u =>
           u.faction === 'cilicia' &&
-          u.position.row === wagenburg.position.row &&
-          u.position.col === wagenburg.position.col
-      );
-      if (onWagenburg) {
-        return {
-          victor: 'cilicia',
-          cause: `${scenario?.ciliciaLabel ?? 'Římané'} dobyli wagenburg — Kimbrové zlomeni!`,
-        };
-      }
+          u.position.row === p.row &&
+          u.position.col === p.col
+      )
+    );
+    if (bothOccupied) {
+      return {
+        victor: 'cilicia',
+        cause: `${scenario?.ciliciaLabel ?? 'Římané'} dobyli oba wagenburgy — Kimbrové zlomeni!`,
+      };
     }
-    // Tamerlane survival to turn limit (holding wagenburg)
+    // Tamerlane survival to turn limit: at least one wagenburg still held
     if (
       isEndOfTurn &&
       scenario?.turnLimit !== undefined &&
@@ -282,15 +286,20 @@ export function checkVictory(
       state.currentPlayer === 'tamerlane' &&
       state.turnNumber >= scenario.turnLimit
     ) {
-      if (wagenburg) {
-        const wagenburgTerrainLost =
-          wagenburg.structureHp !== undefined && wagenburg.structureHp <= 0;
-        if (!wagenburgTerrainLost) {
-          return {
-            victor: 'tamerlane',
-            cause: `${scenario?.tamerlaneLabel ?? 'Kimbrové'} udrželi wagenburg 14 kol!`,
-          };
-        }
+      const anyHeld = wbPositions.some(p => {
+        const heldByCilicia = state.units.some(
+          u =>
+            u.faction === 'cilicia' &&
+            u.position.row === p.row &&
+            u.position.col === p.col
+        );
+        return !heldByCilicia;
+      });
+      if (anyHeld) {
+        return {
+          victor: 'tamerlane',
+          cause: `${scenario?.tamerlaneLabel ?? 'Kimbrové'} udrželi wagenburg 14 kol!`,
+        };
       }
     }
   }

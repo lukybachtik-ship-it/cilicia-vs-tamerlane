@@ -59,13 +59,17 @@ export function useBotPlayer() {
     // Build a key that changes whenever meaningful state changes
     const unitStates = state.units
       .filter(u => u.faction === botPlayer)
-      .map(u => `${u.id}:${u.hasMoved ? 1 : 0}:${u.hasAttacked ? 1 : 0}:${u.isActivated ? 1 : 0}`)
+      .map(u =>
+        `${u.id}:${u.hasMoved ? 1 : 0}:${u.hasAttacked ? 1 : 0}:${u.isActivated ? 1 : 0}:${u.specialAbilityUsed ? 1 : 0}:${u.pilumReady ? 1 : 0}:${u.warcryActive ? 1 : 0}:${u.hp}`
+      )
       .join(',');
     const key = [
       state.currentPhase,
       state.turnNumber,
       state.selectedUnitId ?? 'none',
       state.activatedUnitIds.length,
+      state.activeScenarioEffects.length,
+      state.pendingBetrayalSourceId ?? 'none',
       unitStates,
     ].join('|');
 
@@ -252,9 +256,15 @@ export function useBotPlayer() {
     state.turnNumber,
     state.selectedUnitId,
     state.activatedUnitIds.length,
-    // Include unit move/attack flags so we react when a unit finishes
+    state.activeScenarioEffects.length,
+    state.pendingBetrayalSourceId,
+    // Include every bot-relevant unit flag so we react when ANYTHING changes
+    // (fixes bot-stuck bug after ACTIVATE_ABILITY, which otherwise doesn't
+    // update hasMoved/hasAttacked/isActivated).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    state.units.map(u => `${u.hasMoved}${u.hasAttacked}${u.isActivated}`).join(''),
+    state.units.map(u =>
+      `${u.hasMoved}${u.hasAttacked}${u.isActivated}${u.specialAbilityUsed}${u.pilumReady}${u.warcryActive}${u.hp}`
+    ).join(''),
     state.victor,
     state.pendingReinforcement,
     botPlayer,

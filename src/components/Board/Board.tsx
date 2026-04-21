@@ -19,6 +19,12 @@ import { UNIT_ICONS } from '../../constants/unitIcons';
 import { isHiddenFrom } from '../../logic/visibility';
 import { hasAvailableAbility, hasGunpowderPanic, isChargingThisTurn, getVolleyBonus } from '../../logic/abilities';
 import { canBetray } from '../../logic/abilities';
+import { TerrainGlyph } from './TerrainGlyphs';
+import {
+  SleepingGlyph, LockGlyph, AbilityGlyph, PanicGlyph, ChargeGlyph, VolleyGlyph, CrownGlyph,
+  MovedGlyph, AttackedGlyph,
+} from '../Units/StatusGlyphs';
+import { ALL_SCENARIOS } from '../../constants/scenarios';
 import {
   playSelectSound,
   playMoveSound,
@@ -57,19 +63,7 @@ const TERRAIN_STROKE: Record<TerrainType, string> = {
   ambush_forest: '#1a4a25',
 };
 
-const TERRAIN_EMOJI: Record<TerrainType, string> = {
-  plain:         '',
-  forest:        '🌲',
-  hill:          '⛰',
-  fortress:      '🏰',
-  village:       '🏘',
-  tent:          '⛺',
-  trench:        '🪖',
-  vineyard:      '🍇',
-  wall:          '🧱',
-  wagenburg:     '🛞',
-  ambush_forest: '🌲',
-};
+// (terrain emoji map removed — using TerrainGlyph SVG component)
 
 // ── Lunge animation state type ─────────────────────────────────────────────────
 interface LungeOffset {
@@ -118,6 +112,9 @@ export function Board() {
 
   const rows = Array.from({ length: state.gridRows }, (_, i) => i + 1);
   const cols = Array.from({ length: state.gridCols }, (_, i) => i + 1);
+  const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
+  const topLabel = scenario?.ciliciaLabel ?? 'Kilikie';
+  const bottomLabel = scenario?.tamerlaneLabel ?? 'Tamerlán';
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function getTerrainAt(row: number, col: number): TerrainType {
@@ -518,31 +515,19 @@ export function Board() {
                   />
                 )}
 
-                {/* Terrain icon (only when no unit present) */}
+                {/* Terrain glyph (SVG, drawn when no unit on cell) */}
                 {terrain !== 'plain' && !unit && (
-                  <text
-                    x={x} y={y + 6}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize="18"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    {TERRAIN_EMOJI[terrain]}
-                  </text>
+                  <TerrainGlyph type={terrain} cx={x} cy={y} />
                 )}
 
-                {/* Structure HP label (walls/wagenburg) */}
-                {structureHp !== undefined && structureHp > 0 && !unit && (
-                  <text
-                    x={x} y={y + HEX_SIZE * 0.55}
-                    textAnchor="middle"
-                    fontSize="8"
-                    fontWeight="bold"
-                    fill="#facc15"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    ❤{structureHp}
-                  </text>
+                {/* Structure HP label (walls/wagenburg) — shown even when unit present */}
+                {structureHp !== undefined && structureHp > 0 && (
+                  <g transform={`translate(${x + HEX_SIZE * 0.55},${y - HEX_SIZE * 0.55})`} style={{ pointerEvents: 'none' }}>
+                    <rect x={-10} y={-5} width={20} height={10} rx={2} fill="rgba(0,0,0,0.7)" stroke="#facc15" strokeWidth="0.8" />
+                    <text x={0} y={2.5} textAnchor="middle" fontSize="8" fontWeight="bold" fill="#facc15">
+                      HP {structureHp}
+                    </text>
+                  </g>
                 )}
 
                 {/* Coordinate label */}
@@ -712,57 +697,34 @@ export function Board() {
               {/* HP dots */}
               {hpDots}
 
-              {/* Status: has moved (orange dot, top-right) */}
+              {/* Status: has moved — small orange dot */}
               {unit.hasMoved && (
-                <circle
-                  cx={UNIT_R * 0.65} cy={-UNIT_R * 0.65}
-                  r={4}
-                  fill="#f97316"
-                  style={{ pointerEvents: 'none' }}
-                />
+                <g transform={`translate(${UNIT_R * 0.7},${-UNIT_R * 0.7})`}>
+                  <MovedGlyph />
+                </g>
               )}
 
-              {/* Status: has attacked (purple dot, top-left) */}
+              {/* Status: has attacked — small purple dot */}
               {unit.hasAttacked && (
-                <circle
-                  cx={-UNIT_R * 0.65} cy={-UNIT_R * 0.65}
-                  r={4}
-                  fill="#a855f7"
-                  style={{ pointerEvents: 'none' }}
-                />
+                <g transform={`translate(${-UNIT_R * 0.7},${-UNIT_R * 0.7})`}>
+                  <AttackedGlyph />
+                </g>
               )}
 
               {/* Direct fire locked indicator */}
               {unit.directFireLocked && (
-                <text
-                  x={UNIT_R * 0.55}
-                  y={UNIT_R * 0.7}
-                  fontSize="9"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  🔒
-                </text>
-              )}
-
-              {/* Terrain icon badge (corner) when on non-plain terrain */}
-              {terrain !== 'plain' && (
-                <text
-                  x={UNIT_R * 0.55}
-                  y={-UNIT_R * 0.55}
-                  fontSize="9"
-                  opacity={0.75}
-                  style={{ pointerEvents: 'none' }}
-                >
-                  {TERRAIN_EMOJI[terrain]}
-                </text>
+                <g transform={`translate(${UNIT_R * 0.6},${UNIT_R * 0.75})`}>
+                  <LockGlyph />
+                </g>
               )}
 
               {/* Elevation indicator */}
               {terrain === 'hill' && elevation > 0 && (
                 <text
                   x={-UNIT_R * 0.7}
-                  y={UNIT_R * 0.8}
+                  y={UNIT_R * 0.9}
                   fontSize="8"
+                  fontWeight="bold"
                   fill="#fbbf24"
                   style={{ pointerEvents: 'none' }}
                 >
@@ -770,65 +732,46 @@ export function Board() {
                 </text>
               )}
 
-              {/* Sleeping unit indicator — shown as "Zzz" overlay */}
+              {/* Sleeping unit indicator */}
               {isSleeping && (
-                <text
-                  x={0} y={4}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fontSize="13"
-                  style={{ pointerEvents: 'none' }}
-                  opacity={0.9}
-                >
-                  💤
-                </text>
+                <g transform={`translate(0,0)`} opacity={0.9}>
+                  <SleepingGlyph />
+                </g>
               )}
 
-              {/* Available activated ability sparkle (✦) */}
+              {/* Named hero crown */}
+              {UNIT_DEFINITIONS[unit.definitionType].namedHero && (
+                <g transform={`translate(0,${-UNIT_R - 5})`}>
+                  <CrownGlyph />
+                </g>
+              )}
+
+              {/* Available activated ability (gold spark) */}
               {hasAbility && (
-                <text
-                  x={-UNIT_R * 0.55}
-                  y={UNIT_R * 0.85}
-                  fontSize="11"
-                  fill="#fde68a"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  ✦
-                </text>
+                <g transform={`translate(${-UNIT_R * 0.6},${UNIT_R * 0.85})`}>
+                  <AbilityGlyph />
+                </g>
               )}
 
               {/* Gunpowder panic indicator */}
               {hasPanic && (
-                <text
-                  x={UNIT_R * 0.15} y={-UNIT_R * 0.55}
-                  fontSize="10"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  😨
-                </text>
+                <g transform={`translate(${UNIT_R * 0.2},${-UNIT_R * 0.7})`}>
+                  <PanicGlyph />
+                </g>
               )}
 
-              {/* Charge indicator */}
+              {/* Charge bonus indicator */}
               {charging && (
-                <text
-                  x={-UNIT_R * 0.15} y={-UNIT_R * 0.55}
-                  fontSize="10"
-                  fill="#fbbf24"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  ⚡
-                </text>
+                <g transform={`translate(${-UNIT_R * 0.2},${-UNIT_R * 0.7})`}>
+                  <ChargeGlyph />
+                </g>
               )}
 
-              {/* Volley fire indicator */}
+              {/* Volley fire bonus indicator */}
               {volleying && (
-                <text
-                  x={UNIT_R * 0.55} y={UNIT_R * 0.85}
-                  fontSize="10"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  🔫
-                </text>
+                <g transform={`translate(${UNIT_R * 0.6},${UNIT_R * 0.85})`}>
+                  <VolleyGlyph />
+                </g>
               )}
             </g>
           );
@@ -846,7 +789,7 @@ export function Board() {
           fill="rgba(107,114,128,0.8)"
           style={{ pointerEvents: 'none' }}
         >
-          ↑ Kilikie (řada 1)  •  Tamerlán (řada 9) ↓
+          ↑ {topLabel} (řada 1)  •  {bottomLabel} (řada {state.gridRows}) ↓
         </text>
       </svg>
     </div>

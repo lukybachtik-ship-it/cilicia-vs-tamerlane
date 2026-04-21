@@ -531,19 +531,21 @@ export const SCENARIO_VERCELLAE: ScenarioDefinition = {
   killThresholdCilicia: 5,
   killThresholdTamerlane: 6,
   turnLimit: 14,
-  victoryObjectiveCiliciaCs: 'Zničit 6 Kimbrů NEBO dobýt wagenburg',
-  victoryObjectiveTamerlaneCs: 'Zničit 5 Římanů NEBO udržet wagenburg 14 kol',
+  victoryObjectiveCiliciaCs: 'Zničit 6 Kimbrů NEBO dobýt oba wagenburgy (řada 8)',
+  victoryObjectiveTamerlaneCs: 'Zničit 5 Římanů NEBO udržet alespoň jeden wagenburg do kola 14',
   terrain: [
-    // Centrální wagenburg (zničitelný) — strukturální HP 4
-    { position: { row: 6, col: 5 }, terrain: 'wagenburg', elevation: 0, structureHp: 4 },
+    // Dva wagenburgy hluboko v kimberském týlu (řada 8) — strukturální HP 4 každý
+    { position: { row: 8, col: 4 }, terrain: 'wagenburg', elevation: 0, structureHp: 4 },
+    { position: { row: 8, col: 6 }, terrain: 'wagenburg', elevation: 0, structureHp: 4 },
     // Kopce pro scorpio a sagittarie
     { position: { row: 2, col: 3 }, terrain: 'hill', elevation: 1 },
     { position: { row: 2, col: 7 }, terrain: 'hill', elevation: 1 },
-    { position: { row: 8, col: 3 }, terrain: 'hill', elevation: 1 },
-    { position: { row: 8, col: 7 }, terrain: 'hill', elevation: 1 },
-    // Pár ostrůvků lesa na okrajích
+    { position: { row: 6, col: 2 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 6, col: 8 }, terrain: 'hill', elevation: 1 },
+    // Ostrůvky lesa na okrajích
     { position: { row: 5, col: 1 }, terrain: 'forest', elevation: 0 },
     { position: { row: 5, col: 9 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 6, col: 5 }, terrain: 'forest', elevation: 0 },
   ],
   ciliciaUnits: [
     // Řada 2: lučištníci + scorpio na kopci
@@ -556,24 +558,28 @@ export const SCENARIO_VERCELLAE: ScenarioDefinition = {
     { id: 'ver_cil_leg1', definitionType: 'legionary',  faction: 'cilicia', position: { row: 3, col: 5 } },
     { id: 'ver_cil_aux2', definitionType: 'auxilia',    faction: 'cilicia', position: { row: 3, col: 7 } },
     { id: 'ver_cil_eq2',  definitionType: 'equites',    faction: 'cilicia', position: { row: 3, col: 9 } },
-    // Řada 4: hlavní legie
+    // Řada 4: hlavní legie + praetorian
     { id: 'ver_cil_leg2', definitionType: 'legionary',  faction: 'cilicia', position: { row: 4, col: 3 } },
     { id: 'ver_cil_leg3', definitionType: 'legionary',  faction: 'cilicia', position: { row: 4, col: 5 } },
     { id: 'ver_cil_leg4', definitionType: 'legionary',  faction: 'cilicia', position: { row: 4, col: 7 } },
     { id: 'ver_cil_pre',  definitionType: 'praetorian', faction: 'cilicia', position: { row: 4, col: 4 } },
   ],
   tamerlaneUnits: [
-    // Masa válečníků — dvě řady
-    { id: 'ver_tam_gw1',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 8, col: 2 } },
-    { id: 'ver_tam_gw2',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 8, col: 4 } },
-    { id: 'ver_tam_ch',   definitionType: 'germanic_chieftain', faction: 'tamerlane', position: { row: 8, col: 5 } },
-    { id: 'ver_tam_gw3',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 8, col: 6 } },
-    { id: 'ver_tam_gw4',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 8, col: 8 } },
-    { id: 'ver_tam_fr1',  definitionType: 'framea_thrower',     faction: 'tamerlane', position: { row: 9, col: 3 } },
-    { id: 'ver_tam_gw5',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 9, col: 5 } },
-    { id: 'ver_tam_fr2',  definitionType: 'framea_thrower',     faction: 'tamerlane', position: { row: 9, col: 7 } },
-    { id: 'ver_tam_gw6',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 7, col: 4 } },
-    { id: 'ver_tam_gw7',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 7, col: 6 } },
+    // Germáni bránící wagenburgy (přímo na hexech)
+    { id: 'ver_tam_ch',   definitionType: 'germanic_chieftain', faction: 'tamerlane', position: { row: 8, col: 4 } },
+    { id: 'ver_tam_gw1',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 8, col: 6 } },
+    // První linie (řada 6–7): záporná zóna předběhnutí
+    { id: 'ver_tam_gw2',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 6, col: 5 } },
+    { id: 'ver_tam_gw3',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 7, col: 4 } },
+    { id: 'ver_tam_gw4',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 7, col: 6 } },
+    // Druhá linie (řada 7): široká fronta
+    { id: 'ver_tam_fr1',  definitionType: 'framea_thrower',     faction: 'tamerlane', position: { row: 7, col: 2 } },
+    { id: 'ver_tam_gw5',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 7, col: 3 } },
+    { id: 'ver_tam_gw6',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 7, col: 7 } },
+    { id: 'ver_tam_fr2',  definitionType: 'framea_thrower',     faction: 'tamerlane', position: { row: 7, col: 8 } },
+    // Záloha (řada 9)
+    { id: 'ver_tam_gw7',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 9, col: 3 } },
+    { id: 'ver_tam_gw8',  definitionType: 'germanic_warrior',   faction: 'tamerlane', position: { row: 9, col: 7 } },
   ],
   scenarioEffects: [
     {

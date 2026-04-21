@@ -43,6 +43,9 @@ export function Game() {
   useBotPlayer();
 
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
+  const ciliciaLabel = scenario?.ciliciaLabel ?? 'Kilikie';
+  const tamerlaneLabel = scenario?.tamerlaneLabel ?? 'Tamerlán';
+  const currentLabel = state.currentPlayer === 'cilicia' ? ciliciaLabel : tamerlaneLabel;
   const inActivatePhase = state.currentPhase === 'activate_units';
   const inMovePhase = state.currentPhase === 'move';
   const inAttackPhase = state.currentPhase === 'attack';
@@ -63,9 +66,9 @@ export function Game() {
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-1.5 flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="text-sm font-bold text-gray-200">
-            ⚔ <span className="text-blue-400">Kilikie</span>
+            <span className="text-blue-400">{ciliciaLabel}</span>
             {' '}vs{' '}
-            <span className="text-red-400">Tamerlán</span>
+            <span className="text-red-400">{tamerlaneLabel}</span>
           </h1>
           {scenario && (
             <button
@@ -73,7 +76,7 @@ export function Game() {
               className="text-gray-600 hover:text-gray-400 text-[10px] transition-colors"
               title="Změnit scénář"
             >
-              📋 {scenario.nameCs} ·  změnit
+              {scenario.nameCs} · změnit
             </button>
           )}
         </div>
@@ -87,7 +90,7 @@ export function Game() {
                 : 'bg-red-900 text-red-300'
             }`}
           >
-            {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} na tahu
+            {currentLabel} na tahu
           </div>
         </div>
       </header>
@@ -127,7 +130,7 @@ export function Game() {
               <div className="text-4xl mb-3 animate-pulse">⏳</div>
               <p className="text-gray-300 text-lg font-semibold">Čekám na soupeře…</p>
               <p className={`text-sm font-bold mt-1 ${state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'}`}>
-                {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} hraje
+                {currentLabel} hraje
               </p>
               {/* Show opponent's current phase */}
               <div className="mt-3 pt-3 border-t border-gray-700">
@@ -152,7 +155,7 @@ export function Game() {
               <div className="text-3xl mb-2 animate-pulse">🤖</div>
               <p className="text-gray-300 text-base font-semibold">Bot přemýšlí…</p>
               <p className={`text-sm font-bold mt-1 ${state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'}`}>
-                {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'}
+                {currentLabel}
               </p>
               <div className="text-purple-400 text-xs mt-2">
                 {OPPONENT_PHASE_LABELS[state.currentPhase] ?? state.currentPhase}
@@ -166,8 +169,8 @@ export function Game() {
       {state.currentPhase === 'choose_reinforcement_flank' && state.pendingReinforcement && isMyTurn && (
         <div className="bg-gray-900 border-t-2 border-yellow-500 px-4 py-3 flex-shrink-0">
           <div className="text-yellow-400 font-bold text-sm mb-2 text-center">
-            ⚔️ Posily přicházejí! — {state.pendingReinforcement.count}×{' '}
-            {state.pendingReinforcement.unitType} pro {state.pendingReinforcement.faction === 'tamerlane' ? 'Tamerlána' : 'Křižáky'}
+            Posily přicházejí! — {state.pendingReinforcement.count}×{' '}
+            {state.pendingReinforcement.unitType} pro {state.pendingReinforcement.faction === 'tamerlane' ? tamerlaneLabel : ciliciaLabel}
           </div>
           <div className="text-gray-300 text-xs mb-3 text-center">
             Vyber, na které křídlo posily dorazí:
