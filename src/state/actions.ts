@@ -12,6 +12,10 @@ export type GameAction =
   | { type: 'SELECT_UNIT'; unitId: string | null }
   | { type: 'MOVE_UNIT'; unitId: string; targetPosition: Position }
   | { type: 'ATTACK_UNIT'; attackerId: string; defenderId: string }
+  | { type: 'ATTACK_TERRAIN'; attackerId: string; targetPosition: Position }
+  | { type: 'ACTIVATE_ABILITY'; unitId: string }
+  | { type: 'SELECT_BETRAYAL_TARGET'; targetId: string }
+  | { type: 'CANCEL_BETRAYAL' }
   | { type: 'END_TURN' }
   | { type: 'CHOOSE_REINFORCEMENT_FLANK'; flank: 'left' | 'center' | 'right' }
   | { type: 'RESTART_GAME'; scenarioId?: string }

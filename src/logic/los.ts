@@ -41,7 +41,16 @@ export function hasLOS(
     const t = getTerrainAt(cell, state);
     if (!t) continue; // plain terrain — no block
 
-    if (t.terrain === 'forest' || t.terrain === 'fortress') {
+    if (
+      t.terrain === 'forest' ||
+      t.terrain === 'ambush_forest' ||
+      t.terrain === 'fortress' ||
+      t.terrain === 'wagenburg'
+    ) {
+      return false;
+    }
+
+    if (t.terrain === 'wall' && (t.structureHp ?? 0) > 0) {
       return false;
     }
 

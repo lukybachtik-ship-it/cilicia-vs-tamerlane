@@ -10,7 +10,8 @@ import type { Position } from '../types/unit';
 import { CARD_DEFINITIONS } from '../constants/cardDefinitions';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 import { canCardActivateUnit } from './cards';
-import { getValidAttackTargets } from './combat';
+import { getValidAttackTargets, getValidAttackTerrainTargets } from './combat';
+import { hasAvailableAbility, canBetray } from './abilities';
 import { hexDistance } from '../utils/hexGrid';
 
 // ── Scenario-specific helpers ──────────────────────────────────────────────────
@@ -24,6 +25,8 @@ const KILICIE_VILLAGES: Position[] = [
   { row: 9, col: 2 },
   { row: 9, col: 8 },
 ];
+
+const FORLI_CITADEL: Position = { row: 2, col: 5 };
 
 /** Returns true if the given position is occupied by any unit. */
 function isOccupied(pos: Position, state: GameState): boolean {
@@ -282,6 +285,10 @@ export function chooseBotMoveTarget(
     }
   }
 
+  // ── New scenarios (Teutoburg/Vercellae/Forli/Cerignola) ──────────────────
+  const scenarioChoice = chooseBotMoveTargetForScenario(validTargets, unitId, state, botFaction);
+  if (scenarioChoice !== null) return scenarioChoice;
+
   // ── Default: generic heuristic ───────────────────────────────────────────────
   if (enemies.length === 0) return null;
 
@@ -414,7 +421,8 @@ export function nextUnitToAttack(state: GameState, botFaction: PlayerTurn): stri
       u.faction === botFaction &&
       u.isActivated &&
       !u.hasAttacked &&
-      getValidAttackTargets(u, state).length > 0
+      (getValidAttackTargets(u, state).length > 0 ||
+       getValidAttackTerrainTargets(u, state).length > 0)
   );
   return unit?.id ?? null;
 }
@@ -426,4 +434,179 @@ export function isBotUnitSelected(state: GameState, botFaction: PlayerTurn): boo
   if (!state.selectedUnitId) return false;
   const unit = state.units.find(u => u.id === state.selectedUnitId);
   return !!unit && unit.faction === botFaction;
+}
+
+// ── Activated abilities ───────────────────────────────────────────────────────
+
+/**
+ * Decide whether to use an activated ability (1× per game).
+ * Returns the unitId to activate, or null if bot should skip abilities this step.
+ */
+export function chooseBotAbilityUnit(
+  state: GameState,
+  botFaction: PlayerTurn
+): string | null {
+  // Only use abilities when it's about to pay off
+  const enemies = state.units.filter(u => u.faction !== botFaction);
+
+  for (const unit of state.units) {
+    if (unit.faction !== botFaction) continue;
+    if (!hasAvailableAbility(unit)) continue;
+    const def = UNIT_DEFINITIONS[unit.definitionType];
+    const kind = def.activatedAbility;
+    if (!kind) continue;
+
+    if (kind === 'warcry') {
+      // Use warcry when activated AND about to attack an adjacent enemy
+      if (!unit.isActivated) continue;
+      const adjacentEnemy = enemies.some(e => hexDistance(unit.position, e.position) === 1);
+      if (adjacentEnemy) return unit.id;
+    }
+    if (kind === 'pilum') {
+      // Use pilum when activated AND enemy in range 1-2
+      if (!unit.isActivated) continue;
+      const enemyInRange = enemies.some(e => {
+        const d = hexDistance(unit.position, e.position);
+        return d >= 1 && d <= 2;
+      });
+      if (enemyInRange) return unit.id;
+    }
+    if (kind === 'betrayal') {
+      // Use betrayal when activated AND an enemy condottiero is adjacent
+      if (!unit.isActivated) continue;
+      const hasTarget = enemies.some(e => canBetray(unit, e));
+      if (hasTarget) return unit.id;
+    }
+    if (kind === 'ambush_signal') {
+      // Use once germans have units close enough to strike
+      const germansInStrikeRange = state.units.filter(
+        u => u.faction === botFaction &&
+             enemies.some(e => hexDistance(u.position, e.position) <= 2)
+      ).length;
+      if (germansInStrikeRange >= 2) return unit.id;
+    }
+  }
+  return null;
+}
+
+/**
+ * Cesare betrayal: pick the adjacent enemy condottiero.
+ */
+export function chooseBotBetrayalTarget(state: GameState): string | null {
+  const sourceId = state.pendingBetrayalSourceId;
+  if (!sourceId) return null;
+  const source = state.units.find(u => u.id === sourceId);
+  if (!source) return null;
+  const candidates = state.units.filter(u => canBetray(source, u));
+  if (candidates.length === 0) return null;
+  return candidates[0].id;
+}
+
+/**
+ * Return an ATTACK_TERRAIN target (wall/wagenburg position) if the selected unit
+ * has one available. Siege/culverin bots prefer shelling walls over unit attacks.
+ */
+export function chooseBotTerrainAttackTarget(
+  state: GameState,
+  unitId: string
+): Position | null {
+  const unit = state.units.find(u => u.id === unitId);
+  if (!unit) return null;
+  const targets = getValidAttackTerrainTargets(unit, state);
+  if (targets.length === 0) return null;
+  // Prefer the lowest-HP wall (finish it off)
+  let bestPos = targets[0];
+  let bestHp = Infinity;
+  for (const t of targets) {
+    const cell = state.terrain.find(c => c.position.row === t.row && c.position.col === t.col);
+    const hp = cell?.structureHp ?? 999;
+    if (hp < bestHp) { bestHp = hp; bestPos = t; }
+  }
+  return bestPos;
+}
+
+// ── New-scenario helpers used by chooseBotMoveTarget / chooseBotAttackTarget ──
+
+/** Custom move target scoring for the 4 new scenarios. */
+export function chooseBotMoveTargetForScenario(
+  validTargets: Position[],
+  unitId: string,
+  state: GameState,
+  botFaction: PlayerTurn
+): Position | null {
+  if (validTargets.length === 0) return null;
+  const unit = state.units.find(u => u.id === unitId);
+  if (!unit) return null;
+
+  // Teutoburg: Romans rush south; Germans stay in forest and attack
+  if (state.scenarioId === 'teutoburg') {
+    if (botFaction === 'cilicia') {
+      // Romans: prefer moving south (higher row)
+      return validTargets.reduce((best, pos) =>
+        pos.row > best.row ? pos : best, validTargets[0]);
+    } else {
+      // Germans: close on nearest roman
+      const enemies = state.units.filter(u => u.faction === 'cilicia');
+      if (enemies.length === 0) return null;
+      return validTargets.reduce((best, pos) => {
+        const d = enemies.reduce((m, e) => Math.min(m, hexDistance(pos, e.position)), 99);
+        const bd = enemies.reduce((m, e) => Math.min(m, hexDistance(best, e.position)), 99);
+        return d < bd ? pos : best;
+      }, validTargets[0]);
+    }
+  }
+
+  // Vercellae: Romans attack wagenburg; Kimbri push forward
+  if (state.scenarioId === 'vercellae') {
+    const wagenburg = state.terrain.find(t => t.terrain === 'wagenburg');
+    if (wagenburg && botFaction === 'cilicia') {
+      return validTargets.reduce((best, pos) => {
+        const d = hexDistance(pos, wagenburg.position);
+        const bd = hexDistance(best, wagenburg.position);
+        return d < bd ? pos : best;
+      }, validTargets[0]);
+    }
+    // Kimbri default: move toward nearest Roman (handled by generic)
+  }
+
+  // Forli: Cesare pushes infantry to citadel; Caterina's units chase culverins
+  if (state.scenarioId === 'forli') {
+    if (botFaction === 'tamerlane') {
+      const def = UNIT_DEFINITIONS[unit.definitionType];
+      if (def.activatedAbility || unit.definitionType === 'pikeman' ||
+          unit.definitionType === 'rodelero' || unit.definitionType === 'cesare_borgia') {
+        return validTargets.reduce((best, pos) => {
+          const d = hexDistance(pos, FORLI_CITADEL);
+          const bd = hexDistance(best, FORLI_CITADEL);
+          return d < bd ? pos : best;
+        }, validTargets[0]);
+      }
+      // Culverins stay put (setup required)
+      if (unit.definitionType === 'culverin') return null;
+    } else {
+      // Caterina's defenders: move toward culverins
+      const culverins = state.units.filter(u => u.faction === 'tamerlane' && u.definitionType === 'culverin');
+      if (culverins.length > 0) {
+        return validTargets.reduce((best, pos) => {
+          const d = culverins.reduce((m, c) => Math.min(m, hexDistance(pos, c.position)), 99);
+          const bd = culverins.reduce((m, c) => Math.min(m, hexDistance(best, c.position)), 99);
+          return d < bd ? pos : best;
+        }, validTargets[0]);
+      }
+    }
+  }
+
+  // Cerignola: French rush south for breakthrough; Spanish hold trenches
+  if (state.scenarioId === 'cerignola') {
+    if (botFaction === 'cilicia') {
+      // Rush south to row 9
+      return validTargets.reduce((best, pos) =>
+        pos.row > best.row ? pos : best, validTargets[0]);
+    }
+    // Spanish: stay put for arquebusiers; rodeleros & pikemen stay near trenches
+    const def = UNIT_DEFINITIONS[unit.definitionType];
+    if (def.volleyFireBonus || unit.definitionType === 'culverin') return null;
+  }
+
+  return null; // fall through to generic logic
 }

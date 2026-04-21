@@ -17,6 +17,9 @@ import {
   chooseBotDiscardCard,
   chooseBotMoveTarget,
   chooseBotAttackTarget,
+  chooseBotAbilityUnit,
+  chooseBotBetrayalTarget,
+  chooseBotTerrainAttackTarget,
   nextUnitToMove,
   nextUnitToAttack,
   isBotUnitSelected,
@@ -150,8 +153,26 @@ export function useBotPlayer() {
 
       // ── Attack phase ──────────────────────────────────────────────────────────
       case 'attack': {
+        // Before attacking, try to activate a helpful ability (1× per game)
+        const abilityUnit = chooseBotAbilityUnit(state, botPlayer);
+        if (abilityUnit) {
+          timer = setTimeout(() => dispatch({ type: 'ACTIVATE_ABILITY', unitId: abilityUnit }), DELAY_MS);
+          break;
+        }
+
         if (isBotUnitSelected(state, botPlayer)) {
           const selected = state.units.find(u => u.id === state.selectedUnitId)!;
+          // Priority: shell walls if culverin/siege and wall is in range
+          if (!selected.hasAttacked && state.validAttackTerrainTargets.length > 0) {
+            const wallTarget = chooseBotTerrainAttackTarget(state, selected.id);
+            if (wallTarget) {
+              timer = setTimeout(
+                () => dispatch({ type: 'ATTACK_TERRAIN', attackerId: selected.id, targetPosition: wallTarget }),
+                DELAY_MS
+              );
+              break;
+            }
+          }
           if (!selected.hasAttacked && state.validAttackTargets.length > 0) {
             const defenderId = chooseBotAttackTarget(state.validAttackTargets, state, botPlayer);
             if (defenderId) {
@@ -162,20 +183,30 @@ export function useBotPlayer() {
               break;
             }
           }
-          // Already attacked or no targets — deselect and move to next unit
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: null }), 200);
           break;
         }
 
-        // Find next unit to attack. nextUnitToAttack only returns units with
-        // actual valid targets, so when it returns null we can safely end turn.
         const attackId = nextUnitToAttack(state, botPlayer);
         if (attackId) {
           timer = setTimeout(() => dispatch({ type: 'SELECT_UNIT', unitId: attackId }), DELAY_MS);
           break;
         }
-        // All units have attacked or have no valid targets — end turn
         timer = setTimeout(() => dispatch({ type: 'END_TURN' }), DELAY_MS);
+        break;
+      }
+
+      // ── Cesare's Betrayal: pick adjacent enemy condottiero ────────────────
+      case 'select_betrayal_target': {
+        const targetId = chooseBotBetrayalTarget(state);
+        if (targetId) {
+          timer = setTimeout(
+            () => dispatch({ type: 'SELECT_BETRAYAL_TARGET', targetId }),
+            DELAY_MS
+          );
+        } else {
+          timer = setTimeout(() => dispatch({ type: 'CANCEL_BETRAYAL' }), DELAY_MS);
+        }
         break;
       }
 

@@ -2,12 +2,10 @@ import type { UnitInstance } from '../types/unit';
 import type { GameState } from '../types/game';
 import { UNIT_DEFINITIONS } from './unitDefinitions';
 import { buildDeck, dealInitialHands } from '../logic/cards';
-import { ALL_SCENARIOS, SCENARIO_STANDARD } from './scenarios';
+import { ALL_SCENARIOS, SCENARIO_STANDARD, type ScenarioUnitSeed } from './scenarios';
 
 // ─── Unit factory from scenario definition ─────────────────────────────────────
-function hydrateUnit(
-  raw: Omit<UnitInstance, 'hp' | 'hasMoved' | 'hasAttacked' | 'isActivated' | 'attackBonus' | 'moveBonus' | 'directFireLocked' | 'parthianPhase'>
-): UnitInstance {
+function hydrateUnit(raw: ScenarioUnitSeed): UnitInstance {
   const def = UNIT_DEFINITIONS[raw.definitionType];
   return {
     ...raw,
@@ -19,6 +17,10 @@ function hydrateUnit(
     moveBonus: 0,
     directFireLocked: false,
     parthianPhase: 'none',
+    moveHistoryThisTurn: [raw.position],
+    specialAbilityUsed: false,
+    pilumReady: false,
+    warcryActive: false,
   };
 }
 
@@ -39,7 +41,7 @@ export function buildInitialState(scenarioId?: string): GameState {
     scenarioId: scenario.id,
     gridRows: scenario.gridRows ?? 9,
     gridCols: scenario.gridCols ?? 9,
-    terrain: scenario.terrain,
+    terrain: scenario.terrain.map(t => ({ ...t })),
     units,
     destroyedUnits: [],
     deck: remainingDeck,
@@ -53,12 +55,16 @@ export function buildInitialState(scenarioId?: string): GameState {
     activatedUnitIds: [],
     pendingDrawnCards: [],
     generalOffensiveSection: null,
+    pendingBetrayalSourceId: null,
+    volleyShotsThisTurn: [],
     pendingReinforcement: null,
+    activeScenarioEffects: (scenario.scenarioEffects ?? []).map(e => ({ ...e })),
     combatLog: [],
     victor: null,
     victoryCause: null,
     selectedUnitId: null,
     validMoveTargets: [],
     validAttackTargets: [],
+    validAttackTerrainTargets: [],
   };
 }

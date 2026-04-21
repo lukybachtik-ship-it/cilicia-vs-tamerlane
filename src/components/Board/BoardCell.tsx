@@ -25,6 +25,11 @@ const TERRAIN_BG: Record<TerrainType, string> = {
   fortress: 'bg-gray-700',
   village: 'bg-amber-900',
   tent: 'bg-yellow-700',
+  trench: 'bg-amber-950',
+  vineyard: 'bg-purple-900',
+  wall: 'bg-stone-500',
+  wagenburg: 'bg-amber-800',
+  ambush_forest: 'bg-green-950',
 };
 
 const TERRAIN_LABEL: Record<TerrainType, string> = {
@@ -34,6 +39,11 @@ const TERRAIN_LABEL: Record<TerrainType, string> = {
   fortress: '🏰',
   village: '🏘',
   tent: '⛺',
+  trench: '🪖',
+  vineyard: '🍇',
+  wall: '🧱',
+  wagenburg: '🛞',
+  ambush_forest: '🌲',
 };
 
 const ZONE_BORDER: Record<'left' | 'center' | 'right', string> = {

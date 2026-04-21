@@ -16,26 +16,44 @@ function isOccupied(pos: Position, units: UnitInstance[], excludeId?: string): b
 }
 
 function isCavalry(unit: UnitInstance): boolean {
+  const t = unit.definitionType;
   return (
-    unit.definitionType === 'light_cavalry' ||
-    unit.definitionType === 'heavy_cavalry' ||
-    unit.definitionType === 'horse_archers'
+    t === 'light_cavalry' ||
+    t === 'heavy_cavalry' ||
+    t === 'horse_archers' ||
+    t === 'gendarme' ||
+    t === 'stradiot' ||
+    t === 'condottiero' ||
+    t === 'equites'
+  );
+}
+
+/** True if the given terrain blocks all movement (like a wall or intact wagenburg). */
+function isBlockingTerrain(terrainType: string, structureHp: number | undefined): boolean {
+  if (terrainType === 'wall' && (structureHp ?? 1) > 0) return true;
+  return false;
+}
+
+/** True if entering this terrain forces the unit to stop (forest-style). */
+function forcesStop(terrainType: string): boolean {
+  return (
+    terrainType === 'forest' ||
+    terrainType === 'ambush_forest' ||
+    terrainType === 'fortress' ||
+    terrainType === 'vineyard' ||
+    terrainType === 'wagenburg'
   );
 }
 
 /**
  * BFS flood-fill for valid move destinations.
- *
- * Rules:
- * - Chebyshev distance (diagonal = 1 step)
- * - Cannot move through or onto squares occupied by any unit
- * - Cavalry cannot enter fortress squares
- * - Forest and Fortress: unit must stop upon entering (cannot continue moving)
  */
 export function getValidMoves(unit: UnitInstance, state: GameState): Position[] {
   const def = UNIT_DEFINITIONS[unit.definitionType];
   const ignoresStop = def.ignoresTerrainStop;
-  const maxMove = def.move + unit.moveBonus;
+  let maxMove = def.move + unit.moveBonus;
+  // Warcry temporarily gives +1 move
+  if (unit.warcryActive) maxMove += 1;
   const { gridRows, gridCols } = state;
 
   const reachable: Position[] = [];
@@ -67,9 +85,13 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
       const terrain = getTerrainAt(next, state);
       const terrainType = terrain?.terrain ?? 'plain';
+      const structureHp = terrain?.structureHp;
 
-      // Cavalry cannot enter fortress
-      if (isCavalry(unit) && terrainType === 'fortress') continue;
+      // Walls block
+      if (isBlockingTerrain(terrainType, structureHp)) continue;
+
+      // Cavalry cannot enter fortress / wagenburg (tight quarters)
+      if (isCavalry(unit) && (terrainType === 'fortress' || terrainType === 'wagenburg')) continue;
 
       const nextSteps = steps + 1;
       const prevBest = visited.get(posKey(next));
@@ -77,7 +99,7 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
       visited.set(posKey(next), nextSteps);
 
-      const mustStop = !ignoresStop && (terrainType === 'forest' || terrainType === 'fortress');
+      const mustStop = !ignoresStop && forcesStop(terrainType);
       queue.push({ pos: next, steps: nextSteps, stopped: mustStop });
     }
   }
@@ -86,9 +108,7 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 }
 
 /**
- * Get the retreat position for a unit (one step toward its home row).
- * Cilicia retreats toward row 1, Tamerlane toward the last row (gridRows).
- * Returns null if blocked by board edge or another unit.
+ * Get retreat position (one step toward home row).
  */
 export function getRetreatPosition(
   unit: UnitInstance,
@@ -108,8 +128,7 @@ export function getRetreatPosition(
 }
 
 /**
- * Panic retreat for militia: tries to flee 2 hexes toward home row.
- * Falls back to 1 hex if 2nd hex is blocked.
+ * Panic retreat for militia: tries 2 hexes toward home row.
  */
 export function getPanicRetreatPosition(
   unit: UnitInstance,
@@ -121,11 +140,10 @@ export function getPanicRetreatPosition(
   const step1: Position = { row: unit.position.row + direction, col: unit.position.col };
   const step2: Position = { row: unit.position.row + 2 * direction, col: unit.position.col };
 
-  // Try to flee 2 steps
   const step1Valid = isOnBoard(step1, gridRows, gridCols) && !isOccupied(step1, units, unit.id);
   const step2Valid = isOnBoard(step2, gridRows, gridCols) && !isOccupied(step2, units, unit.id);
 
   if (step1Valid && step2Valid) return step2;
   if (step1Valid) return step1;
-  return null; // blocked → takes damage (handled by caller)
+  return null;
 }

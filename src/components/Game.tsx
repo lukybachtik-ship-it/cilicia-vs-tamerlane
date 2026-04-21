@@ -8,6 +8,8 @@ import { UnitLegend } from './UI/UnitLegend';
 import { ScenarioSelect } from './UI/ScenarioSelect';
 import { TutorialHint } from './UI/TutorialHint';
 import { ConnectionBadge } from './UI/ConnectionBadge';
+import { ScenarioEffectsBanner } from './UI/ScenarioEffectsBanner';
+import { AbilityButton } from './UI/AbilityButton';
 import { useGame } from '../state/GameContext';
 import { useMultiplayer } from '../state/MultiplayerContext';
 import { useBotPlayer } from '../hooks/useBotPlayer';
@@ -22,6 +24,7 @@ const PHASE_HINTS: Record<string, string> = {
   move: 'Vyber aktivovanou jednotku → klikni na zelené pole. Pak klikni "Potvrdit pohyb" pro přechod k útoku.',
   attack: 'Vyber aktivovanou jednotku → klikni na červeně označeného nepřítele. Pak "Ukončit kolo".',
   choose_reinforcement_flank: 'Posily přicházejí! Vyber, na které křídlo dorazí.',
+  select_betrayal_target: 'Zrada: klikni na sousedního nepřátelského kondotiéra, který přeběhne.',
   game_over: '',
 };
 
@@ -88,6 +91,8 @@ export function Game() {
           </div>
         </div>
       </header>
+
+      <ScenarioEffectsBanner />
 
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden relative">
@@ -185,6 +190,9 @@ export function Game() {
       {state.currentPhase !== 'game_over' && state.currentPhase !== 'choose_reinforcement_flank' && (
         <div className="bg-gray-800 border-t border-gray-700 px-4 py-1.5 flex items-center gap-3 flex-shrink-0">
           <span className="text-gray-400 text-xs flex-1">{PHASE_HINTS[state.currentPhase]}</span>
+
+          {/* Ability buttons (1× per game special actions) */}
+          <AbilityButton />
 
           {/* Buttons only shown on our turn */}
           {isMyTurn && (

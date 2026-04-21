@@ -47,6 +47,28 @@ export function getZone(col: number): 'left' | 'center' | 'right' {
   return 'right';
 }
 
+/** True if unit type is a cavalry variant (for pike-wall / anti-cavalry checks). */
+export function isCavalryType(type: string): boolean {
+  return (
+    type === 'light_cavalry' ||
+    type === 'heavy_cavalry' ||
+    type === 'horse_archers' ||
+    type === 'gendarme' ||
+    type === 'stradiot' ||
+    type === 'condottiero' ||
+    type === 'equites'
+  );
+}
+
+/** True if unit type is a "heavy armour" target for crossbow penalty / rodelero bonus. */
+export function isHeavyCavalryType(type: string): boolean {
+  return (
+    type === 'heavy_cavalry' ||
+    type === 'gendarme' ||
+    type === 'condottiero'
+  );
+}
+
 /** Get all 6 hex neighbours of a position (grid-aware). */
 export function getNeighbors(
   pos: Position,

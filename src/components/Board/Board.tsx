@@ -16,6 +16,9 @@ import type { Position } from '../../types/unit';
 import { canCardActivateUnit } from '../../logic/cards';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { UNIT_ICONS } from '../../constants/unitIcons';
+import { isHiddenFrom } from '../../logic/visibility';
+import { hasAvailableAbility, hasGunpowderPanic, isChargingThisTurn, getVolleyBonus } from '../../logic/abilities';
+import { canBetray } from '../../logic/abilities';
 import {
   playSelectSound,
   playMoveSound,
@@ -27,30 +30,45 @@ import {
 const UNIT_R = 19;
 
 const TERRAIN_FILL: Record<TerrainType, string> = {
-  plain:    'url(#grad-plain)',
-  forest:   'url(#grad-forest)',
-  hill:     'url(#grad-hill)',
-  fortress: 'url(#grad-fortress)',
-  village:  'url(#grad-village)',
-  tent:     'url(#grad-tent)',
+  plain:         'url(#grad-plain)',
+  forest:        'url(#grad-forest)',
+  hill:          'url(#grad-hill)',
+  fortress:      'url(#grad-fortress)',
+  village:       'url(#grad-village)',
+  tent:          'url(#grad-tent)',
+  trench:        'url(#grad-trench)',
+  vineyard:      'url(#grad-vineyard)',
+  wall:          'url(#grad-wall)',
+  wagenburg:     'url(#grad-wagenburg)',
+  ambush_forest: 'url(#grad-ambush)',
 };
 
 const TERRAIN_STROKE: Record<TerrainType, string> = {
-  plain:    '#4a4540',
-  forest:   '#2d5c33',
-  hill:     '#6b4f2e',
-  fortress: '#666666',
-  village:  '#8B4513',
-  tent:     '#cc9900',
+  plain:         '#4a4540',
+  forest:        '#2d5c33',
+  hill:          '#6b4f2e',
+  fortress:      '#666666',
+  village:       '#8B4513',
+  tent:          '#cc9900',
+  trench:        '#573920',
+  vineyard:      '#6b4a8f',
+  wall:          '#8d8477',
+  wagenburg:     '#7a5228',
+  ambush_forest: '#1a4a25',
 };
 
 const TERRAIN_EMOJI: Record<TerrainType, string> = {
-  plain:    '',
-  forest:   '🌲',
-  hill:     '⛰',
-  fortress: '🏰',
-  village:  '🏘',
-  tent:     '⛺',
+  plain:         '',
+  forest:        '🌲',
+  hill:          '⛰',
+  fortress:      '🏰',
+  village:       '🏘',
+  tent:          '⛺',
+  trench:        '🪖',
+  vineyard:      '🍇',
+  wall:          '🧱',
+  wagenburg:     '🛞',
+  ambush_forest: '🌲',
 };
 
 // ── Lunge animation state type ─────────────────────────────────────────────────
@@ -67,6 +85,12 @@ export function Board() {
   const [hoveredCell, setHoveredCell]   = useState<Position | null>(null);
   const [attackFlash, setAttackFlash]   = useState<Position | null>(null);
   const [lungeOffset, setLungeOffset]   = useState<LungeOffset | null>(null);
+
+  // Viewing faction: which side's "eyes" are we drawing for (hides ambush units)
+  const viewingFaction =
+    mode === 'online' || mode === 'bot'
+      ? (myPlayer ?? state.currentPlayer)
+      : state.currentPlayer;
 
   // Track previous unit positions to detect remote moves and play sounds
   const prevPositionsRef = useRef<Map<string, { row: number; col: number }>>(new Map());
@@ -132,6 +156,19 @@ export function Board() {
         dispatch({ type: 'MOVE_UNIT', unitId: selectedUnit.id, targetPosition: { row, col } });
         return;
       }
+
+      // Culverin / siege: click on wall/wagenburg to shell it
+      if (
+        selectedUnit &&
+        state.currentPhase === 'attack' &&
+        state.validAttackTerrainTargets.some(p => posEqual(p, { row, col }))
+      ) {
+        playAttackSound();
+        setAttackFlash({ row, col });
+        dispatch({ type: 'ATTACK_TERRAIN', attackerId: selectedUnit.id, targetPosition: { row, col } });
+        setTimeout(() => setAttackFlash(null), 600);
+        return;
+      }
     }
 
     if (!unitOnCell) {
@@ -145,6 +182,16 @@ export function Board() {
     if (!unit) return;
 
     const phase = state.currentPhase;
+
+    // Cesare's betrayal target picker
+    if (phase === 'select_betrayal_target' && state.pendingBetrayalSourceId) {
+      const source = state.units.find(u => u.id === state.pendingBetrayalSourceId);
+      if (source && canBetray(source, unit)) {
+        playSelectSound();
+        dispatch({ type: 'SELECT_BETRAYAL_TARGET', targetId: unitId });
+      }
+      return;
+    }
 
     if (phase === 'activate_units' && unit.faction === state.currentPlayer) {
       if (state.activatedUnitIds.includes(unitId)) {
@@ -310,6 +357,26 @@ export function Board() {
             <stop offset="0%"   stopColor="#b8860b" />
             <stop offset="100%" stopColor="#8B6914" />
           </linearGradient>
+          <linearGradient id="grad-trench" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#6b4a28" />
+            <stop offset="100%" stopColor="#3d2b15" />
+          </linearGradient>
+          <linearGradient id="grad-vineyard" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#7b4d99" />
+            <stop offset="100%" stopColor="#4a2c66" />
+          </linearGradient>
+          <linearGradient id="grad-wall" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#a89e8f" />
+            <stop offset="100%" stopColor="#6e6859" />
+          </linearGradient>
+          <linearGradient id="grad-wagenburg" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#8B5E3C" />
+            <stop offset="100%" stopColor="#553a24" />
+          </linearGradient>
+          <linearGradient id="grad-ambush" x1="0" y1="0" x2="0.5" y2="1">
+            <stop offset="0%"   stopColor="#2d5c33" />
+            <stop offset="100%" stopColor="#0f2818" />
+          </linearGradient>
 
           <marker id="arrow-move"   markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
             <path d="M0,0 L0,6 L8,3 z" fill="#4ade80" />
@@ -338,11 +405,15 @@ export function Board() {
         {rows.flatMap(row =>
           cols.map(col => {
             const terrain = getTerrainAt(row, col);
+            const structureHp = state.terrain.find(
+              t => t.position.row === row && t.position.col === col
+            )?.structureHp;
             const unit    = getUnitAt(row, col);
             const zone    = getZone(col);
 
             const isValidMove   = state.validMoveTargets.some(p => posEqual(p, { row, col }));
             const isAttackTarget = !!unit && state.validAttackTargets.includes(unit.id);
+            const isTerrainAttackTarget = state.validAttackTerrainTargets.some(p => posEqual(p, { row, col }));
             const isSelected    = unit?.id === state.selectedUnitId;
             const isFlashing    = !!attackFlash && attackFlash.row === row && attackFlash.col === col;
             const isRangeHex    = rangeHexSet.has(`${row},${col}`);
@@ -412,6 +483,17 @@ export function Board() {
                   />
                 )}
 
+                {/* Wall/wagenburg attack target highlight */}
+                {isTerrainAttackTarget && (
+                  <polygon
+                    points={pts}
+                    fill="rgba(250,204,21,0.28)"
+                    stroke="#facc15"
+                    strokeWidth={2}
+                    style={{ pointerEvents: 'none' }}
+                  />
+                )}
+
                 {/* Selected unit hex outline */}
                 {isSelected && (
                   <polygon
@@ -449,6 +531,20 @@ export function Board() {
                   </text>
                 )}
 
+                {/* Structure HP label (walls/wagenburg) */}
+                {structureHp !== undefined && structureHp > 0 && !unit && (
+                  <text
+                    x={x} y={y + HEX_SIZE * 0.55}
+                    textAnchor="middle"
+                    fontSize="8"
+                    fontWeight="bold"
+                    fill="#facc15"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    ❤{structureHp}
+                  </text>
+                )}
+
                 {/* Coordinate label */}
                 <text
                   x={x - HEX_SIZE * 0.56}
@@ -478,8 +574,24 @@ export function Board() {
           style={{ pointerEvents: 'none' }}
         />
 
+        {/* ── Hidden-unit ghosts (ambush forest ?) ─────────────────────── */}
+        {state.units
+          .filter(u => isHiddenFrom(u, viewingFaction, state))
+          .map(u => {
+            const { x, y } = hexCenter(u.position);
+            return (
+              <g key={`hidden-${u.id}`} style={{ pointerEvents: 'none' }}>
+                <circle cx={x} cy={y} r={15} fill="rgba(20,40,20,0.6)" stroke="#4ade80" strokeWidth={1.5} strokeDasharray="3,2" opacity={0.7} />
+                <text x={x} y={y + 5} textAnchor="middle" fontSize="18" fontWeight="bold" fill="#4ade80">?</text>
+              </g>
+            );
+          })
+        }
+
         {/* ── Unit tokens (CSS-animated translate for smooth movement) ──── */}
-        {state.units.map(unit => {
+        {state.units
+          .filter(unit => !isHiddenFrom(unit, viewingFaction, state))
+          .map(unit => {
           const { x, y } = hexCenter(unit.position);
           const def = UNIT_DEFINITIONS[unit.definitionType];
 
@@ -494,6 +606,16 @@ export function Board() {
             !!state.playedCard &&
             canCardActivateUnit(state.playedCard, unit, state.activatedUnitIds, state);
 
+          // Betrayal target candidate?
+          const betrayalSource = state.pendingBetrayalSourceId
+            ? state.units.find(u => u.id === state.pendingBetrayalSourceId)
+            : null;
+          const isBetrayalTarget = !!betrayalSource && canBetray(betrayalSource, unit);
+          const hasAbility = hasAvailableAbility(unit) && unit.faction === state.currentPlayer;
+          const hasPanic = hasGunpowderPanic(unit, state);
+          const charging = isChargingThisTurn(unit);
+          const volleying = getVolleyBonus(unit, state) > 0;
+
           const terrain   = getTerrainAt(unit.position.row, unit.position.col);
           const elevation = getTerrainElevation(unit.position.row, unit.position.col);
 
@@ -507,6 +629,7 @@ export function Board() {
             : '#ef4444';
 
           const ringColor = isSelected     ? '#ffffff'
+            : isBetrayalTarget             ? '#ffd46a'
             : isAttackTarget               ? '#ef4444'
             : isEligible                   ? '#fbbf24'
             : null;
@@ -658,6 +781,53 @@ export function Board() {
                   opacity={0.9}
                 >
                   💤
+                </text>
+              )}
+
+              {/* Available activated ability sparkle (✦) */}
+              {hasAbility && (
+                <text
+                  x={-UNIT_R * 0.55}
+                  y={UNIT_R * 0.85}
+                  fontSize="11"
+                  fill="#fde68a"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  ✦
+                </text>
+              )}
+
+              {/* Gunpowder panic indicator */}
+              {hasPanic && (
+                <text
+                  x={UNIT_R * 0.15} y={-UNIT_R * 0.55}
+                  fontSize="10"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  😨
+                </text>
+              )}
+
+              {/* Charge indicator */}
+              {charging && (
+                <text
+                  x={-UNIT_R * 0.15} y={-UNIT_R * 0.55}
+                  fontSize="10"
+                  fill="#fbbf24"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  ⚡
+                </text>
+              )}
+
+              {/* Volley fire indicator */}
+              {volleying && (
+                <text
+                  x={UNIT_R * 0.55} y={UNIT_R * 0.85}
+                  fontSize="10"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  🔫
                 </text>
               )}
             </g>
