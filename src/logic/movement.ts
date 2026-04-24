@@ -29,9 +29,32 @@ function isCavalry(unit: UnitInstance): boolean {
   );
 }
 
-/** True if the given terrain blocks all movement (like a wall or intact wagenburg). */
-function isBlockingTerrain(terrainType: string, structureHp: number | undefined): boolean {
-  if (terrainType === 'wall' && (structureHp ?? 1) > 0) return true;
+/** True if the given terrain blocks all movement (like a wall or intact wagenburg).
+ *  Siege tower exception: wall adjacent to a same-faction siege_tower is
+ *  passable for non-cavalry (infantry) units (simulates escalade via tower).
+ */
+function isBlockingTerrain(
+  terrainType: string,
+  structureHp: number | undefined,
+  pos: Position,
+  unit: UnitInstance,
+  state: GameState
+): boolean {
+  if (terrainType === 'wall' && (structureHp ?? 1) > 0) {
+    // Check siege tower escalade
+    const hasAllyTowerAdjacent = state.units.some(
+      u =>
+        u.faction === unit.faction &&
+        u.definitionType === 'siege_tower' &&
+        Math.max(
+          Math.abs(u.position.row - pos.row),
+          Math.abs(u.position.col - pos.col)
+        ) === 1
+    );
+    const isInfantry = !isCavalry(unit);
+    if (hasAllyTowerAdjacent && isInfantry) return false;
+    return true;
+  }
   if (terrainType === 'gate' && (structureHp ?? 1) > 0) return true;
   return false;
 }
@@ -90,8 +113,8 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
       const terrainType = terrain?.terrain ?? 'plain';
       const structureHp = terrain?.structureHp;
 
-      // Walls block
-      if (isBlockingTerrain(terrainType, structureHp)) continue;
+      // Walls block (unless siege tower adjacent)
+      if (isBlockingTerrain(terrainType, structureHp, next, unit, state)) continue;
 
       // Cavalry cannot enter fortress / wagenburg (tight quarters)
       if (isCavalry(unit) && (terrainType === 'fortress' || terrainType === 'wagenburg')) continue;
@@ -104,6 +127,23 @@ export function getValidMoves(unit: UnitInstance, state: GameState): Position[] 
 
       const mustStop = !ignoresStop && forcesStop(terrainType);
       queue.push({ pos: next, steps: nextSteps, stopped: mustStop });
+    }
+  }
+
+  // ── Aqueduct teleport: light unit on aqueduct_surface gets aqueduct_exit as
+  // a special "teleport" valid move (1× per battle, handled by caller).
+  const currentTerrain = getTerrainAt(unit.position, state);
+  if (currentTerrain?.terrain === 'aqueduct_surface' && !isCavalry(unit)) {
+    const exitHex = state.terrain.find(t => t.terrain === 'aqueduct_exit');
+    if (exitHex) {
+      const exitOccupied = isOccupied(exitHex.position, state.units, unit.id);
+      if (!exitOccupied) {
+        // Add exit as reachable (unique)
+        const already = reachable.some(p =>
+          p.row === exitHex.position.row && p.col === exitHex.position.col
+        );
+        if (!already) reachable.push(exitHex.position);
+      }
     }
   }
 

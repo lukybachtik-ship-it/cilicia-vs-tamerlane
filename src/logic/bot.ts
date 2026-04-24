@@ -679,5 +679,46 @@ export function chooseBotMoveTargetForScenario(
     }
   }
 
+  // ── Campaign: Tricamarum ──────────────────────────────────────────────
+  // Vandals: Gelimer + Tzazon drží hřeben (řada 8); ostatní útočí
+  // k Belisariovi, ALE vyhýbají se překročení potoka (řada 6), dokud
+  // nemají dvoj-většinu v boji.
+  if (state.scenarioId === 'tricamarum' && botFaction === 'tamerlane') {
+    // Gelimer + Tzazon se drží na hřebenu (pokud jsou naživu, stůj)
+    if (unit.definitionType === 'gelimer' || unit.definitionType === 'tzazon') {
+      return null;
+    }
+    // Běžné jednotky: k Belisariovi, ale preferuj nepřekračovat potok
+    const belisarius = state.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+    if (belisarius) {
+      return validTargets.reduce((best, pos) => {
+        const d = hexDistance(pos, belisarius.position);
+        const bd = hexDistance(best, belisarius.position);
+        // Penalty pro hexy severně od potoka (řada < 6 = na vandalské straně nelze tlačit tak moc)
+        const streamPenalty = pos.row < 6 ? 10 : 0;
+        const bestStreamPenalty = best.row < 6 ? 10 : 0;
+        const score = -d - streamPenalty;
+        const bestScore = -bd - bestStreamPenalty;
+        return score > bestScore ? pos : best;
+      }, validTargets[0]);
+    }
+  }
+
+  // ── Campaign: Neapol ──────────────────────────────────────────────────
+  // Gotické defenders: drž pozice uvnitř hradeb (řada 3-6, cols 6-10)
+  if (state.scenarioId === 'neapol' && botFaction === 'tamerlane') {
+    // Archers na hradbách stůj (+1 dostřel from elevation)
+    if (unit.definitionType === 'gothic_archers') return null;
+    // Militia + infantry: stůj u bránamů nebo v centru
+    // Preferuj hexy uvnitř města (řada 3-6, col 6-10)
+    return validTargets.reduce((best, pos) => {
+      const inside = pos.row >= 3 && pos.row <= 6 && pos.col >= 6 && pos.col <= 10;
+      const bestInside = best.row >= 3 && best.row <= 6 && best.col >= 6 && best.col <= 10;
+      if (inside && !bestInside) return pos;
+      if (!inside && bestInside) return best;
+      return best;
+    }, validTargets[0]);
+  }
+
   return null; // fall through to generic logic
 }

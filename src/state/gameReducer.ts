@@ -740,6 +740,58 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    // ── Campaign: aplikovat Supply akci v bitvě ─────────────────────────────
+    case 'APPLY_SUPPLY_BONUS': {
+      const faction = action.spawnFaction ?? 'cilicia';
+      if (action.kind === 'bonus_die') {
+        // Emituj single_attack modifier +1 attack na další útok čl. frakce
+        const mod = {
+          id: generateId('mod_supply_bonus'),
+          source: 'ability' as const,
+          sourceUnitId: undefined,
+          descriptionCs: 'Posilující příkaz: +1 kostka pro příští útok',
+          targetFilter: { faction },
+          effect: { attackDice: 1 },
+          duration: { kind: 'turns' as const, remainingTurns: 1 },
+        };
+        return { ...state, activeModifiers: [...state.activeModifiers, mod] };
+      }
+      if (action.kind === 'reinforcement') {
+        // Spawn light_infantry v home row (cilicia=1, tamerlane=gridRows)
+        const homeRow = faction === 'cilicia' ? 1 : state.gridRows;
+        let spawnPos: { row: number; col: number } | null = null;
+        for (let col = 1; col <= state.gridCols; col++) {
+          const occupied = state.units.some(u => u.position.row === homeRow && u.position.col === col);
+          const terrain = state.terrain.find(t => t.position.row === homeRow && t.position.col === col);
+          const blocked = terrain?.terrain === 'wall' || terrain?.terrain === 'gate' || terrain?.terrain === 'fortress';
+          if (!occupied && !blocked) {
+            spawnPos = { row: homeRow, col };
+            break;
+          }
+        }
+        if (!spawnPos) return state;
+        const def = UNIT_DEFINITIONS.light_infantry;
+        const newUnit: UnitInstance = {
+          id: generateId('supply_reinf'),
+          definitionType: 'light_infantry',
+          faction,
+          hp: def.maxHp,
+          position: spawnPos,
+          hasMoved: false,
+          hasAttacked: false,
+          isActivated: false,
+          attackBonus: 0,
+          moveBonus: 0,
+          directFireLocked: false,
+          parthianPhase: 'none',
+          moveHistoryThisTurn: [spawnPos],
+          specialAbilityUsed: false,
+        };
+        return { ...state, units: [...state.units, newUnit] };
+      }
+      return state;
+    }
+
     // ── End Turn ─────────────────────────────────────────────────────────────
     case 'END_TURN': {
       if (state.currentPhase === 'play_card' || state.currentPhase === 'move') return state;

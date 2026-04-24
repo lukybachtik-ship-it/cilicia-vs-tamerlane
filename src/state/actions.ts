@@ -20,4 +20,6 @@ export type GameAction =
   | { type: 'END_TURN' }
   | { type: 'CHOOSE_REINFORCEMENT_FLANK'; flank: 'left' | 'center' | 'right' }
   | { type: 'RESTART_GAME'; scenarioId?: string; campaignOverrides?: CampaignOverrides }
-  | { type: 'SET_STATE'; state: GameState };
+  | { type: 'SET_STATE'; state: GameState }
+  // Campaign-mode: in-battle Supply token akce
+  | { type: 'APPLY_SUPPLY_BONUS'; kind: 'bonus_die' | 'reinforcement'; spawnFaction?: 'cilicia' | 'tamerlane' };

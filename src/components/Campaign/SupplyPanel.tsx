@@ -4,21 +4,24 @@ import { useGame } from '../../state/GameContext';
 
 /**
  * In-battle Supply panel — zobrazuje aktuální SP a umožňuje utrácet je
- * v průběhu bitvy. Zatím implementována jen akce "Nahlédnout do karet"
- * (Peek). Reroll a Posila přijdou v následujících iteracích.
- *
- * Komponenta se renderuje pouze v campaign módu (Game kontroluje).
+ * v průběhu bitvy: Peek (3 SP), Bonus kostka (1 SP), Posila (2 SP).
+ * Každá akce 1× za bitvu.
  */
 export function SupplyPanel() {
-  const { campaign, dispatch } = useCampaign();
-  const { state } = useGame();
+  const { campaign, dispatch: campaignDispatch } = useCampaign();
+  const { state, dispatch: gameDispatch } = useGame();
   const [peekUsed, setPeekUsed] = useState(false);
+  const [bonusUsed, setBonusUsed] = useState(false);
+  const [reinfUsed, setReinfUsed] = useState(false);
   const [peekingUntil, setPeekingUntil] = useState<number | null>(null);
 
-  // Reset peek availability when scenario changes (new battle)
+  // Reset action availability on new battle (turn 1)
   useEffect(() => {
-    setPeekUsed(false);
-    setPeekingUntil(null);
+    if (state.turnNumber === 1 && state.currentPhase === 'play_card') {
+      setPeekUsed(false);
+      setBonusUsed(false);
+      setReinfUsed(false);
+    }
   }, [state.scenarioId, state.turnNumber === 1]);
 
   // Auto-hide peek overlay after 6 seconds
@@ -31,47 +34,78 @@ export function SupplyPanel() {
   if (!campaign) return null;
 
   const sp = campaign.supplyTokens;
-  const canPeek = !peekUsed && sp >= 3 && state.currentPhase !== 'game_over';
+  const gameOver = state.currentPhase === 'game_over';
+  const canPeek = !peekUsed && sp >= 3 && !gameOver;
+  const canBonus = !bonusUsed && sp >= 1 && !gameOver;
+  const canReinf = !reinfUsed && sp >= 2 && !gameOver;
 
   const buyPeek = () => {
     if (!canPeek) return;
-    dispatch({
-      type: 'ADD_PURCHASE',
-      purchase: { id: 'in_battle_peek', costPaid: 3 },
-    });
+    campaignDispatch({ type: 'ADD_PURCHASE', purchase: { id: 'in_battle_peek', costPaid: 3 } });
     setPeekUsed(true);
     setPeekingUntil(Date.now() + 6000);
+  };
+
+  const buyBonus = () => {
+    if (!canBonus) return;
+    campaignDispatch({ type: 'ADD_PURCHASE', purchase: { id: 'in_battle_bonus_die', costPaid: 1 } });
+    gameDispatch({ type: 'APPLY_SUPPLY_BONUS', kind: 'bonus_die', spawnFaction: 'cilicia' });
+    setBonusUsed(true);
+  };
+
+  const buyReinf = () => {
+    if (!canReinf) return;
+    campaignDispatch({ type: 'ADD_PURCHASE', purchase: { id: 'in_battle_reinforcement', costPaid: 2 } });
+    gameDispatch({ type: 'APPLY_SUPPLY_BONUS', kind: 'reinforcement', spawnFaction: 'cilicia' });
+    setReinfUsed(true);
   };
 
   return (
     <>
       {/* Supply HUD (spodní pravý roh) */}
-      <div className="fixed bottom-2 right-2 z-30 bg-gray-900/95 border border-amber-700 rounded-lg p-2 shadow-xl">
-        <div className="flex items-center gap-2 text-xs">
+      <div className="fixed bottom-2 right-2 z-30 bg-gray-900/95 border border-amber-700 rounded-lg p-2 shadow-xl max-w-[200px]">
+        <div className="flex items-center gap-2 text-xs mb-1.5">
           <span className="text-amber-300 font-bold">Zásoby:</span>
           <span className="text-emerald-300 font-bold text-base">{sp}</span>
           <span className="text-gray-500 text-[10px]">/ 10</span>
         </div>
-        <button
-          onClick={buyPeek}
-          disabled={!canPeek}
-          title={
-            peekUsed
-              ? 'Peek již použito v této bitvě'
-              : sp < 3
-                ? 'Nedostatek Supply tokenů (potřeba 3)'
-                : 'Zobrazí soupeřovu ruku na 6 sekund'
-          }
-          className={`mt-1.5 w-full px-2 py-1 rounded text-[10px] font-bold transition-colors ${
-            canPeek
-              ? 'bg-amber-700 hover:bg-amber-600 text-white'
-              : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-          }`}
-        >
-          {peekUsed ? 'Peek ✓ použito' : `Nahlédnout do karet (3 SP)`}
-        </button>
-        <div className="mt-1 text-[9px] text-gray-500 italic leading-tight">
-          Reroll a posila — další iterace
+        <div className="flex flex-col gap-1">
+          <SupplyButton
+            label={bonusUsed ? 'Bonus ✓ použito' : 'Bonus kostka (1 SP)'}
+            hint={
+              bonusUsed
+                ? 'Použito v této bitvě'
+                : sp < 1
+                  ? 'Nedostatek SP'
+                  : '+1 útočná kostka pro jednu příští akci'
+            }
+            onClick={buyBonus}
+            enabled={canBonus}
+          />
+          <SupplyButton
+            label={reinfUsed ? 'Posila ✓ použita' : 'Posila (2 SP)'}
+            hint={
+              reinfUsed
+                ? 'Použito v této bitvě'
+                : sp < 2
+                  ? 'Nedostatek SP'
+                  : 'Přivolej lehkou pěchotu do domovské řady'
+            }
+            onClick={buyReinf}
+            enabled={canReinf}
+          />
+          <SupplyButton
+            label={peekUsed ? 'Peek ✓ použito' : 'Nahlédnutí (3 SP)'}
+            hint={
+              peekUsed
+                ? 'Použito v této bitvě'
+                : sp < 3
+                  ? 'Nedostatek SP'
+                  : 'Zobrazí soupeřovu ruku na 6 sekund'
+            }
+            onClick={buyPeek}
+            enabled={canPeek}
+          />
         </div>
       </div>
 
@@ -105,6 +139,33 @@ export function SupplyPanel() {
         </div>
       )}
     </>
+  );
+}
+
+function SupplyButton({
+  label,
+  hint,
+  onClick,
+  enabled,
+}: {
+  label: string;
+  hint: string;
+  onClick: () => void;
+  enabled: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={!enabled}
+      title={hint}
+      className={`w-full px-2 py-1 rounded text-[10px] font-bold transition-colors text-left ${
+        enabled
+          ? 'bg-amber-700 hover:bg-amber-600 text-white'
+          : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
