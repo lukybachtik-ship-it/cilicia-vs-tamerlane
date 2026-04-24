@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GameProvider, useGame } from './state/GameContext';
 import { MultiplayerProvider, useMultiplayer } from './state/MultiplayerContext';
 import { CampaignProvider, useCampaign } from './state/CampaignContext';
@@ -55,12 +55,27 @@ function CampaignFlow({
 
   const isNarrativeEpilog = currentScenarioId === 'epilog_b' || currentScenarioId === 'epilog_c';
 
+  // Track which scenario the current battle was started for. Prevents re-dispatching
+  // RESTART_GAME every time campaign state changes (e.g. in-battle supply action
+  // like ADD_PURCHASE would otherwise re-trigger the whole setup).
+  const battleStartedForRef = useRef<string | null>(null);
+
+  // Clear the "battle started" guard when leaving battle subphase
+  useEffect(() => {
+    if (subphase !== 'battle') {
+      battleStartedForRef.current = null;
+    }
+  }, [subphase]);
+
   // On entering battle phase, kick off the scenario as a bot game (skip for narrative epilogs)
   useEffect(() => {
     if (subphase !== 'battle') return;
     if (!campaign) return;
     if (!currentScenarioId) return;
-    if (isNarrativeEpilog) return; // narrative scenes nebyjují RESTART_GAME
+    if (isNarrativeEpilog) return;
+    // Guard: already started this scenario — don't reset on every campaign state change
+    if (battleStartedForRef.current === currentScenarioId) return;
+    battleStartedForRef.current = currentScenarioId;
     setBotPlayer('tamerlane');
     gameDispatch({
       type: 'RESTART_GAME',
@@ -74,7 +89,11 @@ function CampaignFlow({
         difficulty: campaign.difficulty,
       },
     });
-  }, [subphase, currentScenarioId, setBotPlayer, gameDispatch, campaign, isNarrativeEpilog]);
+    // NOTE: We intentionally don't depend on `campaign` here — only on
+    // `currentScenarioId`. In-battle changes (ADD_PURCHASE, SET_SECRET_GOAL
+    // in pre-battle) must not re-dispatch RESTART_GAME.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subphase, currentScenarioId, isNarrativeEpilog]);
 
   // Detect game_over → post_victory
   useEffect(() => {

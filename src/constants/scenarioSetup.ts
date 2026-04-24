@@ -121,6 +121,110 @@ export function buildInitialState(scenarioId?: string, overrides?: CampaignOverr
       if (gelimer) gelimer.hp = Math.max(1, gelimer.hp - 1);
     }
 
+    // ── Pre-battle nákupy z Velitelské rady (hráč = cilicia) ─────────────
+    // Reinforcement: spawn 1 light_infantry v druhé řadě (týl)
+    if (overrides.purchases?.includes('reinforcement')) {
+      const spawnRow = 2;
+      const occupiedCols = units
+        .filter(u => u.position.row === spawnRow)
+        .map(u => u.position.col);
+      const terrainBlockedCols = (scenario.terrain ?? [])
+        .filter(t => t.position.row === spawnRow &&
+          ['wall', 'gate', 'fortress'].includes(t.terrain))
+        .map(t => t.position.col);
+      let spawnCol: number | null = null;
+      const centerStart = Math.floor((scenario.gridCols ?? 9) / 2);
+      // Preferuj hexy blíže středu (spíš podpoří centrum fronty)
+      const tryOrder: number[] = [];
+      for (let off = 0; off <= (scenario.gridCols ?? 9); off++) {
+        if (centerStart - off >= 1) tryOrder.push(centerStart - off);
+        if (off > 0 && centerStart + off <= (scenario.gridCols ?? 9)) tryOrder.push(centerStart + off);
+      }
+      for (const c of tryOrder) {
+        if (!occupiedCols.includes(c) && !terrainBlockedCols.includes(c)) {
+          spawnCol = c; break;
+        }
+      }
+      if (spawnCol !== null) {
+        const def = UNIT_DEFINITIONS.light_infantry;
+        units.push({
+          id: generateId('purchase_reinf'),
+          definitionType: 'light_infantry',
+          faction: 'cilicia',
+          hp: def.maxHp,
+          position: { row: spawnRow, col: spawnCol },
+          hasMoved: false,
+          hasAttacked: false,
+          isActivated: false,
+          attackBonus: 0,
+          moveBonus: 0,
+          directFireLocked: false,
+          parthianPhase: 'none',
+          moveHistoryThisTurn: [{ row: spawnRow, col: spawnCol }],
+          specialAbilityUsed: false,
+        });
+      }
+    }
+
+    // Katafrakti (odemčeno přes Favor 6 nebo scénářový unlock po Tricamaru)
+    if (overrides.purchases?.includes('katafrakti')) {
+      const spawnRow = 2;
+      const occupiedCols = units
+        .filter(u => u.position.row === spawnRow)
+        .map(u => u.position.col);
+      const centerStart = Math.floor((scenario.gridCols ?? 9) / 2);
+      let spawnCol: number | null = null;
+      for (let off = 0; off <= (scenario.gridCols ?? 9); off++) {
+        if (centerStart - off >= 1 && !occupiedCols.includes(centerStart - off)) {
+          spawnCol = centerStart - off; break;
+        }
+        if (off > 0 && centerStart + off <= (scenario.gridCols ?? 9) && !occupiedCols.includes(centerStart + off)) {
+          spawnCol = centerStart + off; break;
+        }
+      }
+      if (spawnCol !== null) {
+        const def = UNIT_DEFINITIONS.cataphract;
+        units.push({
+          id: generateId('purchase_katafr'),
+          definitionType: 'cataphract',
+          faction: 'cilicia',
+          hp: def.maxHp,
+          position: { row: spawnRow, col: spawnCol },
+          hasMoved: false,
+          hasAttacked: false,
+          isActivated: false,
+          attackBonus: 0,
+          moveBonus: 0,
+          directFireLocked: false,
+          parthianPhase: 'none',
+          moveHistoryThisTurn: [{ row: spawnRow, col: spawnCol }],
+          specialAbilityUsed: false,
+        });
+      }
+    }
+
+    // Volba sektoru: Belisarius získá +1 pohyb první kolo (reprezentuje lepší startovní pozici)
+    // Skutečnou volbu sektoru hráčem odkládáme na pozdější iteraci (vyžadovala by UI)
+    if (overrides.purchases?.includes('sector_choice')) {
+      const belisarius = units.find(u => u.definitionType === 'belisarius');
+      if (belisarius) {
+        campaignModifiers.push({
+          id: generateId('mod_sector'),
+          source: 'ability',
+          sourceUnitId: belisarius.id,
+          descriptionCs: 'Volba sektoru: Belisarius +1 pohyb první kolo',
+          targetFilter: { unitIds: [belisarius.id] },
+          effect: { moveBonus: 1 },
+          duration: { kind: 'turns', remainingTurns: 1 },
+        });
+      }
+    }
+
+    // Průzkum (1 zás.): informativní — reveal pozic; v MVP jen tooltip ve SupplyPanelu
+    // Špion (3 zás.): odemkne free Peek (handled in SupplyPanel by checking purchases)
+    // Buried_archers (Dara 2 zás.), legionary_devotion (5 zás.): jednorázové bitevní akce
+    // — zatím neimplementováno, zobrazuje se jen jako "✓ zakoupeno" bez efektu
+
     // Difficulty bonus pro bota (tamerlane faction):
     //   easy: žádný bonus
     //   normal: spawn 1 light_infantry navíc v řadě bota
