@@ -221,7 +221,7 @@ export function LobbyScreen() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {ALL_SCENARIOS.map(scenario => (
+            {ALL_SCENARIOS.filter(s => !s.isCampaignScenario).map(scenario => (
               <button
                 key={scenario.id}
                 onClick={() => handleCreateGame(scenario.id)}
@@ -359,7 +359,7 @@ export function LobbyScreen() {
 
           {/* Scenario selection */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-            {ALL_SCENARIOS.map(scenario => (
+            {ALL_SCENARIOS.filter(s => !s.isCampaignScenario).map(scenario => (
               <button
                 key={scenario.id}
                 onClick={() => handleBotGame(scenario.id)}

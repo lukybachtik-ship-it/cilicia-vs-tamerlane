@@ -35,6 +35,8 @@ export interface ScenarioDefinition {
   tamerlaneUnits: ScenarioUnitSeed[];
   difficultyCs: string;
   tags: string[];
+  /** Hide from the standard scenario picker (accessible only via Campaign mode). */
+  isCampaignScenario?: boolean;
   // Grid dimensions (default 9×9 if omitted)
   gridRows?: number;
   gridCols?: number;
@@ -748,6 +750,71 @@ export const SCENARIO_CERIGNOLA: ScenarioDefinition = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 1: Bitva u Dary (530 n. l.) — Belisarius vs Peršané
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_DARA_DEF: ScenarioDefinition = {
+  id: 'dara',
+  nameCs: 'Bitva u Dary',
+  descriptionCs: 'Belisarius vs perská armáda u byzantské pevnosti Dara. Zákopy, hradba, slon, Nesmrtelní — tutoriálový vstup do kampaně.',
+  flavourCs: 'Rok 530. Východní hranice říše. Pevnost Dara drží tři legie; před ní dvě linie zákopů a dvě pahorky. Mladý Belisarius hájí čelo Impéria proti přesile perského krále Kavadha.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Peršané',
+  difficultyCs: '⚖️ Tutoriálová',
+  tags: ['kampaň', 'tutoriál', 'obrana'],
+  gridRows: 11,
+  gridCols: 9,
+  killThresholdCilicia: 6,
+  killThresholdTamerlane: 5,
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Zničit 5 perských jednotek (praporků)',
+  victoryObjectiveTamerlaneCs: 'Zničit 6 byzantských jednotek',
+  isCampaignScenario: true,
+  terrain: [
+    // Pevnost Dara — 3 hexy v týlu Byzantinců (řady 1–2)
+    { position: { row: 1, col: 4 }, terrain: 'fortress', elevation: 0 },
+    { position: { row: 1, col: 5 }, terrain: 'fortress', elevation: 0 },
+    { position: { row: 1, col: 6 }, terrain: 'fortress', elevation: 0 },
+    // 2 pahorky na křídlech
+    { position: { row: 5, col: 1 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 5, col: 9 }, terrain: 'hill', elevation: 1 },
+    // Dvě linie zákopů před pevností (řady 3 a 4)
+    { position: { row: 3, col: 2 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 3, col: 4 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 3, col: 6 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 3, col: 8 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 4, col: 3 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 4, col: 5 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 4, col: 7 }, terrain: 'trench', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    // Pevnost: 2× těžká pěchota + 1× lukostřelci
+    { id: 'dar_by_hi1', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 2, col: 4 } },
+    { id: 'dar_by_ar',  definitionType: 'archers',        faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'dar_by_hi2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 2, col: 6 } },
+    // Za zákopy: Belisarius + Bukelárii (rezervní síla)
+    { id: 'dar_belisarius', definitionType: 'belisarius', faction: 'cilicia', position: { row: 3, col: 5 } },
+    { id: 'dar_bucelarii',  definitionType: 'bucelarii',  faction: 'cilicia', position: { row: 4, col: 4 } },
+    // Flanky (kopce): 2× hunská jízda
+    { id: 'dar_ha1', definitionType: 'horse_archers', faction: 'cilicia', position: { row: 5, col: 1 } },
+    { id: 'dar_ha2', definitionType: 'horse_archers', faction: 'cilicia', position: { row: 5, col: 9 } },
+  ],
+  tamerlaneUnits: [
+    // Perská jízda na křídlech (řada 11)
+    { id: 'dar_pc1', definitionType: 'persian_cavalry', faction: 'tamerlane', position: { row: 11, col: 1 } },
+    { id: 'dar_pc2', definitionType: 'persian_cavalry', faction: 'tamerlane', position: { row: 11, col: 2 } },
+    { id: 'dar_pc3', definitionType: 'persian_cavalry', faction: 'tamerlane', position: { row: 11, col: 8 } },
+    { id: 'dar_pc4', definitionType: 'persian_cavalry', faction: 'tamerlane', position: { row: 11, col: 9 } },
+    // Centrum (řada 10): Nesmrtelní + slon
+    { id: 'dar_im1', definitionType: 'persian_immortal', faction: 'tamerlane', position: { row: 10, col: 4 } },
+    { id: 'dar_el',  definitionType: 'elephant',         faction: 'tamerlane', position: { row: 10, col: 5 } },
+    { id: 'dar_im2', definitionType: 'persian_immortal', faction: 'tamerlane', position: { row: 10, col: 6 } },
+    // Zadní řada (řada 11): lukostřelci + Firouz
+    { id: 'dar_ar',  definitionType: 'sagittarii',       faction: 'tamerlane', position: { row: 11, col: 5 } },
+    { id: 'dar_firouz', definitionType: 'firouz',        faction: 'tamerlane', position: { row: 11, col: 6 } },
+  ],
+};
+
 export const ALL_SCENARIOS: ScenarioDefinition[] = [
   SCENARIO_STANDARD,
   SCENARIO_ANKARA,
@@ -758,4 +825,5 @@ export const ALL_SCENARIOS: ScenarioDefinition[] = [
   SCENARIO_VERCELLAE,
   SCENARIO_FORLI,
   SCENARIO_CERIGNOLA,
+  CAMPAIGN_SCENARIO_DARA_DEF,
 ];

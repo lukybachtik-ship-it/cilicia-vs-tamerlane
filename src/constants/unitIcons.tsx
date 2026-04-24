@@ -367,6 +367,214 @@ export const UNIT_ICONS: Record<string, React.ReactNode> = {
     </>
   ),
 
+  // ─── Kampaň: Belisariova éra ───────────────────────────────────────────────
+
+  // Belisarius — helma s chocholem + gold accent (hero)
+  belisarius: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#fde68a" strokeWidth="0.6" opacity={0.3} style={PI} />
+      <path d="M-6,2 Q-6,-6 0,-7 Q6,-6 6,2 L5,5 Q0,7 -5,5 Z"
+            fill="rgba(253,230,138,0.3)" stroke="#fde68a" strokeWidth="1.8" strokeLinejoin="round" style={PI} />
+      <path d="M0,-7 Q3,-11 4,-7" fill="none" stroke="#fde68a" strokeWidth="1.4" style={PI} />
+      <line x1={-4} y1={-2} x2={4} y2={-2} stroke="#fde68a" strokeWidth="1" style={PI} />
+      <line x1={0} y1={5} x2={0} y2={9} stroke="#fde68a" strokeWidth="1.4" style={PI} />
+    </>
+  ),
+
+  // Bukelárii — šavle se stuhou (elitní družina)
+  bucelarii: (
+    <>
+      <path d="M-9,6 Q0,-10 8,-2" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" style={PI} />
+      <polygon points="8,-2 4,-4 5,0" fill="white" style={PI} />
+      <circle cx={-9} cy={6} r={1.8} fill="white" style={PI} />
+      <path d="M-6,5 Q-4,8 0,6" fill="none" stroke="white" strokeWidth="1" opacity={0.6} style={PI} />
+    </>
+  ),
+
+  // Katafrakti — plně obrněný jezdec (kruhy = šupinová zbroj)
+  cataphract: (
+    <>
+      <rect x={-7} y={-3} width={14} height={8} rx={2} fill="rgba(255,255,255,0.25)" stroke="white" strokeWidth="1.4" style={PI} />
+      <circle cx={-4} cy={1} r={1.3} fill="white" style={PI} />
+      <circle cx={0}  cy={1} r={1.3} fill="white" style={PI} />
+      <circle cx={4}  cy={1} r={1.3} fill="white" style={PI} />
+      <line x1={-9} y1={-5} x2={9} y2={-5} stroke="white" strokeWidth="2" style={PI} />
+      <polygon points="9,-5 5,-7 5,-3" fill="white" style={PI} />
+      <circle cx={0} cy={-8} r={1.5} fill="white" style={PI} />
+    </>
+  ),
+
+  // Isaurijci — hory + kopí
+  isaurian_infantry: (
+    <>
+      <polygon points="-9,6 -4,-2 -1,2 3,-6 9,6" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <line x1={0} y1={8} x2={0} y2={-5} stroke="white" strokeWidth="1.6" strokeLinecap="round" style={PI} />
+      <polygon points="0,-7 -1.5,-3 1.5,-3" fill="white" style={PI} />
+    </>
+  ),
+
+  // Herulové — dvě sekery zkřížené (berserker)
+  heruli: (
+    <>
+      <line x1={-8} y1={8} x2={8} y2={-8} stroke="white" strokeWidth="1.6" strokeLinecap="round" style={PI} />
+      <line x1={8} y1={8} x2={-8} y2={-8} stroke="white" strokeWidth="1.6" strokeLinecap="round" style={PI} />
+      <path d="M-8,-8 Q-6,-5 -3,-5 Q-6,-2 -8,-1 Z" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.5" style={PI} />
+      <path d="M8,-8 Q6,-5 3,-5 Q6,-2 8,-1 Z" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.5" style={PI} />
+      <circle cx={0} cy={0} r={1.5} fill="white" style={PI} />
+    </>
+  ),
+
+  // Maurijští oštěpníci — oštěp + kruhový štít
+  mauri_spearmen: (
+    <>
+      <circle cx={-4} cy={2} r={6} fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth="1.4" style={PI} />
+      <line x1={4} y1={-8} x2={9} y2={8} stroke="white" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+      <polygon points="4,-8 2,-5 6,-5" fill="white" style={PI} />
+    </>
+  ),
+
+  // ─── Peršané ──────────────────────────────────────────────────────────────
+
+  // Nesmrtelní — zdobené kopí + koruna
+  persian_immortal: (
+    <>
+      <path d="M-8,6 L-8,-4 Q-4,-7 0,-7 Q4,-7 8,-4 L8,6 Z" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1.5" strokeLinejoin="round" style={PI} />
+      <line x1={0} y1={-7} x2={0} y2={-11} stroke="white" strokeWidth="1.4" style={PI} />
+      <polygon points="0,-11 -2,-9 2,-9" fill="white" style={PI} />
+      <line x1={-5} y1={2} x2={5} y2={2} stroke="white" strokeWidth="1" opacity={0.7} style={PI} />
+    </>
+  ),
+
+  // Perská jízda — vlnitý meč (shamshir)
+  persian_cavalry: (
+    <>
+      <path d="M-8,7 Q-3,-3 2,-2 Q6,-1 9,-5" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" style={PI} />
+      <polygon points="9,-5 5,-6 6,-2" fill="white" style={PI} />
+      <polyline points="-6,-5 0,-2 -6,3" fill="none" stroke="white" strokeWidth="1.6" opacity={0.6} strokeLinejoin="round" style={PI} />
+    </>
+  ),
+
+  // Slon — silueta slona s klem
+  elephant: (
+    <>
+      <ellipse cx={-1} cy={2} rx={9} ry={5} fill="rgba(255,255,255,0.25)" stroke="white" strokeWidth="1.4" style={PI} />
+      <circle cx={-7} cy={-1} r={2.5} fill="rgba(255,255,255,0.3)" stroke="white" strokeWidth="1.2" style={PI} />
+      <path d="M-9,-1 Q-11,3 -10,7" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" style={PI} />
+      <line x1={-9} y1={4} x2={-11} y2={6} stroke="white" strokeWidth="1.2" style={PI} />
+      <line x1={5} y1={7} x2={5} y2={10} stroke="white" strokeWidth="1.2" style={PI} />
+      <line x1={-2} y1={7} x2={-2} y2={10} stroke="white" strokeWidth="1.2" style={PI} />
+      <circle cx={-5} cy={-2} r={0.8} fill="white" style={PI} />
+    </>
+  ),
+
+  // Firouz — persian_cavalry + zlatý chochol
+  firouz: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#fde68a" strokeWidth="0.6" opacity={0.3} style={PI} />
+      <path d="M-8,7 Q-3,-3 2,-2 Q6,-1 9,-5" fill="none" stroke="#fde68a" strokeWidth="2.2" strokeLinecap="round" style={PI} />
+      <polygon points="9,-5 5,-6 6,-2" fill="#fde68a" style={PI} />
+      <path d="M-3,-3 Q-1,-8 2,-7" fill="none" stroke="#fde68a" strokeWidth="1.4" style={PI} />
+      <circle cx={2} cy={-7} r={1.3} fill="#fde68a" style={PI} />
+    </>
+  ),
+
+  // ─── Nika povstalci ───────────────────────────────────────────────────────
+
+  // Civilní dav — pěti-bodový "zubatý" tvar (rozběsněný dav)
+  civilian_mob: (
+    <>
+      <polygon points="-9,6 -6,-2 -3,4 0,-4 3,4 6,-2 9,6" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.4" strokeLinejoin="round" style={PI} />
+      <circle cx={-6} cy={0} r={1} fill="white" style={PI} />
+      <circle cx={0} cy={-1} r={1} fill="white" style={PI} />
+      <circle cx={6} cy={0} r={1} fill="white" style={PI} />
+    </>
+  ),
+
+  // Dav s kameny — přidáno "letící" kruhy
+  stone_throwing_mob: (
+    <>
+      <polygon points="-9,8 -6,0 -3,6 0,-2 3,6 6,0 9,8" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.4" strokeLinejoin="round" style={PI} />
+      <circle cx={-3} cy={-6} r={2} fill="white" style={PI} />
+      <circle cx={3} cy={-8} r={1.5} fill="white" opacity={0.7} style={PI} />
+      <circle cx={5} cy={-4} r={1.2} fill="white" opacity={0.5} style={PI} />
+    </>
+  ),
+
+  // Hypatius — dav + purpurová koruna
+  hypatius: (
+    <>
+      <polygon points="-9,7 -6,-1 -3,5 0,-3 3,5 6,-1 9,7" fill="rgba(196,87,255,0.3)" stroke="#c77dff" strokeWidth="1.4" strokeLinejoin="round" style={PI} />
+      <path d="M-5,-4 L-3,-7 L0,-4 L3,-7 L5,-4 L5,-2 L-5,-2 Z" fill="#c77dff" stroke="#7b2cbf" strokeWidth="1" strokeLinejoin="round" style={PI} />
+    </>
+  ),
+
+  // Pompeius — stejný vzor, jiná pozice koruny
+  pompeius: (
+    <>
+      <polygon points="-9,7 -6,-1 -3,5 0,-3 3,5 6,-1 9,7" fill="rgba(196,87,255,0.3)" stroke="#c77dff" strokeWidth="1.4" strokeLinejoin="round" style={PI} />
+      <rect x={-5} y={-7} width={10} height={3} fill="#c77dff" stroke="#7b2cbf" strokeWidth="1" style={PI} />
+      <rect x={-3} y={-5} width={6} height={2} fill="#c77dff" stroke="#7b2cbf" strokeWidth="0.5" style={PI} />
+    </>
+  ),
+
+  // ─── Vandalové ──────────────────────────────────────────────────────────
+
+  // Vandalská jízda — rohatá helma + oštěp (barbaři)
+  vandal_cavalry: (
+    <>
+      <path d="M-6,-2 Q-6,-8 0,-8 Q6,-8 6,-2 L5,3 Q0,5 -5,3 Z"
+            fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.5" strokeLinejoin="round" style={PI} />
+      <path d="M-6,-5 Q-9,-10 -7,-11" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" style={PI} />
+      <path d="M6,-5 Q9,-10 7,-11" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" style={PI} />
+      <line x1={-8} y1={9} x2={8} y2={3} stroke="white" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+    </>
+  ),
+
+  // Vandalská pěchota — zkřížené meče
+  vandal_infantry: (
+    <>
+      <line x1={-7} y1={-7} x2={7} y2={7}  stroke="white" strokeWidth="2.2" strokeLinecap="round" style={PI} />
+      <line x1={7}  y1={-7} x2={-7} y2={7} stroke="white" strokeWidth="2.2" strokeLinecap="round" style={PI} />
+      <circle cx={0} cy={0} r={1.6} fill="white" style={PI} />
+    </>
+  ),
+
+  // Ammatas — vandal + červený chochol
+  ammatas: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#f87171" strokeWidth="0.5" opacity={0.3} style={PI} />
+      <path d="M-6,-2 Q-6,-8 0,-8 Q6,-8 6,-2 L5,3 Q0,5 -5,3 Z"
+            fill="rgba(248,113,113,0.25)" stroke="#f87171" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <path d="M0,-8 Q3,-12 2,-7" fill="#f87171" stroke="#b91c1c" strokeWidth="1" style={PI} />
+      <line x1={-8} y1={9} x2={8} y2={3} stroke="#f87171" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+    </>
+  ),
+
+  // Gelimer — královská koruna
+  gelimer: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#fbbf24" strokeWidth="0.5" opacity={0.3} style={PI} />
+      <path d="M-6,-2 Q-6,-8 0,-8 Q6,-8 6,-2 L5,3 Q0,5 -5,3 Z"
+            fill="rgba(251,191,36,0.25)" stroke="#fbbf24" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <path d="M-5,-8 L-3,-12 L0,-9 L3,-12 L5,-8" fill="#fbbf24" stroke="#b45309" strokeWidth="1" strokeLinejoin="round" style={PI} />
+      <circle cx={-3} cy={-12} r={1} fill="#fbbf24" style={PI} />
+      <circle cx={0} cy={-9} r={1} fill="#fbbf24" style={PI} />
+      <circle cx={3} cy={-12} r={1} fill="#fbbf24" style={PI} />
+      <line x1={-8} y1={9} x2={8} y2={3} stroke="#fbbf24" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+    </>
+  ),
+
+  // Tzazon — vandal + modrý chochol
+  tzazon: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#60a5fa" strokeWidth="0.5" opacity={0.3} style={PI} />
+      <path d="M-6,-2 Q-6,-8 0,-8 Q6,-8 6,-2 L5,3 Q0,5 -5,3 Z"
+            fill="rgba(96,165,250,0.25)" stroke="#60a5fa" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <path d="M0,-8 Q-2,-12 -3,-8" fill="none" stroke="#60a5fa" strokeWidth="1.4" style={PI} />
+      <line x1={-8} y1={9} x2={8} y2={3} stroke="#60a5fa" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+    </>
+  ),
+
   // Cesare Borgia — zlatý býk (heraldika Borgia) se zakřivenými rohy
   cesare_borgia: (
     <>

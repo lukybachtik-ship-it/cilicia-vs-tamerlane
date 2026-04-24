@@ -33,7 +33,30 @@ export type UnitType =
   | 'culverin'
   | 'condottiero'
   | 'caterina_sforza'
-  | 'cesare_borgia';
+  | 'cesare_borgia'
+  // Campaign — Belisarius era (VI. století)
+  | 'belisarius'
+  | 'bucelarii'
+  | 'cataphract'
+  | 'isaurian_infantry'
+  | 'heruli'
+  | 'mauri_spearmen'
+  // Peršané (nepřátelé z Dary)
+  | 'persian_immortal'
+  | 'persian_cavalry'
+  | 'elephant'
+  | 'firouz'
+  // Nika povstalci
+  | 'civilian_mob'
+  | 'stone_throwing_mob'
+  | 'hypatius'
+  | 'pompeius'
+  // Vandalové (Ad Decimum)
+  | 'vandal_cavalry'
+  | 'vandal_infantry'
+  | 'ammatas'
+  | 'gelimer'
+  | 'tzazon';
 
 export type FactionId = 'cilicia' | 'tamerlane';
 

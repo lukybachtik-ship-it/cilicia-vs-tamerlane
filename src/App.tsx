@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GameProvider } from './state/GameContext';
+import { GameProvider, useGame } from './state/GameContext';
 import { MultiplayerProvider, useMultiplayer } from './state/MultiplayerContext';
 import { CampaignProvider, useCampaign } from './state/CampaignContext';
 import { MultiplayerSync } from './components/multiplayer/MultiplayerSync';
@@ -7,6 +7,9 @@ import { Game } from './components/Game';
 import { LobbyScreen } from './components/UI/LobbyScreen';
 import { VelitelskaRada } from './components/Campaign/VelitelskaRada';
 import { TransitionScreen } from './components/Campaign/TransitionScreen';
+import { PostVictoryScreen } from './components/Campaign/PostVictoryScreen';
+import { CAMPAIGN_SCENARIO_SEQUENCE } from './constants/campaignScenarios';
+import { evaluateSecretGoal } from './logic/campaignGoals';
 
 /** Reads ?room=CODE from URL and stores it for the LobbyScreen to pick up */
 function UrlRoomHandler() {
@@ -23,7 +26,93 @@ function UrlRoomHandler() {
 }
 
 /** Subphase within campaign mode. */
-type CampaignSubphase = 'velitelska_rada' | 'transition' | 'battle';
+type CampaignSubphase = 'velitelska_rada' | 'transition' | 'battle' | 'post_victory';
+
+function CampaignFlow({
+  subphase,
+  setSubphase,
+  onExit,
+}: {
+  subphase: CampaignSubphase;
+  setSubphase: (p: CampaignSubphase) => void;
+  onExit: () => void;
+}) {
+  const { campaign, dispatch: campaignDispatch } = useCampaign();
+  const { state: gameState, dispatch: gameDispatch } = useGame();
+  const { setBotPlayer, setMode, setConnectionStatus } = useMultiplayer();
+
+  // On entering battle phase, kick off the scenario as a bot game
+  useEffect(() => {
+    if (subphase !== 'battle') return;
+    if (!campaign) return;
+    const scenarioId = CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex];
+    if (!scenarioId) return;
+    setBotPlayer('tamerlane');
+    gameDispatch({ type: 'RESTART_GAME', scenarioId });
+  }, [subphase, campaign?.currentScenarioIndex, setBotPlayer, gameDispatch, campaign]);
+
+  // Detect game_over → post_victory
+  useEffect(() => {
+    if (subphase !== 'battle') return;
+    if (gameState.currentPhase !== 'game_over') return;
+    setSubphase('post_victory');
+  }, [subphase, gameState.currentPhase, setSubphase]);
+
+  if (!campaign) {
+    // Fallback: no campaign, exit
+    onExit();
+    return null;
+  }
+
+  switch (subphase) {
+    case 'velitelska_rada':
+      return (
+        <VelitelskaRada
+          onBack={onExit}
+          onConfirm={() => setSubphase('transition')}
+        />
+      );
+    case 'transition':
+      return <TransitionScreen onFinished={() => setSubphase('battle')} />;
+    case 'battle':
+      return <Game />;
+    case 'post_victory': {
+      const scenarioId = CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex]!;
+      const victory = gameState.victor === 'cilicia';
+      const enemiesDestroyed = gameState.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
+      const lossesSuffered = gameState.destroyedUnits.filter(u => u.faction === 'cilicia').length;
+      const bucelariiFallen = gameState.destroyedUnits.some(u => u.definitionType === 'bucelarii');
+      const goalResult = campaign.currentSecretGoal
+        ? evaluateSecretGoal(scenarioId, campaign.currentSecretGoal, gameState, campaign)
+        : { achieved: false };
+      return (
+        <PostVictoryScreen
+          result={{
+            scenarioId,
+            victory,
+            secretGoalChosen: campaign.currentSecretGoal,
+            secretGoalAchieved: goalResult.achieved,
+            buceliariiSurvived: !bucelariiFallen,
+            buceliariiXpEarned: goalResult.buceliariiXpEarned ?? 0,
+            enemiesDestroyed,
+            lossesSuffered,
+          }}
+          onContinue={() => {
+            campaignDispatch({ type: 'ADVANCE_TO_NEXT_SCENARIO' });
+            setSubphase('velitelska_rada');
+          }}
+          onRetry={() => {
+            // Reset battle — keep campaign state intact; re-enter rada
+            setSubphase('velitelska_rada');
+            setMode('local');
+            setConnectionStatus('idle');
+            onExit();
+          }}
+        />
+      );
+    }
+  }
+}
 
 function LobbyOrGame() {
   const { mode, connectionStatus, setMode, setConnectionStatus } = useMultiplayer();
@@ -37,28 +126,22 @@ function LobbyOrGame() {
     if (mode === 'campaign') setCampaignSubphase('velitelska_rada');
   }, [mode]);
 
-  // Show game when: local mode explicitly chosen, online connected, or bot game started
   const showGame =
     (mode === 'local' && connectionStatus !== 'idle') ||
     (mode === 'online' && connectionStatus === 'connected') ||
-    (mode === 'bot' && connectionStatus === 'connected') ||
-    (mode === 'campaign' && connectionStatus === 'connected' && campaignSubphase === 'battle');
+    (mode === 'bot' && connectionStatus === 'connected');
 
-  if (mode === 'campaign' && campaign && campaignSubphase === 'velitelska_rada') {
+  if (mode === 'campaign' && campaign) {
     return (
-      <VelitelskaRada
-        onBack={() => {
-          // Zpět do kampaňového hubu (v LobbyScreen)
+      <CampaignFlow
+        subphase={campaignSubphase}
+        setSubphase={setCampaignSubphase}
+        onExit={() => {
           setMode('local');
           setConnectionStatus('idle');
         }}
-        onConfirm={() => setCampaignSubphase('transition')}
       />
     );
-  }
-
-  if (mode === 'campaign' && campaign && campaignSubphase === 'transition') {
-    return <TransitionScreen onFinished={() => setCampaignSubphase('battle')} />;
   }
 
   return showGame ? <Game /> : <LobbyScreen />;

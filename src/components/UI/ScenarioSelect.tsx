@@ -61,7 +61,7 @@ export function ScenarioSelect() {
         {/* ── Scenarios tab ── */}
         {tab === 'scenarios' && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 overflow-y-auto">
-            {ALL_SCENARIOS.map(scenario => (
+            {ALL_SCENARIOS.filter(s => !s.isCampaignScenario).map(scenario => (
               <button
                 key={scenario.id}
                 onClick={() => dispatch({ type: 'RESTART_GAME', scenarioId: scenario.id })}
