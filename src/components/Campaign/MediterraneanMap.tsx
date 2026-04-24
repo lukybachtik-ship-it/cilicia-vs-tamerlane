@@ -58,56 +58,59 @@ export function MediterraneanMap({ currentScenarioIndex, completedScenarios, onS
       {/* Korsika */}
       <ellipse cx="385" cy="268" rx="12" ry="22" fill="#7a8a5c" stroke="#4a5c3a" strokeWidth="1.3" />
 
-      {/* Itálie — klasický tvar "boty" */}
+      {/* Itálie — klasický tvar „boty" (25 bodů, striktně po směru hodinových ručiček) */}
       <path
-        d="M 470,95
-           L 545,95
-           L 570,120
-           L 585,165
-           L 582,215
-           L 570,260
-           L 560,300
-           L 552,335
-           L 585,355
+        d="M 470,100
+           L 545,100
+           L 560,125
+           L 555,170
+           L 558,215
+           L 552,255
+           L 545,295
+           L 540,330
+           L 558,348
+           L 588,360
            L 610,370
-           L 615,395
-           L 595,410
-           L 560,415
-           L 530,432
-           L 505,435
-           L 495,420
-           L 498,395
-           L 505,370
-           L 510,340
-           L 500,300
-           L 487,260
-           L 478,215
-           L 470,165
-           L 465,125
+           L 612,390
+           L 590,400
+           L 555,405
+           L 525,420
+           L 510,432
+           L 498,428
+           L 493,412
+           L 498,390
+           L 510,365
+           L 515,335
+           L 510,300
+           L 497,260
+           L 488,215
+           L 480,170
+           L 473,130
            Z"
         fill="#7a8a5c" stroke="#4a5c3a" strokeWidth="1.5"
       />
-      {/* Sicílie — trojúhelníkový ostrov pod špičkou Itálie */}
+      {/* Sicílie — trojúhelníkový ostrov pod špičkou Itálie (mírně odsazený JZ) */}
       <polygon
-        points="470,455 535,450 510,478 475,475"
+        points="440,448 495,443 510,468 465,472"
         fill="#7a8a5c" stroke="#4a5c3a" strokeWidth="1.5"
       />
 
-      {/* Balkán + Řecko (zahrnuje Adriatický poloostrov) */}
+      {/* Balkán + Řecko (zahrnuje Adriatický poloostrov) — posunuto na východ,
+           aby Itálie a Balkán byly jasně oddělené Adriatickým mořem */}
       <path
-        d="M 570,90
-           L 620,105
-           L 650,140
-           L 665,195
-           L 670,240
-           L 655,290
-           L 625,320
-           L 590,345
-           L 575,330
-           L 560,295
-           L 555,245
-           L 560,190
-           L 565,135
+        d="M 595,95
+           L 645,108
+           L 670,145
+           L 680,195
+           L 685,245
+           L 665,295
+           L 632,325
+           L 602,345
+           L 590,325
+           L 582,285
+           L 585,235
+           L 590,180
+           L 592,135
            Z"
         fill="#7a8a5c" stroke="#4a5c3a" strokeWidth="1.5"
       />
