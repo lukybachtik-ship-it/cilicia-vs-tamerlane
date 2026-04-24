@@ -710,13 +710,104 @@ export function chooseBotMoveTargetForScenario(
     // Archers na hradbách stůj (+1 dostřel from elevation)
     if (unit.definitionType === 'gothic_archers') return null;
     // Militia + infantry: stůj u bránamů nebo v centru
-    // Preferuj hexy uvnitř města (řada 3-6, col 6-10)
     return validTargets.reduce((best, pos) => {
       const inside = pos.row >= 3 && pos.row <= 6 && pos.col >= 6 && pos.col <= 10;
       const bestInside = best.row >= 3 && best.row <= 6 && best.col >= 6 && best.col <= 10;
       if (inside && !bestInside) return pos;
       if (!inside && bestInside) return best;
       return best;
+    }, validTargets[0]);
+  }
+
+  // ── Campaign: Řím 6a/6b ──────────────────────────────────────────────
+  // Gotové obléhají Řím — tlačí k branám/hradbám, přes hradbu dovnitř
+  if ((state.scenarioId === 'roma_6a' || state.scenarioId === 'roma_6b') &&
+      botFaction === 'tamerlane') {
+    // Siege tower: pomalu k severní hradbě (row 2, col ~7)
+    if (unit.definitionType === 'siege_tower') {
+      return validTargets.reduce((best, pos) => {
+        const d = Math.max(Math.abs(pos.row - 2), Math.abs(pos.col - 7));
+        const bd = Math.max(Math.abs(best.row - 2), Math.abs(best.col - 7));
+        return d < bd ? pos : best;
+      }, validTargets[0]);
+    }
+    // Gothic archers: zůstaň vzadu a střílej do města
+    if (unit.definitionType === 'gothic_archers') {
+      // Prefer pozice řady 1 (mimo dosah) nebo stay
+      return validTargets.reduce((best, pos) =>
+        pos.row < best.row ? pos : best, validTargets[0]);
+    }
+    // Witiges + gotičtí rytíři + infantry: tlač k Castel Sant'Angelo (5,7)
+    return validTargets.reduce((best, pos) => {
+      const d = Math.max(Math.abs(pos.row - 5), Math.abs(pos.col - 7));
+      const bd = Math.max(Math.abs(best.row - 5), Math.abs(best.col - 7));
+      return d < bd ? pos : best;
+    }, validTargets[0]);
+  }
+
+  // ── Campaign: Ravenna ────────────────────────────────────────────────
+  // Adaptivní bot: pokud hráč tlačí agresivně (padlo 3+ gótů), bot útočí;
+  // jinak drží náměstí a pokladnici.
+  if (state.scenarioId === 'ravenna' && botFaction === 'tamerlane') {
+    const gothicFallen = state.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
+    const aggressive = gothicFallen >= 3;
+    if (aggressive) {
+      // Zaútočit — konverguj na Belisaria
+      const belisarius = state.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+      if (belisarius) {
+        return validTargets.reduce((best, pos) => {
+          const d = hexDistance(pos, belisarius.position);
+          const bd = hexDistance(best, belisarius.position);
+          return d < bd ? pos : best;
+        }, validTargets[0]);
+      }
+    }
+    // Defensive — drž pozice u náměstí (5,5-6) nebo pokladnice (2,9)
+    const plaza = { row: 5, col: 5 };
+    return validTargets.reduce((best, pos) => {
+      const d = hexDistance(pos, plaza);
+      const bd = hexDistance(best, plaza);
+      return d < bd ? pos : best;
+    }, validTargets[0]);
+  }
+
+  // ── Campaign: Kalábrie ───────────────────────────────────────────────
+  // Totila + Gotové pronásledují Belisaria směrem k přístavu, blokují ústup
+  if (state.scenarioId === 'calabria' && botFaction === 'tamerlane') {
+    const belisarius = state.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+    if (!belisarius) return null;
+    // Preferuj hexy co blokují cestu k přístavu (row 10-11) — tj. co jsou
+    // mezi Belisariem a přístavem (jižně od Belisaria)
+    return validTargets.reduce((best, pos) => {
+      // Blokovací score: menší je row>belisarius.row a bližší k portu
+      const blocksPath = pos.row > belisarius.position.row && pos.row <= 10 ? 10 : 0;
+      const bestBlocksPath = best.row > belisarius.position.row && best.row <= 10 ? 10 : 0;
+      const dToBel = hexDistance(pos, belisarius.position);
+      const bdToBel = hexDistance(best, belisarius.position);
+      const score = blocksPath - dToBel;
+      const bestScore = bestBlocksPath - bdToBel;
+      return score > bestScore ? pos : best;
+    }, validTargets[0]);
+  }
+
+  // ── Campaign: Epilog A Konstantinopol ────────────────────────────────
+  // Hunové: opatrné přibližování, hit-and-run; Zabergan vede z druhé řady
+  if (state.scenarioId === 'epilog_a' && botFaction === 'tamerlane') {
+    const belisarius = state.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+    if (!belisarius) return null;
+    // Zabergan stay back (row 8+)
+    if (unit.definitionType === 'zabergan') {
+      return validTargets.reduce((best, pos) =>
+        pos.row > best.row ? pos : best, validTargets[0]);
+    }
+    // Hunské hordy: dostat se do range 2 od Belisaria (parthian shot distance)
+    return validTargets.reduce((best, pos) => {
+      const d = hexDistance(pos, belisarius.position);
+      const bd = hexDistance(best, belisarius.position);
+      // Sweet spot: distance 2 = parthian shot
+      const score = -Math.abs(d - 2);
+      const bestScore = -Math.abs(bd - 2);
+      return score > bestScore ? pos : best;
     }, validTargets[0]);
   }
 

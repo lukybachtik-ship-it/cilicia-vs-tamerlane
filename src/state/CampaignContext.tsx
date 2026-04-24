@@ -32,6 +32,7 @@ type CampaignAction =
   | { type: 'UNLOCK_KATAFRAKTI' }
   | { type: 'SET_GELIMER_WOUNDED'; wounded: boolean }
   | { type: 'SET_HARDCORE'; enabled: boolean }
+  | { type: 'SET_DIFFICULTY'; difficulty: 'easy' | 'normal' | 'hard' }
   | { type: 'ADD_BUCELIARII_XP'; amount: number }
   | { type: 'MARK_BUCELIARII_FALLEN' };
 
@@ -42,7 +43,14 @@ function clamp(v: number, lo: number, hi: number): number {
 }
 
 function campaignReducer(state: CampaignState | null, action: CampaignAction): CampaignState | null {
-  if (action.type === 'HYDRATE') return action.state;
+  if (action.type === 'HYDRATE') {
+    // Backward-compat: older saved campaigns may miss `difficulty` / `hardcoreMode`
+    return {
+      ...action.state,
+      difficulty: action.state.difficulty ?? 'normal',
+      hardcoreMode: action.state.hardcoreMode ?? false,
+    };
+  }
   if (action.type === 'RESET') return null;
   if (!state) return null;
 
@@ -180,6 +188,9 @@ function campaignReducer(state: CampaignState | null, action: CampaignAction): C
 
     case 'SET_HARDCORE':
       return { ...state, hardcoreMode: action.enabled };
+
+    case 'SET_DIFFICULTY':
+      return { ...state, difficulty: action.difficulty };
 
     case 'ADD_BUCELIARII_XP': {
       const newXp = state.buceliarii.xp + action.amount;

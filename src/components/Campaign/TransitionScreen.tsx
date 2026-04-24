@@ -39,13 +39,16 @@ export function TransitionScreen({ onFinished }: Props) {
         <div className="text-center mb-4">
           <div className="text-xs text-gray-500 uppercase tracking-widest">Cesta pokračuje</div>
           {scenario && (
-            <h1 className="text-2xl font-bold text-amber-300 mt-1">
+            <h1 className="text-2xl font-bold text-amber-300 mt-1 animate-pulse">
               Směr: {scenario.mapLabel}
             </h1>
           )}
         </div>
 
-        <div className="mb-4">
+        <div
+          className="mb-4 transition-opacity duration-500"
+          style={{ opacity: skipEnabled ? 1 : 0.85 }}
+        >
           <MediterraneanMap
             currentScenarioIndex={campaign.currentScenarioIndex}
             completedScenarios={campaign.completedScenarios.map(r => r.scenarioId)}

@@ -76,10 +76,17 @@ export function resolveNextScenarioId(args: {
     return favor >= 4 ? 'ravenna' : 'calabria';
   }
 
-  // Po ravenna/calabria → epilog A pokud podmínky
-  if (!completedScenarios.includes('epilog_a')) {
-    if (buceliariiAlive && buceliariiLevel >= 3) return 'epilog_a';
-  }
+  // Po ravenna/calabria — rozhodovací logika epilogů:
+  //   1. Bukelárii L≥3 + alive        → epilog_a (Konstantinopol, bitva)
+  //   2. Favor == 6 (bez epilog_a)    → epilog_b (Roma Nova, narrativní)
+  //   3. Oba už dokončené / žádné z obou podmínek → epilog_c (titulky)
+  const hasEpilogA = completedScenarios.includes('epilog_a');
+  const hasEpilogB = completedScenarios.includes('epilog_b');
+  const hasEpilogC = completedScenarios.includes('epilog_c');
+
+  if (!hasEpilogA && buceliariiAlive && buceliariiLevel >= 3) return 'epilog_a';
+  if (!hasEpilogB && favor === 6) return 'epilog_b';
+  if (!hasEpilogC) return 'epilog_c';
 
   return null; // konec kampaně
 }
@@ -269,6 +276,34 @@ export const CAMPAIGN_SCENARIO_CALABRIA: CampaignScenarioDefinition = {
   unlockAfter: ['roma_6b'],
 };
 
+export const CAMPAIGN_SCENARIO_EPILOG_B: CampaignScenarioDefinition = {
+  id: 'epilog_b',
+  nameCs: 'Roma Nova — V senátě',
+  contextCs: 'Žádná bitva. Belisarius před Justiniánem, 3 politické volby, které určí jeho odkaz.',
+  chronicleCs: '„Purpur je nejlepší rubáš, ale slovo generála je víc než meč." — Theodorin odkaz.',
+  mapLabel: 'Senát',
+  mapCoords: { x: 620, y: 210 },
+  goals: {
+    glory: { descriptionCs: 'Nenastane (narrativní epilog).' },
+    pragma: { descriptionCs: 'Nenastane (narrativní epilog).' },
+  },
+  unlockAfter: ['ravenna', 'calabria'],
+};
+
+export const CAMPAIGN_SCENARIO_EPILOG_C: CampaignScenarioDefinition = {
+  id: 'epilog_c',
+  nameCs: 'Titulky',
+  contextCs: 'Shrnutí kampaně. Tvá cesta od Dary ke Konstantinopoli.',
+  chronicleCs: '„Vše pomine. Říše, generálové, císaři. Zůstane jen vzpomínka na čest." — Prokopios.',
+  mapLabel: 'Konec',
+  mapCoords: { x: 495, y: 300 },
+  goals: {
+    glory: { descriptionCs: 'Nenastane.' },
+    pragma: { descriptionCs: 'Nenastane.' },
+  },
+  unlockAfter: [],
+};
+
 export const CAMPAIGN_SCENARIO_EPILOG_A: CampaignScenarioDefinition = {
   id: 'epilog_a',
   nameCs: 'Poslední vítězství',
@@ -295,6 +330,8 @@ export const ALL_CAMPAIGN_SCENARIOS: CampaignScenarioDefinition[] = [
   CAMPAIGN_SCENARIO_RAVENNA,
   CAMPAIGN_SCENARIO_CALABRIA,
   CAMPAIGN_SCENARIO_EPILOG_A,
+  CAMPAIGN_SCENARIO_EPILOG_B,
+  CAMPAIGN_SCENARIO_EPILOG_C,
 ];
 
 // ─── Standardní Velitelská rada (non-scenario-specific) ──────────────────────

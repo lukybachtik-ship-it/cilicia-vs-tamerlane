@@ -21,6 +21,9 @@ export interface CampaignOverrides {
   katafraktiUnlocked?: boolean;
   /** IDs nákupů z Velitelské rady aplikované v této bitvě. */
   purchases?: string[];
+  /** Obtížnost bota: easy = bez bonusů, normal = +1 lehká jednotka,
+   *  hard = +1 lehká jednotka + +1 attack die modifier celou frakci. */
+  difficulty?: 'easy' | 'normal' | 'hard';
 }
 
 // ─── Unit factory from scenario definition ─────────────────────────────────────
@@ -116,6 +119,51 @@ export function buildInitialState(scenarioId?: string, overrides?: CampaignOverr
     if (overrides.gelimerWounded) {
       const gelimer = units.find(u => u.definitionType === 'gelimer');
       if (gelimer) gelimer.hp = Math.max(1, gelimer.hp - 1);
+    }
+
+    // Difficulty bonus pro bota (tamerlane faction):
+    //   easy: žádný bonus
+    //   normal: spawn 1 light_infantry navíc v řadě bota
+    //   hard: +1 light_infantry + permanent +1 attackDice modifier všem bot jednotkám
+    const diff = overrides.difficulty ?? 'normal';
+    if (diff === 'normal' || diff === 'hard') {
+      const botRow = scenario.gridRows ?? 9; // poslední řada = bot home
+      let spawnCol: number | null = null;
+      const occupiedCols = units
+        .filter(u => u.position.row === botRow)
+        .map(u => u.position.col);
+      for (let c = 1; c <= (scenario.gridCols ?? 9); c++) {
+        if (!occupiedCols.includes(c)) { spawnCol = c; break; }
+      }
+      if (spawnCol !== null) {
+        const def = UNIT_DEFINITIONS.light_infantry;
+        units.push({
+          id: generateId('diff_bot_bonus'),
+          definitionType: 'light_infantry',
+          faction: 'tamerlane',
+          hp: def.maxHp,
+          position: { row: botRow, col: spawnCol },
+          hasMoved: false,
+          hasAttacked: false,
+          isActivated: false,
+          attackBonus: 0,
+          moveBonus: 0,
+          directFireLocked: false,
+          parthianPhase: 'none',
+          moveHistoryThisTurn: [{ row: botRow, col: spawnCol }],
+          specialAbilityUsed: false,
+        });
+      }
+    }
+    if (diff === 'hard') {
+      campaignModifiers.push({
+        id: generateId('mod_hard_bot'),
+        source: 'scenario',
+        descriptionCs: 'Vyšší obtížnost: bot má +1 kostku útoku',
+        targetFilter: { faction: 'tamerlane' },
+        effect: { attackDice: 1 },
+        duration: { kind: 'permanent' },
+      });
     }
   }
 

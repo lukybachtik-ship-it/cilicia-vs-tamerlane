@@ -39,21 +39,32 @@ export function PostVictoryScreen({ result, onContinue, onRetry }: Props) {
   }
 
   if (!result.victory) {
+    const isHardcore = campaign.hardcoreMode;
     return (
       <div className="min-h-screen bg-gray-950 text-gray-200 flex items-center justify-center p-6">
         <div className="max-w-xl w-full text-center">
-          <div className="text-3xl font-bold text-red-400 mb-3">Porážka</div>
+          <div className="text-3xl font-bold text-red-400 mb-3">
+            {isHardcore ? 'Konec kampaně' : 'Porážka'}
+          </div>
           <p className="text-gray-400 text-sm mb-6">
-            {scenario.nameCs} skončila neúspěchem. Justinián ztrácí trpělivost (−1 Přízeň).
+            {isHardcore
+              ? `${scenario.nameCs} skončila neúspěchem. V čestném módu je kampaň uzamčena. Uložená kampaň bude smazána.`
+              : `${scenario.nameCs} skončila neúspěchem. Justinián ztrácí trpělivost (−1 Přízeň).`}
           </p>
           <p className="text-gray-500 text-xs mb-6 italic">
-            Kampaň není rogue-like — můžeš zkusit scénář znovu, dokud se nepovede.
+            {isHardcore
+              ? 'V čestném módu každá prohra znamená nový začátek — historie je tvrdá.'
+              : 'Kampaň není rogue-like — můžeš zkusit scénář znovu, dokud se nepovede.'}
           </p>
           <button
             onClick={onRetry}
-            className="px-6 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold transition-colors"
+            className={`px-6 py-3 rounded-lg font-bold transition-colors ${
+              isHardcore
+                ? 'bg-red-700 hover:bg-red-600 text-white'
+                : 'bg-amber-600 hover:bg-amber-500 text-white'
+            }`}
           >
-            Zkusit znovu
+            {isHardcore ? 'Smazat kampaň a zpět' : 'Zkusit znovu'}
           </button>
         </div>
       </div>

@@ -76,8 +76,11 @@ export interface CampaignState {
   currentSecretGoal: SecretGoalKind | null;
   currentPurchases: PurchasedOption[];
 
-  /** Volitelný čestný mód (Fáze 3). */
+  /** Volitelný čestný mód (prohra = smazání save). */
   hardcoreMode: boolean;
+
+  /** Obtížnost: ovlivňuje bot bonusy v bitvě. */
+  difficulty: 'easy' | 'normal' | 'hard';
 }
 
 // ─── Konstanty a odvozené hodnoty ────────────────────────────────────────────
@@ -139,5 +142,6 @@ export function makeInitialCampaignState(campaignId: string): CampaignState {
     currentSecretGoal: null,
     currentPurchases: [],
     hardcoreMode: false,
+    difficulty: 'normal',
   };
 }

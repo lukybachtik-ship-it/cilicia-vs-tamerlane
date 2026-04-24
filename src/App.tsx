@@ -8,6 +8,8 @@ import { LobbyScreen } from './components/UI/LobbyScreen';
 import { VelitelskaRada } from './components/Campaign/VelitelskaRada';
 import { TransitionScreen } from './components/Campaign/TransitionScreen';
 import { PostVictoryScreen } from './components/Campaign/PostVictoryScreen';
+import { EpilogBScreen } from './components/Campaign/EpilogBScreen';
+import { EpilogCScreen } from './components/Campaign/EpilogCScreen';
 import { CAMPAIGN_SCENARIO_SEQUENCE, resolveNextScenarioId } from './constants/campaignScenarios';
 import { evaluateSecretGoal } from './logic/campaignGoals';
 
@@ -37,7 +39,7 @@ function CampaignFlow({
   setSubphase: (p: CampaignSubphase) => void;
   onExit: () => void;
 }) {
-  const { campaign, dispatch: campaignDispatch } = useCampaign();
+  const { campaign, dispatch: campaignDispatch, reset: resetCampaign } = useCampaign();
   const { state: gameState, dispatch: gameDispatch } = useGame();
   const { setBotPlayer, setMode, setConnectionStatus } = useMultiplayer();
 
@@ -51,11 +53,14 @@ function CampaignFlow({
       }) ?? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex])
     : null;
 
-  // On entering battle phase, kick off the scenario as a bot game
+  const isNarrativeEpilog = currentScenarioId === 'epilog_b' || currentScenarioId === 'epilog_c';
+
+  // On entering battle phase, kick off the scenario as a bot game (skip for narrative epilogs)
   useEffect(() => {
     if (subphase !== 'battle') return;
     if (!campaign) return;
     if (!currentScenarioId) return;
+    if (isNarrativeEpilog) return; // narrative scenes nebyjují RESTART_GAME
     setBotPlayer('tamerlane');
     gameDispatch({
       type: 'RESTART_GAME',
@@ -66,9 +71,10 @@ function CampaignFlow({
         gelimerWounded: campaign.gelimerWounded,
         katafraktiUnlocked: campaign.katafraktiUnlocked,
         purchases: campaign.currentPurchases.map(p => p.id),
+        difficulty: campaign.difficulty,
       },
     });
-  }, [subphase, currentScenarioId, setBotPlayer, gameDispatch, campaign]);
+  }, [subphase, currentScenarioId, setBotPlayer, gameDispatch, campaign, isNarrativeEpilog]);
 
   // Detect game_over → post_victory
   useEffect(() => {
@@ -94,6 +100,27 @@ function CampaignFlow({
     case 'transition':
       return <TransitionScreen onFinished={() => setSubphase('battle')} />;
     case 'battle':
+      // Narrative epilogs — skip battle, render narrative component
+      if (currentScenarioId === 'epilog_b') {
+        return (
+          <EpilogBScreen
+            onFinish={() => {
+              campaignDispatch({ type: 'ADVANCE_TO_NEXT_SCENARIO' });
+              setSubphase('velitelska_rada');
+            }}
+          />
+        );
+      }
+      if (currentScenarioId === 'epilog_c') {
+        return (
+          <EpilogCScreen
+            onFinish={() => {
+              campaignDispatch({ type: 'ADVANCE_TO_NEXT_SCENARIO' });
+              onExit();
+            }}
+          />
+        );
+      }
       return <Game />;
     case 'post_victory': {
       const scenarioId = currentScenarioId ?? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex]!;
@@ -134,7 +161,10 @@ function CampaignFlow({
             setSubphase('velitelska_rada');
           }}
           onRetry={() => {
-            // Reset battle — keep campaign state intact; re-enter rada
+            // V čestném módu: prohra smaže celou kampaň (storage + state)
+            if (campaign.hardcoreMode) {
+              void resetCampaign();
+            }
             setSubphase('velitelska_rada');
             setMode('local');
             setConnectionStatus('idle');

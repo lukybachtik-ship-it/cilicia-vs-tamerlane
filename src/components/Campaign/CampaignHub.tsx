@@ -135,6 +135,56 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
         />
       </div>
 
+      {/* Nastavení kampaně — obtížnost + čestný mód */}
+      <div className="mb-4 p-3 bg-gray-900 border border-gray-700 rounded-lg">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-gray-400">Obtížnost:</span>
+            {(['easy', 'normal', 'hard'] as const).map(d => (
+              <button
+                key={d}
+                onClick={() => dispatch({ type: 'SET_DIFFICULTY', difficulty: d })}
+                className={`px-3 py-1 rounded font-bold transition-colors ${
+                  campaign.difficulty === d
+                    ? d === 'easy'
+                      ? 'bg-green-700 text-white'
+                      : d === 'normal'
+                        ? 'bg-blue-700 text-white'
+                        : 'bg-red-700 text-white'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                }`}
+              >
+                {d === 'easy' ? 'Snadná' : d === 'normal' ? 'Normální' : 'Těžká'}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-gray-400">Čestný mód:</span>
+            <button
+              onClick={() => {
+                if (!campaign.hardcoreMode) {
+                  if (!confirm('Zapnout čestný mód? Každá prohra smaže uložený postup kampaně. Nelze jednoduše vypnout po zahájení.')) return;
+                }
+                dispatch({ type: 'SET_HARDCORE', enabled: !campaign.hardcoreMode });
+              }}
+              className={`px-3 py-1 rounded font-bold transition-colors ${
+                campaign.hardcoreMode
+                  ? 'bg-red-700 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              {campaign.hardcoreMode ? '● ZAPNUTO' : '○ Vypnuto'}
+            </button>
+          </div>
+        </div>
+        <div className="text-gray-500 text-[10px] mt-2 italic">
+          {campaign.difficulty === 'easy' && 'Snadná — bot bez bonusů.'}
+          {campaign.difficulty === 'normal' && 'Normální — bot má +1 lehkou pěchotu na startu.'}
+          {campaign.difficulty === 'hard' && 'Těžká — bot +1 lehkou pěchotu + permanentní +1 útočná kostka všem svým jednotkám.'}
+          {campaign.hardcoreMode && ' · Čestný mód: prohra = konec kampaně.'}
+        </div>
+      </div>
+
       {/* Global flags */}
       {(campaign.katafraktiUnlocked || campaign.gelimerWounded) && (
         <div className="mb-4 p-3 bg-gray-900 border border-gray-700 rounded-lg text-xs text-gray-300 space-y-1">
