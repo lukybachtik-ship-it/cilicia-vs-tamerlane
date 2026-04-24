@@ -5,6 +5,12 @@ import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 
 const CAVALRY_TYPES = ['light_cavalry', 'heavy_cavalry', 'horse_archers'] as const;
 
+/** Kampaňové scénáře, kde Belisariova smrt znamená okamžitou prohru (je přítomen v setupu). */
+const CAMPAIGN_SCENARIOS_WITH_BELISARIUS = [
+  'dara', 'nika', 'ad_decimum', 'tricamarum', 'neapol',
+  'roma_6a', 'roma_6b', 'ravenna', 'calabria', 'epilog_a',
+] as const;
+
 export function checkVictory(
   state: GameState,
   isEndOfTurn = false
@@ -15,6 +21,19 @@ export function checkVictory(
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const killCilicia = scenario?.killThresholdCilicia ?? 5;
   const killTamerlane = scenario?.killThresholdTamerlane ?? 5;
+
+  // ── UNIVERZÁLNÍ: Belisarius mrtev v kampaňovém scénáři = prohra ────────────
+  // Musí běžet PŘED kill-threshold, aby jeho smrt nebyla překryta standardním
+  // vítězstvím zabitím 5 nepřátel.
+  if ((CAMPAIGN_SCENARIOS_WITH_BELISARIUS as readonly string[]).includes(state.scenarioId)) {
+    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
+    if (belisariusDead) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Nepřítel'}: Belisarius padl — Byzanc ztrácí generála!`,
+      };
+    }
+  }
 
   // ── Named hero rule (scenario effect) ───────────────────────────────────────
   const heroRule = state.activeScenarioEffects.find(e => e.kind === 'named_hero_rule');
@@ -408,27 +427,8 @@ export function checkVictory(
     }
   }
 
-  // ── Campaign: Ad Decimum ────────────────────────────────────────────────
-  if (state.scenarioId === 'ad_decimum') {
-    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
-    if (belisariusDead) {
-      return {
-        victor: 'tamerlane',
-        cause: `${scenario?.tamerlaneLabel ?? 'Vandali'} zabili Belisaria!`,
-      };
-    }
-  }
-
-  // ── Campaign: Tricamarum ────────────────────────────────────────────────
-  if (state.scenarioId === 'tricamarum') {
-    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
-    if (belisariusDead) {
-      return {
-        victor: 'tamerlane',
-        cause: `${scenario?.tamerlaneLabel ?? 'Vandali'} zabili Belisaria!`,
-      };
-    }
-  }
+  // ── Campaign: Ad Decimum / Tricamarum ───────────────────────────────────
+  // (Belisariova smrt řešena univerzálním checkem nahoře.)
 
   // ── Campaign: Neapol — "3 jednotky uvnitř města" victory ───────────────
   if (state.scenarioId === 'neapol') {
@@ -478,14 +478,7 @@ export function checkVictory(
         cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} vnikli do Říma (2+ jednotky uvnitř)!`,
       };
     }
-    // Belisarius death = loss
-    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
-    if (belisariusDead) {
-      return {
-        victor: 'tamerlane',
-        cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} zabili Belisaria!`,
-      };
-    }
+    // (Belisariova smrt řešena univerzálním checkem nahoře.)
     // Survival check při turn limit
     if (
       isEndOfTurn &&
@@ -536,13 +529,7 @@ export function checkVictory(
 
   // ── Campaign: Kalábrie — přístav victory ────────────────────────────────
   if (state.scenarioId === 'calabria') {
-    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
-    if (belisariusDead) {
-      return {
-        victor: 'tamerlane',
-        cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} zabili Belisaria v horách!`,
-      };
-    }
+    // (Belisariova smrt řešena univerzálním checkem nahoře.)
     // Hráč vyhrává: přežil turnLimit A má 2+ jednotky v přístavu (tent hex nebo rows 10-11)
     if (
       isEndOfTurn &&
@@ -569,17 +556,7 @@ export function checkVictory(
   }
 
   // ── Campaign: Epilog A Konstantinopol ─────────────────────────────────
-  if (state.scenarioId === 'epilog_a') {
-    // Standard kill threshold check (4 hunnic units) handled above
-    // Plus Belisarius death = loss
-    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
-    if (belisariusDead) {
-      return {
-        victor: 'tamerlane',
-        cause: `Belisarius padl u Konstantinopole — konec legendy.`,
-      };
-    }
-  }
+  // (Belisariova smrt řešena univerzálním checkem nahoře.)
 
   return { victor: null, cause: null };
 }

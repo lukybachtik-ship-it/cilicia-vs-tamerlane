@@ -60,10 +60,26 @@ function CampaignFlow({
   // like ADD_PURCHASE would otherwise re-trigger the whole setup).
   const battleStartedForRef = useRef<string | null>(null);
 
+  // Snapshot the scenarioId that was just battled. Captured ONCE when game_over is
+  // detected, so PostVictoryScreen always displays info about the SCENARIO JUST PLAYED
+  // — not the next one the resolver would return after COMPLETE_SCENARIO dispatch.
+  // (Without this snapshot, `currentScenarioId` advances on every re-render as
+  // completedScenarios grows, which causes a runaway cascade of COMPLETE_SCENARIO
+  // dispatches for every remaining scenario — and finally a black screen when
+  // resolveNextScenarioId returns null.)
+  const [battledScenarioId, setBattledScenarioId] = useState<string | null>(null);
+
   // Clear the "battle started" guard when leaving battle subphase
   useEffect(() => {
     if (subphase !== 'battle') {
       battleStartedForRef.current = null;
+    }
+  }, [subphase]);
+
+  // Reset the battled snapshot when leaving post_victory (next battle starts fresh)
+  useEffect(() => {
+    if (subphase !== 'post_victory') {
+      setBattledScenarioId(null);
     }
   }, [subphase]);
 
@@ -95,12 +111,17 @@ function CampaignFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subphase, currentScenarioId, isNarrativeEpilog]);
 
-  // Detect game_over → post_victory
+  // Detect game_over → snapshot scenarioId + transition to post_victory.
+  // The snapshot MUST happen before we leave battle, because after transition
+  // resolveNextScenarioId may start returning different IDs as completedScenarios grows.
   useEffect(() => {
     if (subphase !== 'battle') return;
     if (gameState.currentPhase !== 'game_over') return;
+    const sid = currentScenarioId
+      ?? (campaign ? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex] ?? null : null);
+    if (sid) setBattledScenarioId(sid);
     setSubphase('post_victory');
-  }, [subphase, gameState.currentPhase, setSubphase]);
+  }, [subphase, gameState.currentPhase, setSubphase, currentScenarioId, campaign]);
 
   if (!campaign) {
     // Fallback: no campaign, exit
@@ -142,7 +163,12 @@ function CampaignFlow({
       }
       return <Game />;
     case 'post_victory': {
-      const scenarioId = currentScenarioId ?? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex]!;
+      // Use the SNAPSHOTTED scenarioId — not the live resolver result. The resolver
+      // will advance as soon as COMPLETE_SCENARIO adds this battle's record, so reading
+      // it here would produce the wrong scenario and cause cascading dispatches.
+      const scenarioId = battledScenarioId
+        ?? currentScenarioId
+        ?? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex]!;
       const victory = gameState.victor === 'cilicia';
       const enemiesDestroyed = gameState.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
       const lossesSuffered = gameState.destroyedUnits.filter(u => u.faction === 'cilicia').length;

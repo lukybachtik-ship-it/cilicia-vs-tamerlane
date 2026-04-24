@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCampaign } from '../../state/CampaignContext';
-import { getCurrentCampaignScenario } from '../../constants/campaignScenarios';
+import { ALL_CAMPAIGN_SCENARIOS } from '../../constants/campaignScenarios';
 import type { RewardKind, ScenarioResult } from '../../types/campaign';
 
 interface Props {
@@ -16,27 +16,30 @@ export function PostVictoryScreen({ result, onContinue, onRetry }: Props) {
   const { campaign, dispatch } = useCampaign();
   const [chosen, setChosen] = useState<RewardKind | null>(null);
 
-  if (!campaign) return null;
-  const scenario = getCurrentCampaignScenario({
-    currentScenarioIndex: campaign.currentScenarioIndex,
-    completedScenarios: campaign.completedScenarios,
-    favor: campaign.favor,
-    buceliarii: campaign.buceliarii,
-  });
-  if (!scenario) return null;
+  // Look up scenario definition DIRECTLY by result.scenarioId (not via resolver).
+  // Using resolveNextScenarioId would return the NEXT scenario (not the one just
+  // played), because as soon as this battle is recorded the resolver advances.
+  const scenario = ALL_CAMPAIGN_SCENARIOS.find(s => s.id === result.scenarioId) ?? null;
 
-  // Submit the completion result (must happen before reward selection,
-  // because CHOOSE_REWARD expects a "current" result in completedScenarios).
-  const needsRecord = !campaign.completedScenarios.some(
-    r => r.scenarioId === result.scenarioId && r.endedAt >= (campaign.updatedAt ?? '')
-  );
-
-  if (needsRecord) {
+  // Submit the completion result in an effect (never during render). Dispatching
+  // during render created a feedback loop when the parent recomputed scenarioId
+  // via resolveNextScenarioId after each dispatch — cascading COMPLETE_SCENARIO
+  // for every remaining scenario until the resolver returned null, at which
+  // point this component rendered null and the screen went black.
+  useEffect(() => {
+    if (!campaign) return;
+    const already = campaign.completedScenarios.some(r => r.scenarioId === result.scenarioId);
+    if (already) return;
     dispatch({
       type: 'COMPLETE_SCENARIO',
       result: { ...result, rewardChosen: null },
     });
-  }
+    // Intentionally depend only on scenarioId — we want this to fire once per battle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.scenarioId]);
+
+  if (!campaign) return null;
+  if (!scenario) return null;
 
   if (!result.victory) {
     const isHardcore = campaign.hardcoreMode;
