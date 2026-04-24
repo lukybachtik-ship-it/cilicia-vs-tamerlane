@@ -622,5 +622,62 @@ export function chooseBotMoveTargetForScenario(
     if (def.volleyFireBonus || unit.definitionType === 'culverin') return null;
   }
 
+  // ── Campaign: Dara ─────────────────────────────────────────────────────
+  // Persian bot: advance toward center but don't over-commit through trenches
+  if (state.scenarioId === 'dara' && botFaction === 'tamerlane') {
+    const def = UNIT_DEFINITIONS[unit.definitionType];
+    // Elephants and Immortals advance slowly in center (cols 4-6, low row = forward for Persians = toward row 1)
+    if (unit.definitionType === 'elephant' || unit.definitionType === 'persian_immortal') {
+      return validTargets.reduce((best, pos) => {
+        const centerPenalty = Math.abs(pos.col - 5) * 2;
+        const bestCenterPenalty = Math.abs(best.col - 5) * 2;
+        const score = -pos.row * 3 - centerPenalty;
+        const bestScore = -best.row * 3 - bestCenterPenalty;
+        return score > bestScore ? pos : best;
+      }, validTargets[0]);
+    }
+    // Persian cavalry: flank around trenches via edges (cols 1-2 or 8-9)
+    if (unit.definitionType === 'persian_cavalry' || unit.definitionType === 'firouz') {
+      return validTargets.reduce((best, pos) => {
+        const edgeBonus = (pos.col <= 2 || pos.col >= 8) ? 5 : 0;
+        const score = -pos.row * 3 + edgeBonus;
+        const bestEdgeBonus = (best.col <= 2 || best.col >= 8) ? 5 : 0;
+        const bestScore = -best.row * 3 + bestEdgeBonus;
+        return score > bestScore ? pos : best;
+      }, validTargets[0]);
+    }
+    // Default Persian: move forward
+    void def;
+  }
+
+  // ── Campaign: Nika ─────────────────────────────────────────────────────
+  // Rebel bot: Hypatius/Pompeius HOLD hippodrome (rows 7, cols 4-6); mobs
+  // push toward palace (rows 1, cols 1-2)
+  if (state.scenarioId === 'nika' && botFaction === 'tamerlane') {
+    if (unit.definitionType === 'hypatius' || unit.definitionType === 'pompeius') {
+      // Leaders rarely move — only if attacked (current logic: stay)
+      return null;
+    }
+    // Mobs: push toward palace (lowest row, lowest col = NW corner)
+    return validTargets.reduce((best, pos) => {
+      const distToPalace = Math.max(pos.row - 1, Math.abs(pos.col - 1));
+      const bestDistToPalace = Math.max(best.row - 1, Math.abs(best.col - 1));
+      return distToPalace < bestDistToPalace ? pos : best;
+    }, validTargets[0]);
+  }
+
+  // ── Campaign: Ad Decimum ──────────────────────────────────────────────
+  // Vandal bot: converge on Belisarius
+  if (state.scenarioId === 'ad_decimum' && botFaction === 'tamerlane') {
+    const belisarius = state.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+    if (belisarius) {
+      return validTargets.reduce((best, pos) => {
+        const d = hexDistance(pos, belisarius.position);
+        const bd = hexDistance(best, belisarius.position);
+        return d < bd ? pos : best;
+      }, validTargets[0]);
+    }
+  }
+
   return null; // fall through to generic logic
 }

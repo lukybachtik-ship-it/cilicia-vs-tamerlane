@@ -6,7 +6,9 @@ export type CardId =
   | 'cavalry_charge'
   | 'direct_fire'
   | 'inspiring_commander'
-  | 'general_offensive';
+  | 'general_offensive'
+  // Campaign event cards (scénář-triggered)
+  | 'theodora_event';
 
 export type CardSection = 'left' | 'center' | 'right' | 'any';
 

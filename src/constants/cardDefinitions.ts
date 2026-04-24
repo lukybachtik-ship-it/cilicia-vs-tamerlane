@@ -211,6 +211,22 @@ export const CARD_DEFINITIONS: Record<CardId, CardDefinition> = {
     generalOffensive: true,
     description: 'Vyber 1 sekci. Všechny tvé jednotky v ní se mohou pohnout o 1 a zaútočit.',
   },
+  // ── Campaign event cards ────────────────────────────────────────────────
+  theodora_event: {
+    id: 'theodora_event',
+    nameCs: 'Theodora: „Purpur je nejlepší rubáš"',
+    category: 'tactical',
+    section: 'any',
+    maxActivations: 1,
+    unitTypeFilter: 'any',
+    sectionRestricted: false,
+    moveBonus: 0,
+    attackBonus: 2,        // +2 kostky pro 1 aktivovanou jednotku
+    noMoveAllowed: false,
+    scoutDraw: true,       // „+1 karta" — využijeme existující scout mechaniku (draw 2, discard 1 → net +1)
+    generalOffensive: false,
+    description: 'Theodořina inspirace: aktivuj 1 jednotku s +2 kostkami útoku a dobeř si další kartu.',
+  },
 };
 
 // How many copies of each card in the shared deck (total 14 cards)

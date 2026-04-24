@@ -48,7 +48,17 @@ function CampaignFlow({
     const scenarioId = CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex];
     if (!scenarioId) return;
     setBotPlayer('tamerlane');
-    gameDispatch({ type: 'RESTART_GAME', scenarioId });
+    gameDispatch({
+      type: 'RESTART_GAME',
+      scenarioId,
+      campaignOverrides: {
+        buceliariiLevel: campaign.buceliarii.level,
+        buceliariiFigurines: campaign.buceliarii.alive ? campaign.buceliarii.figurineCount : 0,
+        gelimerWounded: campaign.gelimerWounded,
+        katafraktiUnlocked: campaign.katafraktiUnlocked,
+        purchases: campaign.currentPurchases.map(p => p.id),
+      },
+    });
   }, [subphase, campaign?.currentScenarioIndex, setBotPlayer, gameDispatch, campaign]);
 
   // Detect game_over → post_victory

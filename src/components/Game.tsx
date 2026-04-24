@@ -15,6 +15,7 @@ import { useMultiplayer } from '../state/MultiplayerContext';
 import { useBotPlayer } from '../hooks/useBotPlayer';
 import { playEndTurnSound } from '../utils/sounds';
 import { ALL_SCENARIOS } from '../constants/scenarios';
+import { SupplyPanel } from './Campaign/SupplyPanel';
 
 const PHASE_HINTS: Record<string, string> = {
   play_card: 'Vyber kartu ze své ruky.',
@@ -247,6 +248,9 @@ export function Game() {
 
       {/* Victory modal */}
       <VictoryModal />
+
+      {/* Campaign-mode in-battle supply HUD */}
+      {mode === 'campaign' && <SupplyPanel />}
     </div>
   );
 }

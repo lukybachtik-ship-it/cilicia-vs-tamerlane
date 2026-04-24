@@ -1,5 +1,6 @@
 import type { Position } from '../types/unit';
 import type { GameState } from '../types/game';
+import type { CampaignOverrides } from '../constants/scenarioSetup';
 
 export type GameAction =
   | { type: 'PLAY_CARD'; cardInstanceId: string }
@@ -18,5 +19,5 @@ export type GameAction =
   | { type: 'CANCEL_BETRAYAL' }
   | { type: 'END_TURN' }
   | { type: 'CHOOSE_REINFORCEMENT_FLANK'; flank: 'left' | 'center' | 'right' }
-  | { type: 'RESTART_GAME'; scenarioId?: string }
+  | { type: 'RESTART_GAME'; scenarioId?: string; campaignOverrides?: CampaignOverrides }
   | { type: 'SET_STATE'; state: GameState };

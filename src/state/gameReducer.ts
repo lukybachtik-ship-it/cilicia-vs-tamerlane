@@ -78,7 +78,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     // ── Restart ─────────────────────────────────────────────────────────────
     case 'RESTART_GAME':
-      return buildInitialState(action.scenarioId);
+      return buildInitialState(action.scenarioId, action.campaignOverrides);
 
     // ── Play a card ──────────────────────────────────────────────────────────
     case 'PLAY_CARD': {
@@ -754,6 +754,23 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newHand = [...hand, ...drawn];
 
+      // Compute separate hands so we can optionally inject event cards into opponent
+      let updatedCiliciaHand = state.currentPlayer === 'cilicia' ? newHand : state.ciliciaHand;
+      let updatedTamerlaneHand = state.currentPlayer === 'tamerlane' ? newHand : state.tamerlaneHand;
+
+      // ── Event card: Theodora (Nika scénář, start 3. kola Cilicie) ──────────
+      if (
+        state.scenarioId === 'nika' &&
+        state.currentPlayer === 'tamerlane' &&
+        nextTurn === 3 &&
+        !updatedCiliciaHand.some(c => c.id === 'theodora_event')
+      ) {
+        updatedCiliciaHand = [
+          ...updatedCiliciaHand,
+          { id: 'theodora_event', instanceId: generateId('theodora') },
+        ];
+      }
+
       // Reinforcement wave check
       let pendingReinforcement = state.pendingReinforcement;
       let nextPhase: GameState['currentPhase'] = 'play_card';
@@ -782,9 +799,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         activeModifiers: afterModifierTick.activeModifiers,
         deck: newDeck,
         discardPile: newDiscard,
-        ...(state.currentPlayer === 'cilicia'
-          ? { ciliciaHand: newHand }
-          : { tamerlaneHand: newHand }),
+        ciliciaHand: updatedCiliciaHand,
+        tamerlaneHand: updatedTamerlaneHand,
         currentPlayer: phasePlayer,
         currentPhase: nextPhase,
         turnNumber: nextTurn,
