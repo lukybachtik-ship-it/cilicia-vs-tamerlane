@@ -132,36 +132,90 @@ export function TerrainGlyph({ type, cx, cy, scale = 1, dim = false }: Props) {
           <circle cx="0" cy="0" r="2" fill="#3d2815" />
         </g>
       );
+
+    case 'stream':
+      return (
+        <g transform={t} style={pi} opacity={opacity}>
+          {/* Animated-look wavy water */}
+          <path d="M-11,-3 Q-7,-6 -3,-3 T5,-3 T13,-3" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
+          <path d="M-11,2 Q-7,-1 -3,2 T5,2 T13,2" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
+          <path d="M-11,7 Q-7,4 -3,7 T5,7 T13,7" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
+        </g>
+      );
+
+    case 'gate':
+      return (
+        <g transform={t} style={pi} opacity={opacity}>
+          {/* Dřevěná brána — vertikální prkna + železné kování */}
+          <rect x="-8" y="-8" width="16" height="16" fill="#8b5e34" stroke="#3d2815" strokeWidth="1.4" />
+          <line x1="-4" y1="-8" x2="-4" y2="8" stroke="#3d2815" strokeWidth="1" />
+          <line x1="0"  y1="-8" x2="0"  y2="8" stroke="#3d2815" strokeWidth="1" />
+          <line x1="4"  y1="-8" x2="4"  y2="8" stroke="#3d2815" strokeWidth="1" />
+          <rect x="-8" y="-5" width="16" height="1.5" fill="#5a4020" />
+          <rect x="-8" y="3.5" width="16" height="1.5" fill="#5a4020" />
+        </g>
+      );
+
+    case 'aqueduct_surface':
+      return (
+        <g transform={t} style={pi} opacity={opacity}>
+          {/* Dvojitý oblouk — klasický římský akvadukt */}
+          <rect x="-10" y="-8" width="20" height="4" fill="#b0a896" stroke="#5c584e" strokeWidth="1" />
+          <path d="M-9,-4 Q-9,2 -5,2" fill="#b0a896" stroke="#5c584e" strokeWidth="1" />
+          <path d="M-5,2 Q-5,-4 -1,-4 Q-1,2 3,2 Q3,-4 7,-4 Q7,2 9,2" fill="#b0a896" stroke="#5c584e" strokeWidth="1" />
+          <rect x="-10" y="2" width="20" height="6" fill="#9a9080" stroke="#5c584e" strokeWidth="1" />
+          {/* Malý pramen uvnitř (naznačuje vodu) */}
+          <path d="M-3,-2 Q0,0 3,-2" fill="none" stroke="#3b82f6" strokeWidth="0.7" />
+        </g>
+      );
+
+    case 'aqueduct_exit':
+      return (
+        <g transform={t} style={pi} opacity={opacity}>
+          {/* Čtverec se šipkou dovnitř — exit teleportu */}
+          <rect x="-8" y="-8" width="16" height="16" rx="2" fill="#6b4a28" stroke="#fbbf24" strokeWidth="1.8" />
+          <polygon points="0,-3 -4,3 4,3" fill="#fbbf24" />
+          <line x1="0" y1="-7" x2="0" y2="-3" stroke="#fbbf24" strokeWidth="1.5" />
+        </g>
+      );
   }
   return null;
 }
 
 /** Human-readable Czech names for terrain (used in Legend panel). */
 export const TERRAIN_NAMES: Record<TerrainType, string> = {
-  plain:         'Pláň',
-  forest:        'Les',
-  ambush_forest: 'Temný les',
-  hill:          'Kopec',
-  fortress:      'Pevnost',
-  village:       'Vesnice',
-  tent:          'Velitelský stan',
-  trench:        'Zákop',
-  vineyard:      'Vinice',
-  wall:          'Hradba',
-  wagenburg:     'Wagenburg',
+  plain:            'Pláň',
+  forest:           'Les',
+  ambush_forest:    'Temný les',
+  hill:             'Kopec',
+  fortress:         'Pevnost',
+  village:          'Vesnice',
+  tent:             'Velitelský stan',
+  trench:           'Zákop',
+  vineyard:         'Vinice',
+  wall:             'Hradba',
+  wagenburg:        'Wagenburg',
+  stream:           'Potok',
+  gate:             'Brána',
+  aqueduct_surface: 'Akvadukt',
+  aqueduct_exit:    'Vchod do města',
 };
 
 /** One-line effect hints for legend panel. */
 export const TERRAIN_EFFECTS: Record<TerrainType, string> = {
-  plain:         '—',
-  forest:        'Obránce −1 útok; jednotka musí zastavit',
-  ambush_forest: 'Skrývá germány do 2 hexů; obránce −1 útok',
-  hill:          'Střelci bonus proti nížině; +1 elevation',
-  fortress:      'Obránce −1 útok; ignoruje 1× ústup; jízda nesmí',
-  village:       'Cíl obsazení (Povstání v Kilíkii)',
-  tent:          'Velitelský stan (Aškelon – cíl Křižáků)',
-  trench:        'Obránce −1 útok; přidružený bonus k obraně',
-  vineyard:      'Pomalý terén — jednotka musí zastavit',
-  wall:          'Neprůchozí; ničitelná dělostřelectvem (HP)',
-  wagenburg:     'Obránce −1 útok; ignoruje ústup; ničitelný',
+  plain:            '—',
+  forest:           'Obránce −1 útok; jednotka musí zastavit',
+  ambush_forest:    'Skrývá germány do 2 hexů; obránce −1 útok',
+  hill:             'Střelci bonus proti nížině; +1 elevation',
+  fortress:         'Obránce −1 útok; ignoruje 1× ústup; jízda nesmí',
+  village:          'Cíl obsazení; +1 obrana stojícímu',
+  tent:             'Velitelský stan (Aškelon – cíl Křižáků)',
+  trench:           'Obránce +1 obrana; útok skrz −1 kostka',
+  vineyard:         'Pomalý terén — jednotka musí zastavit',
+  wall:             'Neprůchozí; ničitelná dělostřelectvem (HP)',
+  wagenburg:        'Obránce −1 útok; ignoruje ústup; ničitelný',
+  stream:           'Potok: jednotka co překročí nemůže v tom kole útočit',
+  gate:             'Brána (4 HP): rozbitná beranem nebo 2× útokem pěchoty',
+  aqueduct_surface: 'Akvadukt: lehká pěchota odtud teleportuje dovnitř města',
+  aqueduct_exit:    'Cíl teleportu akvaduktu (uvnitř města)',
 };

@@ -56,7 +56,16 @@ export type UnitType =
   | 'vandal_infantry'
   | 'ammatas'
   | 'gelimer'
-  | 'tzazon';
+  | 'tzazon'
+  // Campaign Fáze 2 — Tricamarum & Neapol
+  | 'jan_armenian'
+  | 'siege_tower'
+  | 'siege_ram'
+  | 'gothic_infantry'
+  | 'gothic_knight'
+  | 'gothic_militia'
+  | 'gothic_archers'
+  | 'totila';
 
 export type FactionId = 'cilicia' | 'tamerlane';
 

@@ -108,6 +108,19 @@ function CampaignFlow({
             lossesSuffered,
           }}
           onContinue={() => {
+            // Scénářové odměny a unlocky
+            if (scenarioId === 'tricamarum' && victory && !campaign.katafraktiUnlocked) {
+              campaignDispatch({ type: 'UNLOCK_KATAFRAKTI' });
+            }
+            // Ad Decimum Glory → gelimerWounded flag (použije se v Tricamaru)
+            if (
+              scenarioId === 'ad_decimum' &&
+              victory &&
+              campaign.currentSecretGoal === 'glory' &&
+              goalResult.achieved
+            ) {
+              campaignDispatch({ type: 'SET_GELIMER_WOUNDED', wounded: true });
+            }
             campaignDispatch({ type: 'ADVANCE_TO_NEXT_SCENARIO' });
             setSubphase('velitelska_rada');
           }}

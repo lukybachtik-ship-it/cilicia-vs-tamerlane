@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useCampaign } from '../../state/CampaignContext';
-import { favorText } from '../../types/campaign';
+import { favorText, computeBuceliariiLevel } from '../../types/campaign';
 import {
   ALL_CAMPAIGN_SCENARIOS,
   CAMPAIGN_SCENARIO_SEQUENCE,
@@ -17,7 +18,8 @@ interface Props {
  * mapu s piny, stavy ekonomiky a tlačítko k pokračování.
  */
 export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
-  const { campaign, isLoading, startNew, reset, isCampaignFinished } = useCampaign();
+  const { campaign, isLoading, startNew, reset, isCampaignFinished, dispatch } = useCampaign();
+  const [debugOpen, setDebugOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -174,6 +176,102 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
           Scénář zatím není implementován (Fáze 2+).
         </div>
       )}
+
+      {/* Debug menu (skrytý panel pro testery) */}
+      <div className="mt-6 border border-gray-800 rounded p-2 bg-gray-900/40">
+        <button
+          onClick={() => setDebugOpen(v => !v)}
+          className="text-[10px] text-gray-600 hover:text-gray-400 uppercase tracking-widest"
+        >
+          {debugOpen ? '▼ Debug (skrýt)' : '▶ Debug (pro testery)'}
+        </button>
+        {debugOpen && (
+          <div className="mt-2 space-y-2 text-xs">
+            <div className="flex flex-wrap gap-1.5 items-center">
+              <span className="text-gray-500">Skok na scénář:</span>
+              {CAMPAIGN_SCENARIO_SEQUENCE.map((sid, idx) => {
+                const def = ALL_CAMPAIGN_SCENARIOS.find(s => s.id === sid);
+                return (
+                  <button
+                    key={sid}
+                    onClick={() => {
+                      // Přepsat index — ale nepřidat do completedScenarios
+                      // (používá se pro testing konkrétních bitev)
+                      dispatch({ type: 'HYDRATE', state: { ...campaign, currentScenarioIndex: idx, currentSecretGoal: null, currentPurchases: [] } });
+                    }}
+                    className={`px-2 py-0.5 rounded text-[10px] ${
+                      idx === campaign.currentScenarioIndex
+                        ? 'bg-amber-700 text-white'
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
+                  >
+                    {idx + 1}. {def?.mapLabel ?? sid}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-gray-500">Favor:</span>
+              {[0, 2, 4, 6].map(f => (
+                <button
+                  key={f}
+                  onClick={() => dispatch({ type: 'HYDRATE', state: { ...campaign, favor: f } })}
+                  className="px-2 py-0.5 rounded text-[10px] bg-gray-800 hover:bg-gray-700 text-amber-300"
+                >
+                  {f}
+                </button>
+              ))}
+              <span className="text-gray-500 ml-2">Supply:</span>
+              {[2, 5, 8, 10].map(s => (
+                <button
+                  key={s}
+                  onClick={() => dispatch({ type: 'HYDRATE', state: { ...campaign, supplyTokens: s } })}
+                  className="px-2 py-0.5 rounded text-[10px] bg-gray-800 hover:bg-gray-700 text-emerald-300"
+                >
+                  {s}
+                </button>
+              ))}
+              <span className="text-gray-500 ml-2">Bukelárii XP:</span>
+              {[0, 2, 4, 7].map(xp => (
+                <button
+                  key={xp}
+                  onClick={() =>
+                    dispatch({
+                      type: 'HYDRATE',
+                      state: {
+                        ...campaign,
+                        buceliarii: {
+                          ...campaign.buceliarii,
+                          xp,
+                          level: computeBuceliariiLevel(xp),
+                        },
+                      },
+                    })
+                  }
+                  className="px-2 py-0.5 rounded text-[10px] bg-gray-800 hover:bg-gray-700 text-sky-300"
+                >
+                  {xp} (L{computeBuceliariiLevel(xp)})
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <button
+                onClick={() => dispatch({ type: 'UNLOCK_KATAFRAKTI' })}
+                className="px-2 py-0.5 rounded text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300"
+                disabled={campaign.katafraktiUnlocked}
+              >
+                {campaign.katafraktiUnlocked ? '✓ Katafrakti odemčeni' : 'Odemknout Katafrakty'}
+              </button>
+              <button
+                onClick={() => dispatch({ type: 'SET_GELIMER_WOUNDED', wounded: !campaign.gelimerWounded })}
+                className="px-2 py-0.5 rounded text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300"
+              >
+                Gelimer wounded: {campaign.gelimerWounded ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* History */}
       {campaign.completedScenarios.length > 0 && (

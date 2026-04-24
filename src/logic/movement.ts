@@ -32,6 +32,7 @@ function isCavalry(unit: UnitInstance): boolean {
 /** True if the given terrain blocks all movement (like a wall or intact wagenburg). */
 function isBlockingTerrain(terrainType: string, structureHp: number | undefined): boolean {
   if (terrainType === 'wall' && (structureHp ?? 1) > 0) return true;
+  if (terrainType === 'gate' && (structureHp ?? 1) > 0) return true;
   return false;
 }
 
@@ -42,7 +43,8 @@ function forcesStop(terrainType: string): boolean {
     terrainType === 'ambush_forest' ||
     terrainType === 'fortress' ||
     terrainType === 'vineyard' ||
-    terrainType === 'wagenburg'
+    terrainType === 'wagenburg' ||
+    terrainType === 'stream'
   );
 }
 

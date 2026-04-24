@@ -932,6 +932,150 @@ export const CAMPAIGN_SCENARIO_AD_DECIMUM_DEF: ScenarioDefinition = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 4: Tricamarum (533) — Belisarius vs Gelimer & Tzazon
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_TRICAMARUM_DEF: ScenarioDefinition = {
+  id: 'tricamarum',
+  nameCs: 'Bitva u Tricamara',
+  descriptionCs: 'Rozhodující bitva proti zbytkům vandalské armády za potokem. Belisarius v centru s Janem Arménským na levém křídle.',
+  flavourCs: 'Rok 533. Po vítězství u Ad Decima Belisarius dostihl zbytek Vandalů za potokem severně od Kartága. Gelimer a jeho bratr Tzazon se stahují k poslednímu střetu.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Vandali',
+  difficultyCs: '⚔️ Pochodová bitva',
+  tags: ['kampaň', 'polní', 'potok'],
+  gridRows: 11,
+  gridCols: 9,
+  killThresholdCilicia: 5,
+  killThresholdTamerlane: 5,
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Zničit 5 vandalských jednotek',
+  victoryObjectiveTamerlaneCs: 'Zničit 5 byzantských jednotek nebo zabít Belisaria',
+  isCampaignScenario: true,
+  terrain: [
+    // Potok protíná mapu vodorovně (řada 6)
+    { position: { row: 6, col: 1 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 2 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 3 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 4 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 5 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 6 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 7 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 8 }, terrain: 'stream', elevation: 0 },
+    { position: { row: 6, col: 9 }, terrain: 'stream', elevation: 0 },
+    // Hřeben severně od potoka (vandalská pozice)
+    { position: { row: 8, col: 3 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 8, col: 7 }, terrain: 'hill', elevation: 1 },
+    // Lesy na okrajích
+    { position: { row: 4, col: 1 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 4, col: 9 }, terrain: 'forest', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    // Belisarius + Bukelárii centrum
+    { id: 'tr_belisarius', definitionType: 'belisarius',    faction: 'cilicia', position: { row: 3, col: 5 } },
+    { id: 'tr_bucelarii',  definitionType: 'bucelarii',     faction: 'cilicia', position: { row: 3, col: 4 } },
+    // Jan Arménský — levé křídlo (3. řada, vlevo)
+    { id: 'tr_jan',        definitionType: 'jan_armenian',  faction: 'cilicia', position: { row: 3, col: 2 } },
+    // Linie pěchoty (řada 4)
+    { id: 'tr_hi1',        definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 4, col: 3 } },
+    { id: 'tr_hi2',        definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 4, col: 6 } },
+    // Lučištníci + hunská jízda
+    { id: 'tr_ar',         definitionType: 'archers',        faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'tr_ha1',        definitionType: 'horse_archers',  faction: 'cilicia', position: { row: 3, col: 8 } },
+    // (Katafrakti přijdou pokud je odemčeno — přidáme přes campaign overrides později;
+    //  v základním scénáři bez Katafraktů.)
+  ],
+  tamerlaneUnits: [
+    // Gelimer a Tzazon na hřebenu
+    { id: 'tr_gelimer', definitionType: 'gelimer', faction: 'tamerlane', position: { row: 8, col: 4 } },
+    { id: 'tr_tzazon',  definitionType: 'tzazon',  faction: 'tamerlane', position: { row: 8, col: 6 } },
+    // Vandalská jízda (3× rozptýlená)
+    { id: 'tr_vc1', definitionType: 'vandal_cavalry', faction: 'tamerlane', position: { row: 9, col: 2 } },
+    { id: 'tr_vc2', definitionType: 'vandal_cavalry', faction: 'tamerlane', position: { row: 9, col: 5 } },
+    { id: 'tr_vc3', definitionType: 'vandal_cavalry', faction: 'tamerlane', position: { row: 9, col: 8 } },
+    // Vandalská pěchota (2×)
+    { id: 'tr_vi1', definitionType: 'vandal_infantry', faction: 'tamerlane', position: { row: 10, col: 4 } },
+    { id: 'tr_vi2', definitionType: 'vandal_infantry', faction: 'tamerlane', position: { row: 10, col: 6 } },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 5: Obléhání Neapole (536) — Belisarius dobývá gótský Neapol
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_NEAPOL_DEF: ScenarioDefinition = {
+  id: 'neapol',
+  nameCs: 'Obléhání Neapole',
+  descriptionCs: 'Gótský Neapol za hradbami. Belisarius má beran a obléhací věž, ale musí prorazit dřív, než dorazí gotické posily.',
+  flavourCs: 'Rok 536. Po dobytí Sicílie přichází Belisarius k Neapoli. Město je silně opevněné, ale v létě tam podle místního informátora ústí akvadukt přímo do městského jádra.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Gotové',
+  difficultyCs: '🏰 Obléhání',
+  tags: ['kampaň', 'obléhání', 'siege'],
+  gridRows: 11,
+  gridCols: 13,
+  killThresholdCilicia: 6,
+  killThresholdTamerlane: 4,
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Zničit 4 gotické jednotky NEBO dostat 3 jednotky za hradby',
+  victoryObjectiveTamerlaneCs: 'Zničit 6 byzantských jednotek',
+  isCampaignScenario: true,
+  terrain: [
+    // Městské hradby — obkruzují město od řady 2 po řadu 6, cols 5-10
+    // Severní hradba (řada 2)
+    { position: { row: 2, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 6 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 7 }, terrain: 'gate', elevation: 0, structureHp: 4 }, // Severní brána
+    { position: { row: 2, col: 8 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 9 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Západní hradba
+    { position: { row: 3, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 4, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 5, col: 5 }, terrain: 'gate', elevation: 0, structureHp: 4 }, // Západní brána
+    { position: { row: 6, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Jižní hradba (řada 7)
+    { position: { row: 7, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 6 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 7 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 8 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 9 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Východní hradba
+    { position: { row: 3, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 4, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 5, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 6, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Akvadukt (západně od hradeb) — vstup a exit
+    { position: { row: 4, col: 3 }, terrain: 'aqueduct_surface', elevation: 0 },
+    { position: { row: 4, col: 8 }, terrain: 'aqueduct_exit', elevation: 0 },
+    // Okolní terén
+    { position: { row: 8, col: 2 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 9, col: 11 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 10, col: 6 }, terrain: 'forest', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    // Obléhací park na jihu
+    { id: 'np_belisarius', definitionType: 'belisarius',       faction: 'cilicia', position: { row: 10, col: 7 } },
+    { id: 'np_bucelarii',  definitionType: 'bucelarii',        faction: 'cilicia', position: { row: 10, col: 6 } },
+    { id: 'np_ram',        definitionType: 'siege_ram',        faction: 'cilicia', position: { row: 10, col: 8 } },
+    { id: 'np_tower',      definitionType: 'siege_tower',      faction: 'cilicia', position: { row: 11, col: 7 } },
+    { id: 'np_isaurian',   definitionType: 'isaurian_infantry',faction: 'cilicia', position: { row: 10, col: 5 } },
+    { id: 'np_ar1',        definitionType: 'archers',          faction: 'cilicia', position: { row: 11, col: 5 } },
+    { id: 'np_ar2',        definitionType: 'archers',          faction: 'cilicia', position: { row: 11, col: 9 } },
+    { id: 'np_hi1',        definitionType: 'heavy_infantry',   faction: 'cilicia', position: { row: 10, col: 9 } },
+  ],
+  tamerlaneUnits: [
+    // Gotická posádka uvnitř města
+    { id: 'np_gi1',  definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 3, col: 7 } },
+    { id: 'np_gi2',  definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 5, col: 7 } },
+    { id: 'np_gm1',  definitionType: 'gothic_militia',  faction: 'tamerlane', position: { row: 4, col: 6 } },
+    { id: 'np_gm2',  definitionType: 'gothic_militia',  faction: 'tamerlane', position: { row: 6, col: 7 } },
+    // Gotičtí lučištníci na hradbách
+    { id: 'np_ga1',  definitionType: 'gothic_archers',  faction: 'tamerlane', position: { row: 3, col: 9 } },
+    { id: 'np_ga2',  definitionType: 'gothic_archers',  faction: 'tamerlane', position: { row: 6, col: 9 } },
+  ],
+};
+
 export const ALL_SCENARIOS: ScenarioDefinition[] = [
   SCENARIO_STANDARD,
   SCENARIO_ANKARA,
@@ -945,4 +1089,6 @@ export const ALL_SCENARIOS: ScenarioDefinition[] = [
   CAMPAIGN_SCENARIO_DARA_DEF,
   CAMPAIGN_SCENARIO_NIKA_DEF,
   CAMPAIGN_SCENARIO_AD_DECIMUM_DEF,
+  CAMPAIGN_SCENARIO_TRICAMARUM_DEF,
+  CAMPAIGN_SCENARIO_NEAPOL_DEF,
 ];

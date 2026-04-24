@@ -410,12 +410,39 @@ export function checkVictory(
 
   // ── Campaign: Ad Decimum ────────────────────────────────────────────────
   if (state.scenarioId === 'ad_decimum') {
-    // Bot wins instantly if Belisarius falls
     const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
     if (belisariusDead) {
       return {
         victor: 'tamerlane',
         cause: `${scenario?.tamerlaneLabel ?? 'Vandali'} zabili Belisaria!`,
+      };
+    }
+  }
+
+  // ── Campaign: Tricamarum ────────────────────────────────────────────────
+  if (state.scenarioId === 'tricamarum') {
+    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
+    if (belisariusDead) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Vandali'} zabili Belisaria!`,
+      };
+    }
+  }
+
+  // ── Campaign: Neapol — "3 jednotky uvnitř města" victory ───────────────
+  if (state.scenarioId === 'neapol') {
+    // Inside = row 3-6, col 5-10 (inside walls).
+    const inside = state.units.filter(
+      u =>
+        u.faction === 'cilicia' &&
+        u.position.row >= 3 && u.position.row <= 6 &&
+        u.position.col >= 6 && u.position.col <= 10
+    );
+    if (inside.length >= 3) {
+      return {
+        victor: 'cilicia',
+        cause: `${scenario?.ciliciaLabel ?? 'Byzantinci'} vnikli do Neapole!`,
       };
     }
   }

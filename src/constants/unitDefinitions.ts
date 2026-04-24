@@ -803,4 +803,159 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     nameCs: 'Tzazon',
     abbrevCs: 'TZ',
   },
+
+  // ─── Campaign Fáze 2 — Tricamarum & Neapol ────────────────────────────────
+
+  // Jan Arménský — byzantský commander, charge +1 po pohybu 2+ hexů
+  jan_armenian: {
+    ...DEFAULTS,
+    type: 'jan_armenian',
+    unitClass: 'heavy',
+    move: 3,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 4,
+    maxHp: 4,
+    breakthrough: true,
+    chargeRequires3Hex: true,  // +2 kostky po 3+ hex v linii (reused flag)
+    isCommander: true,
+    commanderDeathEffect: {
+      descriptionCs: 'Pád Jana Arménského: byzantská jízda −1 kostka útoku (2 kola)',
+      affectFaction: 'cilicia',
+      effect: { attackDice: -1 },
+      durationTurns: 2,
+      affectUnitTypes: ['heavy_cavalry', 'horse_archers', 'light_cavalry', 'bucelarii', 'cataphract', 'mauri_spearmen'],
+    },
+    nameCs: 'Jan Arménský',
+    abbrevCs: 'JA',
+  },
+
+  // Obléhací věž — pomalá struktura, pohyb 1, žádný útok; při dosažení hradby
+  // umožní průchod pěchoty sousedícím hexem po 2 kola.
+  siege_tower: {
+    ...DEFAULTS,
+    type: 'siege_tower',
+    unitClass: 'heavy',
+    move: 1,
+    rangeMin: 0,
+    rangeMax: 0,
+    attack: 0,
+    maxHp: 3,
+    reducedMeleeDefense: true,
+    nameCs: 'Obléhací věž',
+    abbrevCs: 'OV',
+  },
+
+  // Obléhací beran — destroysWalls flag; malé HP; specializovaný na brány
+  siege_ram: {
+    ...DEFAULTS,
+    type: 'siege_ram',
+    unitClass: 'heavy',
+    move: 1,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 3,
+    maxHp: 2,
+    reducedMeleeDefense: true,
+    meleeAttackPenalty: true,
+    destroysWalls: true,  // může mlátit do gate/wall hexů
+    nameCs: 'Beran',
+    abbrevCs: 'BR',
+  },
+
+  // Gotická pěchota — solidní heavy infantry
+  gothic_infantry: {
+    ...DEFAULTS,
+    type: 'gothic_infantry',
+    unitClass: 'heavy',
+    move: 2,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 3,
+    maxHp: 4,
+    nameCs: 'Gotická pěchota',
+    abbrevCs: 'GP',
+  },
+
+  // Gotický rytíř — těžká jízda s chargeBonus (reusing chargeRequires3Hex)
+  gothic_knight: {
+    ...DEFAULTS,
+    type: 'gothic_knight',
+    unitClass: 'heavy',
+    move: 2,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 4,
+    maxHp: 4,
+    breakthrough: true,
+    chargeRequires3Hex: true,
+    nameCs: 'Gotický rytíř',
+    abbrevCs: 'GR',
+  },
+
+  // Gotická milice — vysoká HP, slabý útok; +1 obrana ve městě (implementováno
+  // přes panicRetreat flag = retreat ignoruje při obrane; simplifikace).
+  gothic_militia: {
+    ...DEFAULTS,
+    type: 'gothic_militia',
+    unitClass: 'light',
+    move: 1,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 2,
+    maxHp: 5,
+    nameCs: 'Gotická milice',
+    abbrevCs: 'GM',
+  },
+
+  // Gotičtí lučištníci — na hradbách (+1 dostřel handle via elevation)
+  gothic_archers: {
+    ...DEFAULTS,
+    type: 'gothic_archers',
+    unitClass: 'light',
+    move: 1,
+    rangeMin: 1,
+    rangeMax: 3,
+    attack: 2,
+    maxHp: 3,
+    reducedMeleeDefense: true,
+    movedAttackPenalty: true,
+    meleeAttackPenalty: true,
+    nameCs: 'Gotičtí lučištníci',
+    abbrevCs: 'GL',
+  },
+
+  // Totila — aura +1 útok všem Gótům ve 3 hexech; commander
+  totila: {
+    ...DEFAULTS,
+    type: 'totila',
+    unitClass: 'heavy',
+    move: 2,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 4,
+    maxHp: 4,
+    breakthrough: true,
+    chargeRequires3Hex: true,
+    isCommander: true,
+    commanderDeathEffect: {
+      descriptionCs: 'Pád Totily: gotické jednotky −1 kostka útoku (2 kola)',
+      affectFaction: 'tamerlane',
+      effect: { attackDice: -1 },
+      durationTurns: 2,
+      affectUnitTypes: ['gothic_infantry', 'gothic_knight', 'gothic_militia', 'gothic_archers'],
+    },
+    auraEffect: {
+      descriptionCs: 'Totilova inspirace: gotické jednotky ve 3 hexech +1 útok',
+      radius: 3,
+      targetFilter: {
+        faction: 'tamerlane',
+        unitTypes: ['gothic_infantry', 'gothic_knight', 'gothic_militia', 'gothic_archers'],
+        excludeSourceUnit: true,
+      },
+      effect: { attackDice: 1 },
+    },
+    nameCs: 'Totila',
+    abbrevCs: 'TO',
+  },
 };

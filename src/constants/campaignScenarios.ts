@@ -44,9 +44,8 @@ export const CAMPAIGN_SCENARIO_SEQUENCE: string[] = [
   'dara',
   'nika',
   'ad_decimum',
-  // Phase 2 placeholders (unimplemented yet):
-  // 'tricamarum',
-  // 'neapol',
+  'tricamarum',
+  'neapol',
   // Phase 3 placeholders:
   // 'roma_6a',
   // 'roma_6b',
@@ -117,10 +116,54 @@ export const CAMPAIGN_SCENARIO_AD_DECIMUM: CampaignScenarioDefinition = {
   unlockAfter: ['nika'],
 };
 
+export const CAMPAIGN_SCENARIO_TRICAMARUM: CampaignScenarioDefinition = {
+  id: 'tricamarum',
+  nameCs: 'Bitva u Tricamara',
+  contextCs: 'Rok 533. Po vítězství u Ad Decima Belisarius dostihl zbytky vandalské armády. Gelimer ustupuje za potok se svým bratrem Tzazonem. Rozhodne Jan Arménský — dokud stojí, jeho jízda drtí Góty.',
+  chronicleCs: '„Bůh dal vítězství skrze jednoho muže." — Prokopios z Kaisareie, De Bellis.',
+  chronicleLat: '«Deus per unum virum victoriam dedit.»',
+  mapLabel: 'Tricamarum',
+  mapCoords: { x: 400, y: 480 },
+  goals: {
+    glory: { descriptionCs: 'Tzazon padne dřív než Gelimer.' },
+    pragma: { descriptionCs: 'Bukelárii mají na konci bitvy alespoň 3 figurky.' },
+  },
+  exclusiveOption: {
+    id: 'jan_left_flank',
+    nameCs: 'Jan na levém křídle',
+    cost: 2,
+    descriptionCs: 'Jan Arménský má +1 pohyb po celou bitvu.',
+  },
+  unlockAfter: ['ad_decimum'],
+};
+
+export const CAMPAIGN_SCENARIO_NEAPOL: CampaignScenarioDefinition = {
+  id: 'neapol',
+  nameCs: 'Obléhání Neapole',
+  contextCs: 'Rok 536. Belisarius přistál na Sicílii a nyní se blíží k Neapoli. Hradby jsou mohutné — ale pod nimi vede starý římský akvadukt. Stačí najít vchod.',
+  chronicleCs: '„Když odřízli vodu, naděje gotské posádky se utopila v rezavých trubkách." — Prokopios.',
+  chronicleLat: '«Cum aquam interceperunt, spes Gothorum in fistulis rubiginosis submersa est.»',
+  mapLabel: 'Neapol',
+  mapCoords: { x: 520, y: 330 },
+  goals: {
+    glory: { descriptionCs: 'Prolom hradbu (libovolný wall nebo gate hex) do konce 5. kola.' },
+    pragma: { descriptionCs: 'Objev akvadukt (stůj na aqueduct_surface alespoň 1 kolo).' },
+  },
+  exclusiveOption: {
+    id: 'local_informant',
+    nameCs: 'Místní informátor',
+    cost: 1,
+    descriptionCs: 'Akvadukt je od začátku bitvy odhalený — lehká pěchota ho může přímo využít.',
+  },
+  unlockAfter: ['tricamarum'],
+};
+
 export const ALL_CAMPAIGN_SCENARIOS: CampaignScenarioDefinition[] = [
   CAMPAIGN_SCENARIO_DARA,
   CAMPAIGN_SCENARIO_NIKA,
   CAMPAIGN_SCENARIO_AD_DECIMUM,
+  CAMPAIGN_SCENARIO_TRICAMARUM,
+  CAMPAIGN_SCENARIO_NEAPOL,
 ];
 
 // ─── Standardní Velitelská rada (non-scenario-specific) ──────────────────────

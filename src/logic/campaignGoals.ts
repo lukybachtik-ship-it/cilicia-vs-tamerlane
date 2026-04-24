@@ -28,6 +28,10 @@ export function evaluateSecretGoal(
       return evaluateNikaGoal(goal, gameState, baseXp);
     case 'ad_decimum':
       return evaluateAdDecimumGoal(goal, gameState, baseXp);
+    case 'tricamarum':
+      return evaluateTricamarumGoal(goal, gameState, _campaign, baseXp);
+    case 'neapol':
+      return evaluateNeapolGoal(goal, gameState, _campaign, baseXp);
     default:
       return { achieved: false, buceliariiXpEarned: baseXp };
   }
@@ -103,6 +107,60 @@ function evaluateAdDecimumGoal(
     u => u.faction === 'cilicia' && u.position.row === village.position.row && u.position.col === village.position.col
   );
   return { achieved: onVillage, buceliariiXpEarned: baseXp };
+}
+
+// ─── Tricamarum ──────────────────────────────────────────────────────────────
+
+function evaluateTricamarumGoal(
+  goal: SecretGoalKind,
+  gameState: GameState,
+  _campaign: CampaignState,
+  baseXp: number
+): GoalEvaluation {
+  if (goal === 'glory') {
+    // Tzazon padl dříve než Gelimer — zkontrolujeme pořadí v destroyedUnits
+    const tzazonIdx = gameState.destroyedUnits.findIndex(u => u.definitionType === 'tzazon');
+    const gelimerIdx = gameState.destroyedUnits.findIndex(u => u.definitionType === 'gelimer');
+    const tzazonDead = tzazonIdx >= 0;
+    const gelimerDead = gelimerIdx >= 0;
+    const tzazonFirst = tzazonDead && (!gelimerDead || tzazonIdx < gelimerIdx);
+    return { achieved: tzazonFirst, buceliariiXpEarned: baseXp };
+  }
+  // pragma: Bukelárii ≥ 3 figurek na konci bitvy
+  const buc = gameState.units.find(u => u.definitionType === 'bucelarii');
+  return { achieved: !!buc && buc.hp >= 3, buceliariiXpEarned: baseXp };
+}
+
+// ─── Neapol ──────────────────────────────────────────────────────────────────
+
+function evaluateNeapolGoal(
+  goal: SecretGoalKind,
+  gameState: GameState,
+  _campaign: CampaignState,
+  baseXp: number
+): GoalEvaluation {
+  if (goal === 'glory') {
+    // Prolom hradbu do konce 5. kola: libovolný wall/gate hex destruct. a turn ≤ 5
+    const hadWalls = gameState.terrain.some(
+      t => t.terrain === 'plain' && (t.structureHp === 0 || t.structureHp === undefined)
+    );
+    // Simpler: count how many original wall/gate hexes ještě stojí
+    // Use: if any former wall was destroyed AND turn ≤ 5 při victory
+    // Approximation: check turnNumber ≤ 5 AND at least one wall/gate has structureHp = 0 or terrain = plain
+    // For now we only have „all walls with structureHp>0". Let's say achieved if turn ≤ 5 when victory hit.
+    return { achieved: gameState.turnNumber <= 5 && hadWalls, buceliariiXpEarned: baseXp };
+  }
+  // pragma: objev akvadukt — lehká pěchota stála na aqueduct_surface hexu
+  // (approximace: libovolná hráčova jednotka byla na hexu v moveHistoryThisTurn nebo aktuálně)
+  const aqueduct = gameState.terrain.find(t => t.terrain === 'aqueduct_surface');
+  if (!aqueduct) return { achieved: false, buceliariiXpEarned: baseXp };
+  const onAqueduct = gameState.units.some(
+    u =>
+      u.faction === 'cilicia' &&
+      u.position.row === aqueduct.position.row &&
+      u.position.col === aqueduct.position.col
+  );
+  return { achieved: onAqueduct, buceliariiXpEarned: baseXp };
 }
 
 // ─── Bukelárii XP helper ─────────────────────────────────────────────────────

@@ -324,6 +324,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newMoveHistory = [...unit.moveHistoryThisTurn, action.targetPosition];
 
+      // Stream crossing: if any intermediate hex (not final) is stream,
+      // emit cannotAttack modifier for this turn.
+      const crossedStream = newMoveHistory.slice(0, -1).some(pos => {
+        const cell = state.terrain.find(
+          t => t.position.row === pos.row && t.position.col === pos.col
+        );
+        return cell?.terrain === 'stream';
+      });
+
       const newUnits = updateUnit(state.units, action.unitId, {
         position: action.targetPosition,
         hasMoved: true,
@@ -350,8 +359,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         units: newUnits,
         selectedUnitId: action.unitId,
         validMoveTargets: [],
-        validAttackTargets: newAttackTargets,
-        validAttackTerrainTargets: newTerrainTargets,
+        validAttackTargets: crossedStream ? [] : newAttackTargets,
+        validAttackTerrainTargets: crossedStream ? [] : newTerrainTargets,
+        activeModifiers: crossedStream
+          ? [
+              ...state.activeModifiers,
+              {
+                id: generateId('mod_stream'),
+                source: 'status' as const,
+                sourceUnitId: action.unitId,
+                descriptionCs: 'Přechod potoka: nelze útočit v tomto kole',
+                targetFilter: { unitIds: [action.unitId] },
+                effect: { cannotAttack: true },
+                duration: { kind: 'turns' as const, remainingTurns: 1 },
+              },
+            ]
+          : state.activeModifiers,
       };
       // Auras depend on positions — rebuild
       return recomputeAuras(afterMove);

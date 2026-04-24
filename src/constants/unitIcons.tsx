@@ -575,6 +575,113 @@ export const UNIT_ICONS: Record<string, React.ReactNode> = {
     </>
   ),
 
+  // ─── Fáze 2 — Tricamarum & Neapol ──────────────────────────────────────────
+
+  // Jan Arménský — stříbrný orel (heraldika) + kopí
+  jan_armenian: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#cbd5e1" strokeWidth="0.6" opacity={0.3} style={PI} />
+      <path d="M0,-8 L4,-3 L3,1 L6,6 L0,4 L-6,6 L-3,1 L-4,-3 Z"
+            fill="rgba(203,213,225,0.35)" stroke="#cbd5e1" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <circle cx={0} cy={-4} r={1.3} fill="#cbd5e1" style={PI} />
+      <line x1={-10} y1={8} x2={10} y2={-2} stroke="#cbd5e1" strokeWidth="1.6" strokeLinecap="round" style={PI} />
+      <polygon points="10,-2 6,-4 7,0" fill="#cbd5e1" style={PI} />
+    </>
+  ),
+
+  // Obléhací věž — vysoká věž s žebříkem
+  siege_tower: (
+    <>
+      <rect x={-6} y={-10} width={12} height={15} fill="rgba(255,255,255,0.25)" stroke="white" strokeWidth="1.4" style={PI} />
+      <rect x={-6} y={-10} width={12} height={2} fill="white" style={PI} />
+      <line x1={-3} y1={-8} x2={-3} y2={5} stroke="white" strokeWidth="0.8" style={PI} />
+      <line x1={3} y1={-8} x2={3} y2={5} stroke="white" strokeWidth="0.8" style={PI} />
+      <line x1={-6} y1={-5} x2={6} y2={-5} stroke="white" strokeWidth="0.8" style={PI} />
+      <line x1={-6} y1={0} x2={6} y2={0} stroke="white" strokeWidth="0.8" style={PI} />
+      {/* Kola dole */}
+      <circle cx={-4} cy={7} r={2} fill="none" stroke="white" strokeWidth="1.4" style={PI} />
+      <circle cx={4} cy={7} r={2} fill="none" stroke="white" strokeWidth="1.4" style={PI} />
+      {/* Žebřík/rampa */}
+      <path d="M-6,-6 L-9,-3" stroke="white" strokeWidth="1.2" style={PI} />
+      <path d="M-8,-5 L-10,-5" stroke="white" strokeWidth="1" style={PI} />
+    </>
+  ),
+
+  // Beran — tlustý kláda se železnou hlavou
+  siege_ram: (
+    <>
+      {/* Hlava berana */}
+      <path d="M-10,-2 L-8,-5 L-5,-4 L-5,3 L-8,4 L-10,1 Z" fill="rgba(255,255,255,0.4)" stroke="white" strokeWidth="1.2" style={PI} />
+      <circle cx={-8} cy={-2} r={0.8} fill="#1f2937" style={PI} />
+      <circle cx={-8} cy={1} r={0.8} fill="#1f2937" style={PI} />
+      {/* Kláda */}
+      <rect x={-5} y={-1} width={12} height={2.5} fill="white" style={PI} />
+      {/* Závěsná konstrukce */}
+      <line x1={0} y1={-2} x2={0} y2={-7} stroke="white" strokeWidth="1.4" style={PI} />
+      <line x1={6} y1={-2} x2={6} y2={-7} stroke="white" strokeWidth="1.4" style={PI} />
+      <line x1={-2} y1={-7} x2={8} y2={-7} stroke="white" strokeWidth="1.4" style={PI} />
+      {/* Kola */}
+      <circle cx={-2} cy={6} r={1.8} fill="none" stroke="white" strokeWidth="1.2" style={PI} />
+      <circle cx={6} cy={6} r={1.8} fill="none" stroke="white" strokeWidth="1.2" style={PI} />
+    </>
+  ),
+
+  // Gotická pěchota — trojúhelníkový štít + sekera
+  gothic_infantry: (
+    <>
+      <polygon points="-6,-8 6,-8 6,3 0,8 -6,3" fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.5" strokeLinejoin="round" style={PI} />
+      <line x1={0} y1={-8} x2={0} y2={8} stroke="white" strokeWidth="0.8" opacity={0.6} style={PI} />
+      <line x1={-6} y1={-2} x2={6} y2={-2} stroke="white" strokeWidth="0.8" opacity={0.6} style={PI} />
+    </>
+  ),
+
+  // Gotický rytíř — chocholatá helma + kopí
+  gothic_knight: (
+    <>
+      <path d="M-5,-3 Q-5,-8 0,-8 Q5,-8 5,-3 L4,2 Q0,4 -4,2 Z"
+            fill="rgba(255,255,255,0.22)" stroke="white" strokeWidth="1.5" strokeLinejoin="round" style={PI} />
+      <path d="M0,-8 Q-3,-11 -4,-8" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" style={PI} />
+      <path d="M0,-8 Q3,-12 4,-7" fill="none" stroke="white" strokeWidth="1.2" style={PI} />
+      <line x1={-8} y1={8} x2={8} y2={-1} stroke="white" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+      <polygon points="8,-1 4,-2 5,2" fill="white" style={PI} />
+    </>
+  ),
+
+  // Gotická milice — jednoduchý dům/hrot (obránci města)
+  gothic_militia: (
+    <>
+      <polygon points="-7,3 0,-7 7,3" fill="rgba(255,255,255,0.2)" stroke="white" strokeWidth="1.4" strokeLinejoin="round" style={PI} />
+      <rect x={-6} y={3} width={12} height={5} fill="rgba(255,255,255,0.18)" stroke="white" strokeWidth="1.2" style={PI} />
+      <rect x={-1.5} y={4.5} width={3} height={3.5} fill="white" opacity={0.7} style={PI} />
+      <line x1={-3} y1={5.5} x2={-3} y2={8} stroke="#1f2937" strokeWidth="0.6" style={PI} />
+    </>
+  ),
+
+  // Gotičtí lučištníci — jednoduchý luk
+  gothic_archers: (
+    <>
+      <path d="M-3,-8 Q9,0 -3,8" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" style={PI} />
+      <line x1={-3} y1={-8} x2={-3} y2={8} stroke="white" strokeWidth="1" opacity={0.5} style={PI} />
+      <line x1={-8} y1={0} x2={6} y2={0} stroke="white" strokeWidth="1.5" style={PI} />
+      <polygon points="6,0 2,-2 2,2" fill="white" style={PI} />
+    </>
+  ),
+
+  // Totila — zlatá koruna + gotický rytíř
+  totila: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#fde68a" strokeWidth="0.6" opacity={0.35} style={PI} />
+      <path d="M-5,-3 Q-5,-8 0,-8 Q5,-8 5,-3 L4,2 Q0,4 -4,2 Z"
+            fill="rgba(253,230,138,0.3)" stroke="#fde68a" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <path d="M-5,-8 L-3,-12 L0,-9 L3,-12 L5,-8" fill="#fde68a" stroke="#78350f" strokeWidth="1" strokeLinejoin="round" style={PI} />
+      <circle cx={-3} cy={-12} r={1} fill="#fde68a" style={PI} />
+      <circle cx={0} cy={-9} r={1} fill="#fde68a" style={PI} />
+      <circle cx={3} cy={-12} r={1} fill="#fde68a" style={PI} />
+      <line x1={-8} y1={8} x2={8} y2={-1} stroke="#fde68a" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+      <polygon points="8,-1 4,-2 5,2" fill="#fde68a" style={PI} />
+    </>
+  ),
+
   // Cesare Borgia — zlatý býk (heraldika Borgia) se zakřivenými rohy
   cesare_borgia: (
     <>

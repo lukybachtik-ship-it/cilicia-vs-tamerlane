@@ -8,7 +8,7 @@ import { getRetreatPosition, getPanicRetreatPosition } from './movement';
 import { isChargingThisTurn, getVolleyBonus, hasPilumReadyMod } from './abilities';
 import { hasHeatDebuff } from './scenarioEffects';
 import { isHiddenFrom } from './visibility';
-import { getAttackDiceBonus, getRangeBonus, defenderIgnoresRetreat } from './modifiers';
+import { getAttackDiceBonus, getRangeBonus, defenderIgnoresRetreat, cannotAttack as modCannotAttack } from './modifiers';
 
 function getTerrainType(pos: { row: number; col: number }, state: GameState) {
   return (
@@ -364,6 +364,8 @@ export function getValidAttackTargets(
 
   // Setup required: cannot attack on a turn the unit has moved
   if (def.setupRequired && attacker.hasMoved) return [];
+  // Status-modifier cannotAttack (e.g. stream crossing, Tzazon death panic)
+  if (modCannotAttack(attacker, state)) return [];
 
   // Range bonuses from modifiers (pilum +1 etc.) extend max range
   const bonusRange = getRangeBonus(attacker, state);
@@ -400,7 +402,7 @@ export function getValidAttackTerrainTargets(
   const rangeMax = def.rangeMax;
   return state.terrain
     .filter(t =>
-      (t.terrain === 'wall' || t.terrain === 'wagenburg') &&
+      (t.terrain === 'wall' || t.terrain === 'wagenburg' || t.terrain === 'gate') &&
       (t.structureHp ?? 0) > 0 &&
       !state.units.some(u => u.position.row === t.position.row && u.position.col === t.position.col) &&
       chebyshevDistance(attacker.position, t.position) >= def.rangeMin &&
