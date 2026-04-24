@@ -2,8 +2,7 @@ import type { GameState } from '../types/game';
 import type { PlayerTurn } from '../types/game';
 import { ALL_SCENARIOS } from '../constants/scenarios';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
-
-const CAVALRY_TYPES = ['light_cavalry', 'heavy_cavalry', 'horse_archers'] as const;
+import { isCavalryType } from '../utils/helpers';
 
 /** Kampaňové scénáře, kde Belisariova smrt znamená okamžitou prohru (je přítomen v setupu). */
 const CAMPAIGN_SCENARIOS_WITH_BELISARIUS = [
@@ -103,7 +102,7 @@ export function checkVictory(
       u =>
         u.faction === 'tamerlane' &&
         u.position.row <= 2 &&
-        (CAVALRY_TYPES as readonly string[]).includes(u.definitionType)
+        isCavalryType(u.definitionType)
     );
     if (encirclingCavalry.length >= 2) {
       return {

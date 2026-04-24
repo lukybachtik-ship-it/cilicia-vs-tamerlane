@@ -47,17 +47,63 @@ export function getZone(col: number): 'left' | 'center' | 'right' {
   return 'right';
 }
 
+/**
+ * Všechny jezdecké jednotky — single source of truth pro:
+ *   • card filter 'cavalry' (Jízdní zteč)
+ *   • pike wall check (+1 auto-hit, −1 kostka útoku při melee)
+ *   • combat charge bonus (skrz isChargingThisTurn)
+ *   • victory conditions (Ankara encirclement)
+ *
+ * Pokud přidáváš novou jednotku na koni, PŘIDEJ ji sem.
+ */
+const CAVALRY_TYPES = new Set<string>([
+  // Generické
+  'light_cavalry', 'heavy_cavalry', 'horse_archers',
+  // Antický Řím
+  'equites',
+  // Renesance / Borgia
+  'gendarme', 'stradiot', 'condottiero',
+  // Byzanc (kampaň)
+  'belisarius', 'bucelarii', 'cataphract', 'mauri_spearmen',
+  // Peršané
+  'persian_cavalry', 'firouz',
+  // Vandalové
+  'vandal_cavalry', 'ammatas', 'gelimer', 'tzazon',
+  // Gótové + byzantští velitelé
+  'jan_armenian', 'gothic_knight', 'witiges', 'totila',
+  // Hunové
+  'hunnic_horde', 'zabergan',
+]);
+
 /** True if unit type is a cavalry variant (for pike-wall / anti-cavalry checks). */
 export function isCavalryType(type: string): boolean {
-  return (
-    type === 'light_cavalry' ||
-    type === 'heavy_cavalry' ||
-    type === 'horse_archers' ||
-    type === 'gendarme' ||
-    type === 'stradiot' ||
-    type === 'condottiero' ||
-    type === 'equites'
-  );
+  return CAVALRY_TYPES.has(type);
+}
+
+/**
+ * Všechny střelecké jednotky (rangeMax ≥ 2 bez jezdeckých skirmisherů).
+ * Používá se pro card filter 'ranged' (Přímá palba — nemůžou se pohnout, +1 kostka).
+ *
+ * Cavalry skirmisheři (stradiot, mauri_spearmen) sem NEPATŘÍ — kdyby byli,
+ * karta Přímá palba by jim zamkla pohyb, což je popře jejich identitu.
+ * horse_archers a hunnic_horde jsou výjimka — jsou primárně střelci.
+ */
+const RANGED_TYPES = new Set<string>([
+  // Pěší střelci
+  'archers', 'sagittarii', 'gothic_archers',
+  // Renesanční střelné zbraně
+  'arquebusier', 'crossbowman',
+  // Obléhací / dělostřelectvo
+  'siege_machine', 'scorpio', 'culverin',
+  // Oštěpníci / vrhači
+  'framea_thrower', 'stone_throwing_mob',
+  // Jízdní lukostřelci (explicitně v textu karty „střelce nebo jízdní lukostřelce")
+  'horse_archers', 'hunnic_horde',
+]);
+
+/** True if unit is eligible for the 'ranged' card filter (Přímá palba). */
+export function isRangedType(type: string): boolean {
+  return RANGED_TYPES.has(type);
 }
 
 /** True if unit type is a "heavy armour" target for crossbow penalty / rodelero bonus. */

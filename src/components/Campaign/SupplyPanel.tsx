@@ -136,8 +136,8 @@ export function SupplyPanel() {
 
   return (
     <>
-      {/* Supply HUD (spodní pravý roh) */}
-      <div className="fixed bottom-2 right-2 z-30 bg-gray-900/95 border border-amber-700 rounded-lg p-2 shadow-xl max-w-[260px]">
+      {/* Supply HUD (spodní pravý roh, NAD action barem aby nezakrývala „Zpět"/„Ukončit kolo") */}
+      <div className="fixed bottom-14 right-2 z-30 bg-gray-900/95 border border-amber-700 rounded-lg p-2 shadow-xl max-w-[260px] max-h-[calc(100vh-160px)] overflow-y-auto">
         {/* Tajný cíl scénáře */}
         {goalDesc && (
           <div className="mb-2 pb-2 border-b border-gray-700/60">
