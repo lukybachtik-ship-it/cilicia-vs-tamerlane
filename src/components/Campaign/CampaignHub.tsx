@@ -84,7 +84,7 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
           <p className="text-gray-500 text-xs">
             Scénář {campaign.completedScenarios.filter(r => r.victory).length + 1}
             {' '}z cca 8
-            {' '}·  Favor {campaign.favor} {campaign.favor >= 4 ? '→ Ravenna' : '→ Kalábrie'}
+            {' '}·  Přízeň {campaign.favor} {campaign.favor >= 4 ? '→ Ravenna' : '→ Kalábrie'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -118,13 +118,13 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
         <StatCard
           title="Přízeň Justiniána"
           primary={favorText(campaign.favor)}
-          secondary={`Favor: ${campaign.favor} / 6`}
+          secondary={`Přízeň: ${campaign.favor} / 6`}
           accent="text-amber-300"
         />
         <StatCard
           title="Zásoby"
-          primary={`${campaign.supplyTokens} tokenů`}
-          secondary={`Cap: 10 · příjem +${1 + Math.floor(campaign.favor / 3)} mezi scénáři`}
+          primary={`${campaign.supplyTokens} / 10`}
+          secondary={`Příjem +${1 + Math.floor(campaign.favor / 3)} mezi scénáři`}
           accent="text-emerald-300"
         />
         <StatCard
@@ -138,7 +138,7 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
       {/* Global flags */}
       {(campaign.katafraktiUnlocked || campaign.gelimerWounded) && (
         <div className="mb-4 p-3 bg-gray-900 border border-gray-700 rounded-lg text-xs text-gray-300 space-y-1">
-          {campaign.katafraktiUnlocked && <div>✓ Katafrakti odemčeni (lze nasadit přes Radu za 3 tokeny, nebo zdarma při Favor 6).</div>}
+          {campaign.katafraktiUnlocked && <div>✓ Katafrakti odemčeni (lze nasadit přes Radu za 3 zásoby, nebo zdarma při Přízni 6).</div>}
           {campaign.gelimerWounded && <div>✓ Gelimer byl zraněn v Ad Decimum — v Tricamaru začne s 3 figurkami místo 4.</div>}
         </div>
       )}
@@ -250,7 +250,7 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
               })}
             </div>
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-gray-500">Favor:</span>
+              <span className="text-gray-500">Přízeň:</span>
               {[0, 2, 4, 6].map(f => (
                 <button
                   key={f}
@@ -260,7 +260,7 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
                   {f}
                 </button>
               ))}
-              <span className="text-gray-500 ml-2">Supply:</span>
+              <span className="text-gray-500 ml-2">Zásoby:</span>
               {[2, 5, 8, 10].map(s => (
                 <button
                   key={s}
@@ -305,7 +305,7 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
                 onClick={() => dispatch({ type: 'SET_GELIMER_WOUNDED', wounded: !campaign.gelimerWounded })}
                 className="px-2 py-0.5 rounded text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300"
               >
-                Gelimer wounded: {campaign.gelimerWounded ? 'ON' : 'OFF'}
+                Gelimer zraněn: {campaign.gelimerWounded ? 'ANO' : 'NE'}
               </button>
             </div>
           </div>
@@ -333,12 +333,12 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
                     </span>
                   </div>
                   <div className="text-gray-500 mt-1">
-                    Tajný cíl ({r.secretGoalChosen === 'glory' ? 'Glory' : r.secretGoalChosen === 'pragma' ? 'Pragma' : '—'}):{' '}
+                    Tajný cíl ({r.secretGoalChosen === 'glory' ? 'Sláva' : r.secretGoalChosen === 'pragma' ? 'Zisk' : '—'}):{' '}
                     {r.secretGoalAchieved ? '✓ splněn' : '✗ nesplněn'}
                     {r.rewardChosen && (
                       <>
                         {' · Odměna: '}
-                        {r.rewardChosen === 'favor' ? '+2 Favor' : r.rewardChosen === 'supply' ? '+3 Supply' : '+1 XP'}
+                        {r.rewardChosen === 'favor' ? '+2 Přízeň' : r.rewardChosen === 'supply' ? '+3 Zásoby' : '+1 XP'}
                       </>
                     )}
                   </div>

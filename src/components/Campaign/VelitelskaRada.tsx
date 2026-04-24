@@ -104,8 +104,8 @@ export function VelitelskaRada({ onConfirm, onBack }: Props) {
           </p>
           <div className="grid grid-cols-2 gap-3">
             <GoalCard
-              title="Glory"
-              subtitle="+1 Favor"
+              title="Sláva"
+              subtitle="+1 Přízeň"
               descriptionCs={scenario.goals.glory.descriptionCs}
               selected={selectedGoal === 'glory'}
               hinted={goalHint === 'glory'}
@@ -116,8 +116,8 @@ export function VelitelskaRada({ onConfirm, onBack }: Props) {
               selectedAccent="border-amber-400 bg-amber-950/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
             />
             <GoalCard
-              title="Pragma"
-              subtitle="+2 Supply"
+              title="Zisk"
+              subtitle="+2 Zásoby"
               descriptionCs={scenario.goals.pragma.descriptionCs}
               selected={selectedGoal === 'pragma'}
               hinted={goalHint === 'pragma'}
@@ -137,7 +137,7 @@ export function VelitelskaRada({ onConfirm, onBack }: Props) {
               Velitelská rada
             </h2>
             <div className="text-emerald-300 text-sm font-bold">
-              {campaign.supplyTokens} / 10 tokenů
+              Zásoby: {campaign.supplyTokens} / 10
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -162,7 +162,7 @@ export function VelitelskaRada({ onConfirm, onBack }: Props) {
                   <div className="flex items-center justify-between mb-1">
                     <div className="text-sm font-bold text-gray-100">{opt.nameCs}</div>
                     <div className={`text-xs font-bold ${bought ? 'text-emerald-300' : 'text-amber-300'}`}>
-                      {bought ? '✓ Zakoupeno' : freeKatafrakti ? 'ZDARMA' : `${cost} tokenů`}
+                      {bought ? '✓ Zakoupeno' : freeKatafrakti ? 'ZDARMA' : `${cost} zásob`}
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 leading-tight">{opt.descriptionCs}</p>

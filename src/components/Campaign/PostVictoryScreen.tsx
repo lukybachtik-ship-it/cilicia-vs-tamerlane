@@ -44,7 +44,7 @@ export function PostVictoryScreen({ result, onContinue, onRetry }: Props) {
         <div className="max-w-xl w-full text-center">
           <div className="text-3xl font-bold text-red-400 mb-3">Porážka</div>
           <p className="text-gray-400 text-sm mb-6">
-            {scenario.nameCs} skončila neúspěchem. Justinián ztrácí trpělivost (−1 Favor).
+            {scenario.nameCs} skončila neúspěchem. Justinián ztrácí trpělivost (−1 Přízeň).
           </p>
           <p className="text-gray-500 text-xs mb-6 italic">
             Kampaň není rogue-like — můžeš zkusit scénář znovu, dokud se nepovede.
@@ -84,12 +84,12 @@ export function PostVictoryScreen({ result, onContinue, onRetry }: Props) {
           <div className="mt-3 pt-3 border-t border-gray-800 text-center text-sm">
             <span className="text-gray-400">Tajný cíl </span>
             <span className="text-gray-200 font-semibold">
-              ({result.secretGoalChosen === 'glory' ? 'Glory' : 'Pragma'})
+              ({result.secretGoalChosen === 'glory' ? 'Sláva' : 'Zisk'})
             </span>
             {': '}
             {result.secretGoalAchieved ? (
               <span className="text-green-400 font-bold">
-                ✓ splněn ({result.secretGoalChosen === 'glory' ? '+1 Favor' : '+2 Supply'})
+                ✓ splněn ({result.secretGoalChosen === 'glory' ? '+1 Přízeň' : '+2 Zásoby'})
               </span>
             ) : (
               <span className="text-red-400">✗ nesplněn</span>
@@ -116,13 +116,13 @@ export function PostVictoryScreen({ result, onContinue, onRetry }: Props) {
             </h2>
             <div className="grid grid-cols-3 gap-3 mb-6">
               <RewardCard
-                label="+2 Favor"
+                label="+2 Přízeň"
                 desc="Justinián je spokojen"
                 accent="amber"
                 onClick={() => applyReward('favor')}
               />
               <RewardCard
-                label="+3 Supply"
+                label="+3 Zásoby"
                 desc="Logistika zajištěna"
                 accent="emerald"
                 onClick={() => applyReward('supply')}

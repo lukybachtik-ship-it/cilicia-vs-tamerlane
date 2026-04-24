@@ -66,11 +66,11 @@ export function TransitionScreen({ onFinished }: Props) {
         <div className="grid grid-cols-3 gap-2 mb-4 text-center text-xs">
           <div className="p-2 bg-gray-900 border border-gray-700 rounded">
             <div className="text-amber-300 font-bold text-sm">{campaign.favor}</div>
-            <div className="text-gray-500">Favor</div>
+            <div className="text-gray-500">Přízeň</div>
           </div>
           <div className="p-2 bg-gray-900 border border-gray-700 rounded">
             <div className="text-emerald-300 font-bold text-sm">{campaign.supplyTokens}</div>
-            <div className="text-gray-500">Supply</div>
+            <div className="text-gray-500">Zásoby</div>
           </div>
           <div className="p-2 bg-gray-900 border border-gray-700 rounded">
             <div className="text-sky-300 font-bold text-sm">úroveň {campaign.buceliarii.level}</div>

@@ -93,7 +93,7 @@ export const CAMPAIGN_SCENARIO_DARA: CampaignScenarioDefinition = {
   chronicleCs: '„Řím opět potřebuje hrdinu. Na co čeká mladý generál?" — Justinián I. ve svém listu Belisariovi.',
   chronicleLat: '«Roma rursum heroem desiderat. Quid exspectat iuvenis dux?»',
   mapLabel: 'Dara',
-  mapCoords: { x: 760, y: 360 },
+  mapCoords: { x: 905, y: 250 },
   goals: {
     glory: { descriptionCs: 'Zabij perského velitele Firouze.' },
     pragma: { descriptionCs: 'Žádný nepřítel se nedostane na hex s pevností Dara.' },
@@ -114,7 +114,7 @@ export const CAMPAIGN_SCENARIO_NIKA: CampaignScenarioDefinition = {
   chronicleCs: '„Purpur je nejlepší rubáš." — Theodora, panovníkova choť.',
   chronicleLat: '«Purpura optimum feretrum est.»',
   mapLabel: 'Konstantinopol',
-  mapCoords: { x: 615, y: 240 },
+  mapCoords: { x: 625, y: 205 },
   goals: {
     glory: { descriptionCs: 'Zabij oba vůdce povstání — Hypatia i Pompeia.' },
     pragma: { descriptionCs: 'Žádný povstalec nesmí stát sousedně s Velkým palácem.' },
@@ -135,7 +135,7 @@ export const CAMPAIGN_SCENARIO_AD_DECIMUM: CampaignScenarioDefinition = {
   chronicleCs: '„Bůh je tobě nakloněn. Pán nezaostává." — Prokopios z Kaisareie.',
   chronicleLat: '«Deus tibi favet. Dominus non cessat.»',
   mapLabel: 'Kartágo',
-  mapCoords: { x: 400, y: 460 },
+  mapCoords: { x: 440, y: 425 },
   goals: {
     glory: { descriptionCs: 'Ammatas padne do konce 3. kola.' },
     pragma: { descriptionCs: 'Obsaď hex vesnice Ad Decimum do konce 5. kola.' },
@@ -156,7 +156,7 @@ export const CAMPAIGN_SCENARIO_TRICAMARUM: CampaignScenarioDefinition = {
   chronicleCs: '„Bůh dal vítězství skrze jednoho muže." — Prokopios z Kaisareie, De Bellis.',
   chronicleLat: '«Deus per unum virum victoriam dedit.»',
   mapLabel: 'Tricamarum',
-  mapCoords: { x: 400, y: 480 },
+  mapCoords: { x: 455, y: 445 },
   goals: {
     glory: { descriptionCs: 'Tzazon padne dřív než Gelimer.' },
     pragma: { descriptionCs: 'Bukelárii mají na konci bitvy alespoň 3 figurky.' },
@@ -177,7 +177,7 @@ export const CAMPAIGN_SCENARIO_NEAPOL: CampaignScenarioDefinition = {
   chronicleCs: '„Když odřízli vodu, naděje gotské posádky se utopila v rezavých trubkách." — Prokopios.',
   chronicleLat: '«Cum aquam interceperunt, spes Gothorum in fistulis rubiginosis submersa est.»',
   mapLabel: 'Neapol',
-  mapCoords: { x: 520, y: 330 },
+  mapCoords: { x: 525, y: 330 },
   goals: {
     glory: { descriptionCs: 'Prolom hradbu (libovolný wall nebo gate hex) do konce 5. kola.' },
     pragma: { descriptionCs: 'Objev akvadukt (stůj na aqueduct_surface alespoň 1 kolo).' },
@@ -198,7 +198,7 @@ export const CAMPAIGN_SCENARIO_ROMA_6A: CampaignScenarioDefinition = {
   chronicleCs: '„Nepřítel je u brány Flaminia. Hradby drží. Zatím." — Belisariův rozkaz v první den obléhání.',
   chronicleLat: '«Hostis ad portam Flaminiam. Moenia stant. Adhuc.»',
   mapLabel: 'Řím (I)',
-  mapCoords: { x: 490, y: 310 },
+  mapCoords: { x: 498, y: 285 },
   goals: {
     glory: { descriptionCs: 'Zničit alespoň 1 gotickou obléhací věž dříve, než dosáhne hradby.' },
     pragma: { descriptionCs: 'Bukelárii mají na konci části 1 plné 4 figurky.' },
@@ -219,7 +219,7 @@ export const CAMPAIGN_SCENARIO_ROMA_6B: CampaignScenarioDefinition = {
   chronicleCs: '„Únava posádky sahala k paniku; ale Belisarius spával u hradeb." — Prokopios, De Bellis.',
   chronicleLat: '«Fessus miles ad pavorem vergebat; sed Belisarius ad moenia dormiebat.»',
   mapLabel: 'Řím (II)',
-  mapCoords: { x: 505, y: 320 },
+  mapCoords: { x: 502, y: 295 },
   goals: {
     glory: { descriptionCs: 'Zabij Witigese, pokud je přítomen ve 2. části.' },
     pragma: { descriptionCs: 'Ukonči bitvu s aspoň 3 byzantskými jednotkami naživu.' },
@@ -234,7 +234,7 @@ export const CAMPAIGN_SCENARIO_RAVENNA: CampaignScenarioDefinition = {
   chronicleCs: '„Ostrogóti mu nabídli korunu. Ale Justinián by pak neměl žádného Belisaria." — Agathias.',
   chronicleLat: '«Ostrogothi coronam ei obtulerunt. At Iustinianus tum nullum Belisarium haberet.»',
   mapLabel: 'Ravenna',
-  mapCoords: { x: 475, y: 220 },
+  mapCoords: { x: 510, y: 215 },
   goals: {
     glory: { descriptionCs: 'Dosáhni diplomatického vítězství (Belisarius na náměstí + 3 pěšáci + ≤5 padlých Gótů).' },
     pragma: { descriptionCs: 'Obsaď gotickou pokladnici (fortress hex).' },
@@ -255,7 +255,7 @@ export const CAMPAIGN_SCENARIO_CALABRIA: CampaignScenarioDefinition = {
   chronicleCs: '„Bez zlata, bez vojska, ale s Belisariem." — lidové rčení konstantinopolského lidu.',
   chronicleLat: '«Sine auro, sine exercitu, sed cum Belisario.»',
   mapLabel: 'Kalábrie',
-  mapCoords: { x: 555, y: 370 },
+  mapCoords: { x: 545, y: 415 },
   goals: {
     glory: { descriptionCs: 'Zabij Totilu.' },
     pragma: { descriptionCs: 'Žádná Bukelárská figurka nepadne.' },
@@ -276,7 +276,7 @@ export const CAMPAIGN_SCENARIO_EPILOG_A: CampaignScenarioDefinition = {
   chronicleCs: '„A tak generál, oslepený závistí císaře, zachránil říši naposledy." — Prokopios.',
   chronicleLat: '«Ita dux, invidia imperatoris caecatus, imperium postremo servavit.»',
   mapLabel: 'Konstantinopol',
-  mapCoords: { x: 615, y: 240 },
+  mapCoords: { x: 615, y: 220 },
   goals: {
     glory: { descriptionCs: 'Vyhraj bez jediné ztráty.' },
     pragma: { descriptionCs: 'Zabij Zabergana.' },

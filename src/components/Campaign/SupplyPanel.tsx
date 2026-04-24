@@ -71,36 +71,36 @@ export function SupplyPanel() {
         </div>
         <div className="flex flex-col gap-1">
           <SupplyButton
-            label={bonusUsed ? 'Bonus ✓ použito' : 'Bonus kostka (1 SP)'}
+            label={bonusUsed ? 'Bonus ✓ použit' : 'Bonus kostka — 1 zás.'}
             hint={
               bonusUsed
                 ? 'Použito v této bitvě'
                 : sp < 1
-                  ? 'Nedostatek SP'
+                  ? 'Nedostatek zásob'
                   : '+1 útočná kostka pro jednu příští akci'
             }
             onClick={buyBonus}
             enabled={canBonus}
           />
           <SupplyButton
-            label={reinfUsed ? 'Posila ✓ použita' : 'Posila (2 SP)'}
+            label={reinfUsed ? 'Posila ✓ použita' : 'Posila — 2 zás.'}
             hint={
               reinfUsed
                 ? 'Použito v této bitvě'
                 : sp < 2
-                  ? 'Nedostatek SP'
+                  ? 'Nedostatek zásob'
                   : 'Přivolej lehkou pěchotu do domovské řady'
             }
             onClick={buyReinf}
             enabled={canReinf}
           />
           <SupplyButton
-            label={peekUsed ? 'Peek ✓ použito' : 'Nahlédnutí (3 SP)'}
+            label={peekUsed ? 'Nahlédnutí ✓ použito' : 'Nahlédnutí — 3 zás.'}
             hint={
               peekUsed
                 ? 'Použito v této bitvě'
                 : sp < 3
-                  ? 'Nedostatek SP'
+                  ? 'Nedostatek zásob'
                   : 'Zobrazí soupeřovu ruku na 6 sekund'
             }
             onClick={buyPeek}
