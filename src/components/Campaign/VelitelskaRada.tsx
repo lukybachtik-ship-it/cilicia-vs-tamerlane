@@ -25,7 +25,12 @@ export function VelitelskaRada({ onConfirm, onBack }: Props) {
   const [goalHint, setGoalHint] = useState<SecretGoalKind | null>(null);
 
   if (!campaign) return null;
-  const scenario = getCurrentCampaignScenario(campaign.currentScenarioIndex);
+  const scenario = getCurrentCampaignScenario({
+    currentScenarioIndex: campaign.currentScenarioIndex,
+    completedScenarios: campaign.completedScenarios,
+    favor: campaign.favor,
+    buceliarii: campaign.buceliarii,
+  });
   if (!scenario) return null;
 
   const selectedGoal = campaign.currentSecretGoal;

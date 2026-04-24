@@ -925,6 +925,73 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     abbrevCs: 'GL',
   },
 
+  // ─── Campaign Fáze 3 — Obrana Říma & Epilog ───────────────────────────────
+
+  // Witiges — gótský král, obléhatel Říma; namedHero + commander
+  witiges: {
+    ...DEFAULTS,
+    type: 'witiges',
+    unitClass: 'heavy',
+    move: 2,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 4,
+    maxHp: 4,
+    breakthrough: true,
+    chargeRequires3Hex: true,
+    isCommander: true,
+    commanderDeathEffect: {
+      descriptionCs: 'Pád Witigese: gotičtí útočníci −1 kostka útoku (2 kola)',
+      affectFaction: 'tamerlane',
+      effect: { attackDice: -1 },
+      durationTurns: 2,
+      affectUnitTypes: ['gothic_infantry', 'gothic_knight', 'gothic_militia', 'gothic_archers'],
+    },
+    nameCs: 'Witiges',
+    abbrevCs: 'WI',
+  },
+
+  // Hunnic horde — rychlá lehká jízda ze stepí (Epilog A)
+  hunnic_horde: {
+    ...DEFAULTS,
+    type: 'hunnic_horde',
+    unitClass: 'light',
+    move: 3,
+    rangeMin: 1,
+    rangeMax: 2,
+    attack: 2,
+    maxHp: 3,
+    hitAndRun: true,
+    parthianShot: true,
+    reducedMeleeDefense: true,
+    meleeAttackPenalty: true,
+    nameCs: 'Hunská horda',
+    abbrevCs: 'HH',
+  },
+
+  // Zabergan — hunský chán (Epilog A Konstantinopol); commander + aura
+  zabergan: {
+    ...DEFAULTS,
+    type: 'zabergan',
+    unitClass: 'heavy',
+    move: 3,
+    rangeMin: 1,
+    rangeMax: 1,
+    attack: 3,
+    maxHp: 4,
+    hitAndRun: true,
+    isCommander: true,
+    commanderDeathEffect: {
+      descriptionCs: 'Pád Zabergana: Hunové −1 kostka útoku (2 kola)',
+      affectFaction: 'tamerlane',
+      effect: { attackDice: -1 },
+      durationTurns: 2,
+      affectUnitTypes: ['hunnic_horde', 'horse_archers'],
+    },
+    nameCs: 'Zabergan',
+    abbrevCs: 'ZA',
+  },
+
   // Totila — aura +1 útok všem Gótům ve 3 hexech; commander
   totila: {
     ...DEFAULTS,

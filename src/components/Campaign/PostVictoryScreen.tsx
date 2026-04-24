@@ -17,7 +17,12 @@ export function PostVictoryScreen({ result, onContinue, onRetry }: Props) {
   const [chosen, setChosen] = useState<RewardKind | null>(null);
 
   if (!campaign) return null;
-  const scenario = getCurrentCampaignScenario(campaign.currentScenarioIndex);
+  const scenario = getCurrentCampaignScenario({
+    currentScenarioIndex: campaign.currentScenarioIndex,
+    completedScenarios: campaign.completedScenarios,
+    favor: campaign.favor,
+    buceliarii: campaign.buceliarii,
+  });
   if (!scenario) return null;
 
   // Submit the completion result (must happen before reward selection,

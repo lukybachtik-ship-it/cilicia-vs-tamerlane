@@ -8,7 +8,7 @@ import { LobbyScreen } from './components/UI/LobbyScreen';
 import { VelitelskaRada } from './components/Campaign/VelitelskaRada';
 import { TransitionScreen } from './components/Campaign/TransitionScreen';
 import { PostVictoryScreen } from './components/Campaign/PostVictoryScreen';
-import { CAMPAIGN_SCENARIO_SEQUENCE } from './constants/campaignScenarios';
+import { CAMPAIGN_SCENARIO_SEQUENCE, resolveNextScenarioId } from './constants/campaignScenarios';
 import { evaluateSecretGoal } from './logic/campaignGoals';
 
 /** Reads ?room=CODE from URL and stores it for the LobbyScreen to pick up */
@@ -41,16 +41,25 @@ function CampaignFlow({
   const { state: gameState, dispatch: gameDispatch } = useGame();
   const { setBotPlayer, setMode, setConnectionStatus } = useMultiplayer();
 
+  // Resolve current scenario ID via branching logic (favor/buceliárii gate 7A/7B/epilog)
+  const currentScenarioId = campaign
+    ? (resolveNextScenarioId({
+        completedScenarios: campaign.completedScenarios.filter(r => r.victory).map(r => r.scenarioId),
+        favor: campaign.favor,
+        buceliariiLevel: campaign.buceliarii.level,
+        buceliariiAlive: campaign.buceliarii.alive,
+      }) ?? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex])
+    : null;
+
   // On entering battle phase, kick off the scenario as a bot game
   useEffect(() => {
     if (subphase !== 'battle') return;
     if (!campaign) return;
-    const scenarioId = CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex];
-    if (!scenarioId) return;
+    if (!currentScenarioId) return;
     setBotPlayer('tamerlane');
     gameDispatch({
       type: 'RESTART_GAME',
-      scenarioId,
+      scenarioId: currentScenarioId,
       campaignOverrides: {
         buceliariiLevel: campaign.buceliarii.level,
         buceliariiFigurines: campaign.buceliarii.alive ? campaign.buceliarii.figurineCount : 0,
@@ -59,7 +68,7 @@ function CampaignFlow({
         purchases: campaign.currentPurchases.map(p => p.id),
       },
     });
-  }, [subphase, campaign?.currentScenarioIndex, setBotPlayer, gameDispatch, campaign]);
+  }, [subphase, currentScenarioId, setBotPlayer, gameDispatch, campaign]);
 
   // Detect game_over → post_victory
   useEffect(() => {
@@ -87,7 +96,7 @@ function CampaignFlow({
     case 'battle':
       return <Game />;
     case 'post_victory': {
-      const scenarioId = CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex]!;
+      const scenarioId = currentScenarioId ?? CAMPAIGN_SCENARIO_SEQUENCE[campaign.currentScenarioIndex]!;
       const victory = gameState.victor === 'cilicia';
       const enemiesDestroyed = gameState.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
       const lossesSuffered = gameState.destroyedUnits.filter(u => u.faction === 'cilicia').length;

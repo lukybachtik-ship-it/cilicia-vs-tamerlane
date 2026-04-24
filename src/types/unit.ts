@@ -65,7 +65,11 @@ export type UnitType =
   | 'gothic_knight'
   | 'gothic_militia'
   | 'gothic_archers'
-  | 'totila';
+  | 'totila'
+  // Campaign Fáze 3 — Obrana Říma & Epilog
+  | 'witiges'
+  | 'zabergan'
+  | 'hunnic_horde';
 
 export type FactionId = 'cilicia' | 'tamerlane';
 

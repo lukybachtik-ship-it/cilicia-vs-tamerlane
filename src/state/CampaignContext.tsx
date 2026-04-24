@@ -13,7 +13,7 @@ import {
   SUPPLY_MIN,
   computeBuceliariiLevel,
 } from '../types/campaign';
-import { CAMPAIGN_SCENARIO_SEQUENCE, supplyIncome } from '../constants/campaignScenarios';
+import { supplyIncome, resolveNextScenarioId } from '../constants/campaignScenarios';
 import { loadCampaign, saveCampaign, startNewCampaign, clearCampaign } from '../services/campaignStorage';
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -276,7 +276,13 @@ export function CampaignProvider({ children }: { children: React.ReactNode }) {
 
   const isCampaignFinished = useCallback(() => {
     if (!campaign) return false;
-    return campaign.currentScenarioIndex >= CAMPAIGN_SCENARIO_SEQUENCE.length;
+    const nextId = resolveNextScenarioId({
+      completedScenarios: campaign.completedScenarios.filter(r => r.victory).map(r => r.scenarioId),
+      favor: campaign.favor,
+      buceliariiLevel: campaign.buceliarii.level,
+      buceliariiAlive: campaign.buceliarii.alive,
+    });
+    return nextId === null;
   }, [campaign]);
 
   const value: CampaignContextValue = {

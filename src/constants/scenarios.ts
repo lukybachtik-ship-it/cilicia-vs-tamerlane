@@ -1076,6 +1076,330 @@ export const CAMPAIGN_SCENARIO_NEAPOL_DEF: ScenarioDefinition = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 6a: Obrana Říma — První nápor (537)
+// Přežít 5 kol; gotický obléhací útok
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_ROMA_6A_DEF: ScenarioDefinition = {
+  id: 'roma_6a',
+  nameCs: 'Obrana Říma — První nápor',
+  descriptionCs: 'Aureliánské hradby obléhá Witiges s gótskými jednotkami. Belisarius musí přežít prvních 5 kol.',
+  flavourCs: 'Rok 537. Witigesovi Gótové oblehli Řím obřím vojskem. Aureliánské hradby jsou mohutné, ale obléhací věže už se blíží.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Gotové',
+  difficultyCs: '🏛 Obrana (část 1/2)',
+  tags: ['kampaň', 'obléhání', 'obrana', 'vlny'],
+  gridRows: 11,
+  gridCols: 13,
+  killThresholdCilicia: 5,
+  killThresholdTamerlane: 99, // Bot nevyhrává killováním hráče (jen turnLimit)
+  turnLimit: 5,
+  victoryObjectiveCiliciaCs: 'Přežít 5 kol bez prolomení Castelu Sant\'Angelo',
+  victoryObjectiveTamerlaneCs: 'Dostat 2+ gotické jednotky uvnitř hradeb NEBO obsadit Castel Sant\'Angelo',
+  isCampaignScenario: true,
+  terrain: [
+    // Severní hradba (řada 2)
+    { position: { row: 2, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 4 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 6 }, terrain: 'gate', elevation: 0, structureHp: 4 },  // Flaminia
+    { position: { row: 2, col: 7 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 8 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 9 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 10 }, terrain: 'gate', elevation: 0, structureHp: 4 }, // Pincia
+    { position: { row: 2, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Západní hradba
+    { position: { row: 3, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 4, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 5, col: 3 }, terrain: 'gate', elevation: 0, structureHp: 4 }, // Aurelia
+    { position: { row: 6, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Východní hradba
+    { position: { row: 3, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 4, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 5, col: 11 }, terrain: 'gate', elevation: 0, structureHp: 4 }, // Salaria
+    { position: { row: 6, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 7, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Jižní hradba (Tiber — zkrácená)
+    { position: { row: 8, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 8, col: 4 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 8, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    { position: { row: 8, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 3 },
+    // Castel Sant'Angelo — týl hráče
+    { position: { row: 5, col: 7 }, terrain: 'fortress', elevation: 0 },
+    // Pahorky uvnitř města (3 — pro Belisariovy střelce)
+    { position: { row: 4, col: 5 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 4, col: 9 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 6, col: 7 }, terrain: 'hill', elevation: 1 },
+    // Gotické tábory venku
+    { position: { row: 1, col: 6 }, terrain: 'tent', elevation: 0 }, // Sev. tábor
+  ],
+  ciliciaUnits: [
+    // Obrana u Castelu
+    { id: 'rm_belisarius', definitionType: 'belisarius',   faction: 'cilicia', position: { row: 5, col: 7 } },
+    { id: 'rm_bucelarii',  definitionType: 'bucelarii',    faction: 'cilicia', position: { row: 4, col: 7 } },
+    // Severní brána — těžká pěchota
+    { id: 'rm_hi1', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 6 } },
+    { id: 'rm_hi2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 10 } },
+    // Lučištníci na pahorcích
+    { id: 'rm_ar1', definitionType: 'archers', faction: 'cilicia', position: { row: 4, col: 5 } },
+    { id: 'rm_ar2', definitionType: 'archers', faction: 'cilicia', position: { row: 4, col: 9 } },
+    // Milice uvnitř
+    { id: 'rm_ml1', definitionType: 'militia', faction: 'cilicia', position: { row: 5, col: 5 } },
+    { id: 'rm_ml2', definitionType: 'militia', faction: 'cilicia', position: { row: 5, col: 9 } },
+    // Hunská jízda (rychlá rezerva)
+    { id: 'rm_ha', definitionType: 'horse_archers', faction: 'cilicia', position: { row: 6, col: 7 } },
+  ],
+  tamerlaneUnits: [
+    // Severní obléhací kolona (aktivní od kola 1)
+    { id: 'rm6a_witiges', definitionType: 'witiges', faction: 'tamerlane', position: { row: 1, col: 7 } },
+    { id: 'rm6a_gk1', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 1, col: 5 } },
+    { id: 'rm6a_gi1', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 8 } },
+    { id: 'rm6a_st1', definitionType: 'siege_tower', faction: 'tamerlane', position: { row: 1, col: 6 } },
+    // Východní kolona (probouzí se od kola 2)
+    { id: 'rm6a_gi2', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 5, col: 13 }, sleepsUntilTurn: 2 },
+    { id: 'rm6a_gk2', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 6, col: 13 }, sleepsUntilTurn: 2 },
+    // Druhá vlna (kolo 4)
+    { id: 'rm6a_gi3', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 3 }, sleepsUntilTurn: 4 },
+    { id: 'rm6a_st2', definitionType: 'siege_tower', faction: 'tamerlane', position: { row: 1, col: 4 }, sleepsUntilTurn: 4 },
+    { id: 'rm6a_gk3', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 1, col: 11 }, sleepsUntilTurn: 4 },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 6b: Obrana Říma — Prolom (537, část 2)
+// Přežít dalších 5 kol; třetí vlna Gótů
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_ROMA_6B_DEF: ScenarioDefinition = {
+  id: 'roma_6b',
+  nameCs: 'Obrana Říma — Prolom',
+  descriptionCs: 'Gotická armáda prolamuje hradby. Witiges se vrací s další vlnou. Belisarius musí vydržet dalších 5 kol.',
+  flavourCs: 'Druhý týden obléhání. Witigesův pobočník vede třetí vlnu — obléhací věže a plný zástup rytířů proti vyčerpané posádce.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Gotové',
+  difficultyCs: '🏛 Obrana (část 2/2)',
+  tags: ['kampaň', 'obléhání', 'obrana', 'finále'],
+  gridRows: 11,
+  gridCols: 13,
+  killThresholdCilicia: 6,
+  killThresholdTamerlane: 99,
+  turnLimit: 5,
+  victoryObjectiveCiliciaCs: 'Přežít dalších 5 kol',
+  victoryObjectiveTamerlaneCs: 'Obsadit Castel Sant\'Angelo NEBO 2+ jednotky uvnitř',
+  isCampaignScenario: true,
+  terrain: [
+    // Stejné hradby jako 6a, ale některé s nižším HP (po poškození v 1. části)
+    // Severní hradba — některé prolomené (structureHp 1)
+    { position: { row: 2, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 2, col: 4 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 2, col: 5 }, terrain: 'wall', elevation: 0, structureHp: 1 },
+    { position: { row: 2, col: 6 }, terrain: 'gate', elevation: 0, structureHp: 3 },
+    { position: { row: 2, col: 7 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 2, col: 8 }, terrain: 'wall', elevation: 0, structureHp: 1 },
+    { position: { row: 2, col: 9 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 2, col: 10 }, terrain: 'gate', elevation: 0, structureHp: 2 },
+    { position: { row: 2, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    // Boční hradby
+    { position: { row: 3, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 4, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 5, col: 3 }, terrain: 'gate', elevation: 0, structureHp: 3 },
+    { position: { row: 6, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 7, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 3, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 4, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 5, col: 11 }, terrain: 'gate', elevation: 0, structureHp: 3 },
+    { position: { row: 6, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 7, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 8, col: 3 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 8, col: 4 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 8, col: 10 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    { position: { row: 8, col: 11 }, terrain: 'wall', elevation: 0, structureHp: 2 },
+    // Castel Sant'Angelo
+    { position: { row: 5, col: 7 }, terrain: 'fortress', elevation: 0 },
+    { position: { row: 4, col: 5 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 4, col: 9 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 1, col: 6 }, terrain: 'tent', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    // Stejná obrana ale oslabená (start HP nižší)
+    { id: 'rm6b_belisarius', definitionType: 'belisarius', faction: 'cilicia', position: { row: 5, col: 7 } },
+    { id: 'rm6b_bucelarii',  definitionType: 'bucelarii',  faction: 'cilicia', position: { row: 4, col: 7 } },
+    { id: 'rm6b_hi1', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 6 } },
+    { id: 'rm6b_hi2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 10 } },
+    { id: 'rm6b_ar1', definitionType: 'archers', faction: 'cilicia', position: { row: 4, col: 5 } },
+    { id: 'rm6b_ar2', definitionType: 'archers', faction: 'cilicia', position: { row: 4, col: 9 } },
+    { id: 'rm6b_ml1', definitionType: 'militia', faction: 'cilicia', position: { row: 5, col: 5 } },
+    { id: 'rm6b_ha', definitionType: 'horse_archers', faction: 'cilicia', position: { row: 6, col: 7 } },
+  ],
+  tamerlaneUnits: [
+    // Třetí vlna — větší útok
+    { id: 'rm6b_witiges2', definitionType: 'witiges', faction: 'tamerlane', position: { row: 1, col: 7 } },
+    { id: 'rm6b_gk1', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 1, col: 5 } },
+    { id: 'rm6b_gk2', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 1, col: 9 } },
+    { id: 'rm6b_gi1', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 4 } },
+    { id: 'rm6b_gi2', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 10 } },
+    { id: 'rm6b_st',  definitionType: 'siege_tower',    faction: 'tamerlane', position: { row: 1, col: 6 } },
+    { id: 'rm6b_ga',  definitionType: 'gothic_archers', faction: 'tamerlane', position: { row: 1, col: 3 } },
+    // Vlna z východu (kolo 3)
+    { id: 'rm6b_gk3', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 5, col: 13 }, sleepsUntilTurn: 3 },
+    { id: 'rm6b_gi3', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 6, col: 13 }, sleepsUntilTurn: 3 },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 7A: Ravenna (540) — vojenské nebo diplomatické vítězství
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_RAVENNA_DEF: ScenarioDefinition = {
+  id: 'ravenna',
+  nameCs: 'Dobytí Ravenny',
+  descriptionCs: 'Belisarius vstupuje do Ravenny. Můžeš gotickou armádu rozdrtit, nebo převzít město diplomaticky.',
+  flavourCs: 'Rok 540. Ostrogótské království má kapitulovat. Belisarius má na výběr: rychle zničit, nebo získat kapitulaci bez krveprolití — a možná i trůn.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Gotové',
+  difficultyCs: '🏛 Diplomacie',
+  tags: ['kampaň', 'diplomatické', 'město'],
+  gridRows: 9,
+  gridCols: 11,
+  killThresholdCilicia: 4,
+  killThresholdTamerlane: 5,
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Vojenské: zničit 5 Gótů. Diplomatické: Belisarius na náměstí + 3 pěšáci + ≤5 padlých Gótů.',
+  victoryObjectiveTamerlaneCs: 'Zničit 4 byzantské jednotky',
+  isCampaignScenario: true,
+  terrain: [
+    // Centrální náměstí (ravenna_plaza — reuse village)
+    { position: { row: 5, col: 5 }, terrain: 'village', elevation: 0 },
+    { position: { row: 5, col: 6 }, terrain: 'village', elevation: 0 },
+    // Gótská pokladnice (treasury — reuse fortress)
+    { position: { row: 2, col: 9 }, terrain: 'fortress', elevation: 0 },
+    // Ulice = lesní terén pro pomalou pěchotní bitvu
+    { position: { row: 3, col: 3 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 3, col: 8 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 7, col: 3 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 7, col: 8 }, terrain: 'forest', elevation: 0 },
+    // Barikády (trench)
+    { position: { row: 4, col: 5 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 6, col: 6 }, terrain: 'trench', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    { id: 'rv_belisarius', definitionType: 'belisarius',  faction: 'cilicia', position: { row: 8, col: 5 } },
+    { id: 'rv_bucelarii',  definitionType: 'bucelarii',   faction: 'cilicia', position: { row: 8, col: 6 } },
+    { id: 'rv_hi1', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 8, col: 4 } },
+    { id: 'rv_hi2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 8, col: 7 } },
+    { id: 'rv_ar',  definitionType: 'archers',         faction: 'cilicia', position: { row: 9, col: 5 } },
+    { id: 'rv_ha',  definitionType: 'horse_archers',   faction: 'cilicia', position: { row: 9, col: 7 } },
+  ],
+  tamerlaneUnits: [
+    { id: 'rv_gi1', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 4, col: 4 } },
+    { id: 'rv_gi2', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 4, col: 7 } },
+    { id: 'rv_gk1', definitionType: 'gothic_knight',   faction: 'tamerlane', position: { row: 3, col: 5 } },
+    { id: 'rv_gk2', definitionType: 'gothic_knight',   faction: 'tamerlane', position: { row: 3, col: 7 } },
+    { id: 'rv_gm1', definitionType: 'gothic_militia',  faction: 'tamerlane', position: { row: 5, col: 4 } },
+    { id: 'rv_gm2', definitionType: 'gothic_militia',  faction: 'tamerlane', position: { row: 5, col: 7 } },
+    { id: 'rv_treasure', definitionType: 'gothic_militia', faction: 'tamerlane', position: { row: 2, col: 9 } },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 7B: Kalábrie (548) — Totila a přístav
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_CALABRIA_DEF: ScenarioDefinition = {
+  id: 'calabria',
+  nameCs: 'Ústup do Kalábrie',
+  descriptionCs: 'Totila tlačí Belisariovu zmenšenou armádu k přístavu. Lesy a kopce skryjí tvé jednotky — ale Totilovy posily se blíží.',
+  flavourCs: 'Rok 548. Gotská říše se obnovila pod Totilou. Belisarius, oslabený a bez posil, ustupuje k Regiu. Každý den počítá.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Gotové',
+  difficultyCs: '🌲 Přežít',
+  tags: ['kampaň', 'hory', 'přežití'],
+  gridRows: 11,
+  gridCols: 13,
+  killThresholdCilicia: 4,
+  killThresholdTamerlane: 99,
+  turnLimit: 8,
+  victoryObjectiveCiliciaCs: 'Přežít 8 kol a mít 2+ jednotky v přístavu (řady 10-11)',
+  victoryObjectiveTamerlaneCs: 'Zničit 4 byzantské jednotky nebo zabít Belisaria',
+  isCampaignScenario: true,
+  terrain: [
+    // Kopce — spousty
+    { position: { row: 3, col: 3 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 3, col: 7 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 4, col: 5 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 5, col: 9 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 6, col: 4 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 7, col: 7 }, terrain: 'hill', elevation: 1 },
+    // Lesy
+    { position: { row: 4, col: 2 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 4, col: 8 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 5, col: 4 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 6, col: 8 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 7, col: 3 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 7, col: 10 }, terrain: 'forest', elevation: 0 },
+    // Přístav (tent markery na jihu = cíl)
+    { position: { row: 10, col: 5 }, terrain: 'tent', elevation: 0 },
+    { position: { row: 10, col: 7 }, terrain: 'tent', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    { id: 'kl_belisarius', definitionType: 'belisarius',   faction: 'cilicia', position: { row: 2, col: 6 } },
+    { id: 'kl_bucelarii',  definitionType: 'bucelarii',    faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'kl_isaurian',   definitionType: 'isaurian_infantry', faction: 'cilicia', position: { row: 3, col: 7 } },
+    { id: 'kl_ar1',        definitionType: 'archers',      faction: 'cilicia', position: { row: 3, col: 3 } },
+    { id: 'kl_hi',         definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 2, col: 7 } },
+  ],
+  tamerlaneUnits: [
+    { id: 'kl_totila', definitionType: 'totila', faction: 'tamerlane', position: { row: 1, col: 6 } },
+    { id: 'kl_gk1', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 1, col: 4 } },
+    { id: 'kl_gk2', definitionType: 'gothic_knight', faction: 'tamerlane', position: { row: 1, col: 8 } },
+    { id: 'kl_gi1', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 3 } },
+    { id: 'kl_gi2', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 9 } },
+    { id: 'kl_gi3', definitionType: 'gothic_infantry', faction: 'tamerlane', position: { row: 1, col: 10 } },
+    { id: 'kl_gm1', definitionType: 'gothic_militia', faction: 'tamerlane', position: { row: 1, col: 11 } },
+    { id: 'kl_gm2', definitionType: 'gothic_militia', faction: 'tamerlane', position: { row: 1, col: 2 } },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign Epilog A: Konstantinopol (559) — veterán Belisarius
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_EPILOG_A_DEF: ScenarioDefinition = {
+  id: 'epilog_a',
+  nameCs: 'Poslední vítězství — Konstantinopol',
+  descriptionCs: 'Belisarius, stařec, brání hlavní město proti hunským hordám. Malá armáda, elitní veteráni.',
+  flavourCs: 'Rok 559. Belisarius, 25 let po Dařině slávě. Hunský chán Zabergan útočí na Konstantinopol. Císař ho povolal naposledy.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Hunové',
+  difficultyCs: '🏆 Epilog',
+  tags: ['kampaň', 'epilog', 'veterán'],
+  gridRows: 9,
+  gridCols: 11,
+  killThresholdCilicia: 3,
+  killThresholdTamerlane: 4,
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Zničit 4 hunské jednotky',
+  victoryObjectiveTamerlaneCs: 'Zničit 3 byzantské jednotky',
+  isCampaignScenario: true,
+  terrain: [
+    { position: { row: 4, col: 3 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 4, col: 8 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 5, col: 5 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 6, col: 7 }, terrain: 'hill', elevation: 1 },
+  ],
+  ciliciaUnits: [
+    { id: 'ep_belisarius', definitionType: 'belisarius',   faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'ep_bucelarii',  definitionType: 'bucelarii',    faction: 'cilicia', position: { row: 2, col: 4 } },
+    { id: 'ep_hi',         definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 2, col: 6 } },
+    { id: 'ep_ar',         definitionType: 'archers',      faction: 'cilicia', position: { row: 1, col: 5 } },
+  ],
+  tamerlaneUnits: [
+    { id: 'ep_zabergan', definitionType: 'zabergan',     faction: 'tamerlane', position: { row: 8, col: 5 } },
+    { id: 'ep_h1',       definitionType: 'hunnic_horde', faction: 'tamerlane', position: { row: 8, col: 3 } },
+    { id: 'ep_h2',       definitionType: 'hunnic_horde', faction: 'tamerlane', position: { row: 8, col: 7 } },
+    { id: 'ep_h3',       definitionType: 'hunnic_horde', faction: 'tamerlane', position: { row: 7, col: 4 } },
+    { id: 'ep_h4',       definitionType: 'hunnic_horde', faction: 'tamerlane', position: { row: 7, col: 6 } },
+    { id: 'ep_ha',       definitionType: 'horse_archers', faction: 'tamerlane', position: { row: 9, col: 5 } },
+  ],
+};
+
 export const ALL_SCENARIOS: ScenarioDefinition[] = [
   SCENARIO_STANDARD,
   SCENARIO_ANKARA,
@@ -1091,4 +1415,9 @@ export const ALL_SCENARIOS: ScenarioDefinition[] = [
   CAMPAIGN_SCENARIO_AD_DECIMUM_DEF,
   CAMPAIGN_SCENARIO_TRICAMARUM_DEF,
   CAMPAIGN_SCENARIO_NEAPOL_DEF,
+  CAMPAIGN_SCENARIO_ROMA_6A_DEF,
+  CAMPAIGN_SCENARIO_ROMA_6B_DEF,
+  CAMPAIGN_SCENARIO_RAVENNA_DEF,
+  CAMPAIGN_SCENARIO_CALABRIA_DEF,
+  CAMPAIGN_SCENARIO_EPILOG_A_DEF,
 ];

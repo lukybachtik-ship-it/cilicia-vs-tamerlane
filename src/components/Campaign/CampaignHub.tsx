@@ -57,7 +57,12 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
     );
   }
 
-  const currentScenario = getCurrentCampaignScenario(campaign.currentScenarioIndex);
+  const currentScenario = getCurrentCampaignScenario({
+    currentScenarioIndex: campaign.currentScenarioIndex,
+    completedScenarios: campaign.completedScenarios,
+    favor: campaign.favor,
+    buceliarii: campaign.buceliarii,
+  });
   const completed = campaign.completedScenarios.map(r => r.scenarioId);
   const finished = isCampaignFinished();
 
@@ -77,7 +82,9 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
         <div>
           <h1 className="text-2xl font-bold">Belisariova kampaň</h1>
           <p className="text-gray-500 text-xs">
-            Scénář {campaign.currentScenarioIndex + 1} z {CAMPAIGN_SCENARIO_SEQUENCE.length}
+            Scénář {campaign.completedScenarios.filter(r => r.victory).length + 1}
+            {' '}z cca 8
+            {' '}·  Favor {campaign.favor} {campaign.favor >= 4 ? '→ Ravenna' : '→ Kalábrie'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -189,21 +196,53 @@ export function CampaignHub({ onStartScenario, onExitCampaign }: Props) {
           <div className="mt-2 space-y-2 text-xs">
             <div className="flex flex-wrap gap-1.5 items-center">
               <span className="text-gray-500">Skok na scénář:</span>
-              {CAMPAIGN_SCENARIO_SEQUENCE.map((sid, idx) => {
+              {/* Debug: synteticky předvyplní completedScenarios + index, aby resolver
+                   nabídl požadovaný scénář. */}
+              {[
+                'dara', 'nika', 'ad_decimum', 'tricamarum', 'neapol',
+                'roma_6a', 'roma_6b', 'ravenna', 'calabria', 'epilog_a',
+              ].map((sid, idx) => {
                 const def = ALL_CAMPAIGN_SCENARIOS.find(s => s.id === sid);
                 return (
                   <button
                     key={sid}
                     onClick={() => {
-                      // Přepsat index — ale nepřidat do completedScenarios
-                      // (používá se pro testing konkrétních bitev)
-                      dispatch({ type: 'HYDRATE', state: { ...campaign, currentScenarioIndex: idx, currentSecretGoal: null, currentPurchases: [] } });
+                      // Vytvoř fake completion history pro všechny predchozí scénáře
+                      // ve standardní sekvenci (kampaň tak "pokročí" k target).
+                      const baseSeq = ['dara', 'nika', 'ad_decimum', 'tricamarum', 'neapol', 'roma_6a', 'roma_6b'];
+                      let prereqs: string[];
+                      if (baseSeq.includes(sid)) {
+                        const targetIdx = baseSeq.indexOf(sid);
+                        prereqs = baseSeq.slice(0, targetIdx);
+                      } else {
+                        // 7A/7B/epilog — completni celou base sekvenci
+                        prereqs = [...baseSeq];
+                        if (sid === 'epilog_a') prereqs.push(campaign.favor >= 4 ? 'ravenna' : 'calabria');
+                      }
+                      const fakeCompleted = prereqs.map(id => ({
+                        scenarioId: id,
+                        victory: true,
+                        secretGoalChosen: null,
+                        secretGoalAchieved: false,
+                        rewardChosen: null,
+                        buceliariiSurvived: true,
+                        buceliariiXpEarned: 0,
+                        enemiesDestroyed: 0,
+                        lossesSuffered: 0,
+                        endedAt: new Date().toISOString(),
+                      }));
+                      dispatch({
+                        type: 'HYDRATE',
+                        state: {
+                          ...campaign,
+                          completedScenarios: fakeCompleted,
+                          currentScenarioIndex: prereqs.length,
+                          currentSecretGoal: null,
+                          currentPurchases: [],
+                        },
+                      });
                     }}
-                    className={`px-2 py-0.5 rounded text-[10px] ${
-                      idx === campaign.currentScenarioIndex
-                        ? 'bg-amber-700 text-white'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    }`}
+                    className="px-2 py-0.5 rounded text-[10px] bg-gray-800 text-gray-300 hover:bg-gray-700"
                   >
                     {idx + 1}. {def?.mapLabel ?? sid}
                   </button>

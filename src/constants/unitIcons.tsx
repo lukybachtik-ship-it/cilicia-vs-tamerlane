@@ -682,6 +682,50 @@ export const UNIT_ICONS: Record<string, React.ReactNode> = {
     </>
   ),
 
+  // ─── Fáze 3 — Obrana Říma & Epilog ──────────────────────────────────────
+
+  // Witiges — gótský král, stříbrná koruna + meč
+  witiges: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#cbd5e1" strokeWidth="0.6" opacity={0.35} style={PI} />
+      <path d="M-5,-3 Q-5,-8 0,-8 Q5,-8 5,-3 L4,2 Q0,4 -4,2 Z"
+            fill="rgba(203,213,225,0.3)" stroke="#cbd5e1" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      <path d="M-5,-8 L-3,-12 L0,-9 L3,-12 L5,-8" fill="#cbd5e1" stroke="#475569" strokeWidth="1" strokeLinejoin="round" style={PI} />
+      <circle cx={-3} cy={-12} r={1} fill="#cbd5e1" style={PI} />
+      <circle cx={0} cy={-9} r={1} fill="#cbd5e1" style={PI} />
+      <circle cx={3} cy={-12} r={1} fill="#cbd5e1" style={PI} />
+      <line x1={-8} y1={8} x2={8} y2={-1} stroke="#cbd5e1" strokeWidth="1.8" strokeLinecap="round" style={PI} />
+      <polygon points="8,-1 4,-2 5,2" fill="#cbd5e1" style={PI} />
+    </>
+  ),
+
+  // Hunská horda — chaotické chevrony (hordy)
+  hunnic_horde: (
+    <>
+      <polyline points="-8,-5 -4,-1 -8,3" fill="none" stroke="white" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" style={PI} />
+      <polyline points="-4,-7 0,-3 -4,1" fill="none" stroke="white" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" opacity={0.7} style={PI} />
+      <polyline points="0,-5 4,-1 0,3" fill="none" stroke="white" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" opacity={0.55} style={PI} />
+      <polyline points="4,-3 8,1 4,5" fill="none" stroke="white" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" opacity={0.4} style={PI} />
+    </>
+  ),
+
+  // Zabergan — chán s kožešinou (vysoká tmavá postava s lukem)
+  zabergan: (
+    <>
+      <circle cx={0} cy={0} r={11} fill="none" stroke="#f87171" strokeWidth="0.6" opacity={0.35} style={PI} />
+      <path d="M-6,-2 Q-6,-8 0,-8 Q6,-8 6,-2 L5,4 Q0,6 -5,4 Z"
+            fill="rgba(248,113,113,0.28)" stroke="#f87171" strokeWidth="1.6" strokeLinejoin="round" style={PI} />
+      {/* Kožešinová čapka s chocholem */}
+      <rect x={-5} y={-11} width={10} height={4} fill="#f87171" stroke="#7f1d1d" strokeWidth="0.6" style={PI} />
+      <circle cx={-3} cy={-11} r={0.8} fill="#7f1d1d" style={PI} />
+      <circle cx={0} cy={-11} r={0.8} fill="#7f1d1d" style={PI} />
+      <circle cx={3} cy={-11} r={0.8} fill="#7f1d1d" style={PI} />
+      {/* Luk */}
+      <path d="M6,-3 Q11,0 6,3" fill="none" stroke="#f87171" strokeWidth="1.6" strokeLinecap="round" style={PI} />
+      <line x1={5} y1={-4} x2={5} y2={4} stroke="#f87171" strokeWidth="1" opacity={0.5} style={PI} />
+    </>
+  ),
+
   // Cesare Borgia — zlatý býk (heraldika Borgia) se zakřivenými rohy
   cesare_borgia: (
     <>

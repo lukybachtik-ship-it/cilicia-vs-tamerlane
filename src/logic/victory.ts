@@ -447,10 +447,139 @@ export function checkVictory(
     }
   }
 
-  // ── Generic named-hero rule (Arminius, Caterina, Cesare, Belisarius, etc.) ─
-  // If any unit in destroyedUnits has namedHero and their faction had a
-  // 'named_hero_rule' scenario effect applied to them, that faction loses.
-  // This is additive to scenario-specific checks above.
+  // ── Campaign: Obrana Říma 6a/6b ─────────────────────────────────────────
+  // Hráč vyhrává přežitím do turnLimit; bot vyhrává, pokud 2+ gotické jednotky
+  // stojí uvnitř hradeb (row 3-7, col 4-10) NEBO obsadí Castel Sant'Angelo.
+  if (state.scenarioId === 'roma_6a' || state.scenarioId === 'roma_6b') {
+    const castel = state.terrain.find(t => t.terrain === 'fortress');
+    if (castel) {
+      const enemyOnCastel = state.units.some(
+        u =>
+          u.faction === 'tamerlane' &&
+          u.position.row === castel.position.row &&
+          u.position.col === castel.position.col
+      );
+      if (enemyOnCastel) {
+        return {
+          victor: 'tamerlane',
+          cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} obsadili Castel Sant'Angelo!`,
+        };
+      }
+    }
+    const insideCity = state.units.filter(
+      u =>
+        u.faction === 'tamerlane' &&
+        u.position.row >= 3 && u.position.row <= 7 &&
+        u.position.col >= 4 && u.position.col <= 10
+    );
+    if (insideCity.length >= 2) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} vnikli do Říma (2+ jednotky uvnitř)!`,
+      };
+    }
+    // Belisarius death = loss
+    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
+    if (belisariusDead) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} zabili Belisaria!`,
+      };
+    }
+    // Survival check při turn limit
+    if (
+      isEndOfTurn &&
+      scenario?.turnLimit !== undefined &&
+      scenario.turnLimit !== null &&
+      state.currentPlayer === 'tamerlane' &&
+      state.turnNumber >= scenario.turnLimit
+    ) {
+      return {
+        victor: 'cilicia',
+        cause: `${scenario?.ciliciaLabel ?? 'Byzantinci'} udrželi Řím ${scenario.turnLimit} kol!`,
+      };
+    }
+  }
+
+  // ── Campaign: Ravenna — diplomatické vítězství ─────────────────────────
+  if (state.scenarioId === 'ravenna') {
+    // Diplomatic: Belisarius stojí na village hex (náměstí) + 3 pěšáci sousedně +
+    // ≤ 5 padlých gótských figurek (počítáno přes destroyedUnits)
+    const belisarius = state.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+    const gothicFallen = state.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
+    if (belisarius && gothicFallen <= 5) {
+      const onPlaza = state.terrain.some(
+        t =>
+          t.terrain === 'village' &&
+          t.position.row === belisarius.position.row &&
+          t.position.col === belisarius.position.col
+      );
+      if (onPlaza) {
+        const adjInfantry = state.units.filter(u => {
+          if (u.faction !== 'cilicia' || u.id === belisarius.id) return false;
+          const dr = Math.abs(u.position.row - belisarius.position.row);
+          const dc = Math.abs(u.position.col - belisarius.position.col);
+          if (Math.max(dr, dc) !== 1) return false;
+          // „infantry" = non-cavalry
+          const t = u.definitionType;
+          return !['heavy_cavalry', 'light_cavalry', 'horse_archers', 'bucelarii', 'cataphract', 'gendarme', 'stradiot', 'condottiero', 'equites', 'persian_cavalry', 'vandal_cavalry', 'gothic_knight', 'firouz', 'ammatas', 'gelimer', 'tzazon', 'jan_armenian', 'witiges', 'totila', 'mauri_spearmen', 'zabergan', 'hunnic_horde'].includes(t);
+        }).length;
+        if (adjInfantry >= 3) {
+          return {
+            victor: 'cilicia',
+            cause: `${scenario?.ciliciaLabel ?? 'Byzantinci'}: diplomatické vítězství — Ravenna kapituluje!`,
+          };
+        }
+      }
+    }
+  }
+
+  // ── Campaign: Kalábrie — přístav victory ────────────────────────────────
+  if (state.scenarioId === 'calabria') {
+    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
+    if (belisariusDead) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Gotové'} zabili Belisaria v horách!`,
+      };
+    }
+    // Hráč vyhrává: přežil turnLimit A má 2+ jednotky v přístavu (tent hex nebo rows 10-11)
+    if (
+      isEndOfTurn &&
+      scenario?.turnLimit !== undefined &&
+      scenario.turnLimit !== null &&
+      state.currentPlayer === 'tamerlane' &&
+      state.turnNumber >= scenario.turnLimit
+    ) {
+      const inPort = state.units.filter(
+        u => u.faction === 'cilicia' && u.position.row >= 10
+      ).length;
+      if (inPort >= 2) {
+        return {
+          victor: 'cilicia',
+          cause: `${scenario?.ciliciaLabel ?? 'Byzantinci'}: nalodění v přístavu — Belisarius uniká!`,
+        };
+      } else {
+        return {
+          victor: 'tamerlane',
+          cause: `${scenario?.tamerlaneLabel ?? 'Totila'}: Belisarius nestihl přístav!`,
+        };
+      }
+    }
+  }
+
+  // ── Campaign: Epilog A Konstantinopol ─────────────────────────────────
+  if (state.scenarioId === 'epilog_a') {
+    // Standard kill threshold check (4 hunnic units) handled above
+    // Plus Belisarius death = loss
+    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
+    if (belisariusDead) {
+      return {
+        victor: 'tamerlane',
+        cause: `Belisarius padl u Konstantinopole — konec legendy.`,
+      };
+    }
+  }
 
   return { victor: null, cause: null };
 }

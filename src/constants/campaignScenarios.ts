@@ -46,10 +46,43 @@ export const CAMPAIGN_SCENARIO_SEQUENCE: string[] = [
   'ad_decimum',
   'tricamarum',
   'neapol',
-  // Phase 3 placeholders:
-  // 'roma_6a',
-  // 'roma_6b',
+  'roma_6a',
+  'roma_6b',
+  // Index 7 = Ravenna nebo Kalábrie podle favor (rozhoduje resolver)
+  // Index 8 = Epilog A (volitelný) nebo konec
 ];
+
+/**
+ * Resolver branchingu po scénáři 6b:
+ *   favor ≥ 4 → 'ravenna'  (diplomatická cesta)
+ *   favor < 4 → 'calabria' (přežití)
+ * Po 7A/7B → epilog_a pokud Bukelárii level ≥ 3 a naživu.
+ */
+export function resolveNextScenarioId(args: {
+  completedScenarios: string[];
+  favor: number;
+  buceliariiLevel: number;
+  buceliariiAlive: boolean;
+}): string | null {
+  const { completedScenarios, favor, buceliariiLevel, buceliariiAlive } = args;
+
+  // Standardní sekvence 0-6
+  for (const id of CAMPAIGN_SCENARIO_SEQUENCE) {
+    if (!completedScenarios.includes(id)) return id;
+  }
+
+  // Po 6b → větvení
+  if (!completedScenarios.includes('ravenna') && !completedScenarios.includes('calabria')) {
+    return favor >= 4 ? 'ravenna' : 'calabria';
+  }
+
+  // Po ravenna/calabria → epilog A pokud podmínky
+  if (!completedScenarios.includes('epilog_a')) {
+    if (buceliariiAlive && buceliariiLevel >= 3) return 'epilog_a';
+  }
+
+  return null; // konec kampaně
+}
 
 // ─── Jednotlivé scénáře ──────────────────────────────────────────────────────
 
@@ -158,12 +191,110 @@ export const CAMPAIGN_SCENARIO_NEAPOL: CampaignScenarioDefinition = {
   unlockAfter: ['tricamarum'],
 };
 
+export const CAMPAIGN_SCENARIO_ROMA_6A: CampaignScenarioDefinition = {
+  id: 'roma_6a',
+  nameCs: 'Obrana Říma — I. nápor',
+  contextCs: 'Rok 537. Witigesovi Gótové oblehli Řím. Belisarius má přežít prvních 5 kol — obléhací věže, taran, gotická jízda.',
+  chronicleCs: '„Nepřítel je u brány Flaminia. Hradby drží. Zatím." — Belisariův rozkaz v první den obléhání.',
+  chronicleLat: '«Hostis ad portam Flaminiam. Moenia stant. Adhuc.»',
+  mapLabel: 'Řím (I)',
+  mapCoords: { x: 490, y: 310 },
+  goals: {
+    glory: { descriptionCs: 'Zničit alespoň 1 gotickou obléhací věž dříve, než dosáhne hradby.' },
+    pragma: { descriptionCs: 'Bukelárii mají na konci části 1 plné 4 figurky.' },
+  },
+  exclusiveOption: {
+    id: 'papal_support',
+    nameCs: 'Papežská podpora',
+    cost: 2,
+    descriptionCs: 'Chléb a oleje od Petrovy stolice: +2 bonusové kostky pro jednu jednotku v této bitvě.',
+  },
+  unlockAfter: ['neapol'],
+};
+
+export const CAMPAIGN_SCENARIO_ROMA_6B: CampaignScenarioDefinition = {
+  id: 'roma_6b',
+  nameCs: 'Obrana Říma — Prolom',
+  contextCs: 'Druhý týden obléhání. Hradby jsou prolomeny, Witiges se vrací s čerstvou vlnou rytířů. Belisarius musí vydržet dalších 5 kol.',
+  chronicleCs: '„Únava posádky sahala k paniku; ale Belisarius spával u hradeb." — Prokopios, De Bellis.',
+  chronicleLat: '«Fessus miles ad pavorem vergebat; sed Belisarius ad moenia dormiebat.»',
+  mapLabel: 'Řím (II)',
+  mapCoords: { x: 505, y: 320 },
+  goals: {
+    glory: { descriptionCs: 'Zabij Witigese, pokud je přítomen ve 2. části.' },
+    pragma: { descriptionCs: 'Ukonči bitvu s aspoň 3 byzantskými jednotkami naživu.' },
+  },
+  unlockAfter: ['roma_6a'],
+};
+
+export const CAMPAIGN_SCENARIO_RAVENNA: CampaignScenarioDefinition = {
+  id: 'ravenna',
+  nameCs: 'Dobytí Ravenny',
+  contextCs: 'Rok 540. Gotské království kapituluje. Můžeš rozdrtit, nebo prijmout jejich korunu — přičemž Justinián ti už nedůvěřuje plně.',
+  chronicleCs: '„Ostrogóti mu nabídli korunu. Ale Justinián by pak neměl žádného Belisaria." — Agathias.',
+  chronicleLat: '«Ostrogothi coronam ei obtulerunt. At Iustinianus tum nullum Belisarium haberet.»',
+  mapLabel: 'Ravenna',
+  mapCoords: { x: 475, y: 220 },
+  goals: {
+    glory: { descriptionCs: 'Dosáhni diplomatického vítězství (Belisarius na náměstí + 3 pěšáci + ≤5 padlých Gótů).' },
+    pragma: { descriptionCs: 'Obsaď gotickou pokladnici (fortress hex).' },
+  },
+  exclusiveOption: {
+    id: 'secret_envoy',
+    nameCs: 'Tajný posel',
+    cost: 2,
+    descriptionCs: 'Viz gotskou formaci a jeho první akci před zahájením bitvy.',
+  },
+  unlockAfter: ['roma_6b'],
+};
+
+export const CAMPAIGN_SCENARIO_CALABRIA: CampaignScenarioDefinition = {
+  id: 'calabria',
+  nameCs: 'Ústup do Kalábrie',
+  contextCs: 'Rok 548. Totila obnovil gotské království. Belisarius, bez posil, ustupuje k jadranskému přístavu. Hory a lesy jsou jeho jediný přítel.',
+  chronicleCs: '„Bez zlata, bez vojska, ale s Belisariem." — lidové rčení konstantinopolského lidu.',
+  chronicleLat: '«Sine auro, sine exercitu, sed cum Belisario.»',
+  mapLabel: 'Kalábrie',
+  mapCoords: { x: 555, y: 370 },
+  goals: {
+    glory: { descriptionCs: 'Zabij Totilu.' },
+    pragma: { descriptionCs: 'Žádná Bukelárská figurka nepadne.' },
+  },
+  exclusiveOption: {
+    id: 'guerrilla_network',
+    nameCs: 'Partyzánská síť',
+    cost: 2,
+    descriptionCs: '1× za bitvu přepad z lesního hexu s +2 útočnými kostkami.',
+  },
+  unlockAfter: ['roma_6b'],
+};
+
+export const CAMPAIGN_SCENARIO_EPILOG_A: CampaignScenarioDefinition = {
+  id: 'epilog_a',
+  nameCs: 'Poslední vítězství',
+  contextCs: 'Rok 559. Belisarius, stařec, zachraňuje Konstantinopol před hunským nájezdem. Malá armáda, elitní veteráni. Možnost legendárního konce.',
+  chronicleCs: '„A tak generál, oslepený závistí císaře, zachránil říši naposledy." — Prokopios.',
+  chronicleLat: '«Ita dux, invidia imperatoris caecatus, imperium postremo servavit.»',
+  mapLabel: 'Konstantinopol',
+  mapCoords: { x: 615, y: 240 },
+  goals: {
+    glory: { descriptionCs: 'Vyhraj bez jediné ztráty.' },
+    pragma: { descriptionCs: 'Zabij Zabergana.' },
+  },
+  unlockAfter: ['ravenna', 'calabria'],
+};
+
 export const ALL_CAMPAIGN_SCENARIOS: CampaignScenarioDefinition[] = [
   CAMPAIGN_SCENARIO_DARA,
   CAMPAIGN_SCENARIO_NIKA,
   CAMPAIGN_SCENARIO_AD_DECIMUM,
   CAMPAIGN_SCENARIO_TRICAMARUM,
   CAMPAIGN_SCENARIO_NEAPOL,
+  CAMPAIGN_SCENARIO_ROMA_6A,
+  CAMPAIGN_SCENARIO_ROMA_6B,
+  CAMPAIGN_SCENARIO_RAVENNA,
+  CAMPAIGN_SCENARIO_CALABRIA,
+  CAMPAIGN_SCENARIO_EPILOG_A,
 ];
 
 // ─── Standardní Velitelská rada (non-scenario-specific) ──────────────────────
@@ -250,12 +381,37 @@ export function supplyIncome(favor: number): number {
   return 1 + Math.floor(favor / 3);
 }
 
-// ─── Helper: získat aktuální scénář podle CampaignState.currentScenarioIndex ──
+// ─── Helper: získat aktuální scénář podle CampaignState ──
 
-export function getCurrentCampaignScenario(index: number): CampaignScenarioDefinition | null {
-  const id = CAMPAIGN_SCENARIO_SEQUENCE[index];
-  if (!id) return null;
-  return ALL_CAMPAIGN_SCENARIOS.find(s => s.id === id) ?? null;
+/**
+ * Vrací scénář, který má hráč zrovna hrát (včetně branching po 6b).
+ * Přijímá celý campaign state pro resolver.
+ */
+export function getCurrentCampaignScenario(
+  indexOrState: number | {
+    currentScenarioIndex: number;
+    completedScenarios: { scenarioId: string; victory: boolean }[];
+    favor: number;
+    buceliarii: { level: number; alive: boolean };
+  }
+): CampaignScenarioDefinition | null {
+  // Backward compat: old callers passed just an index
+  if (typeof indexOrState === 'number') {
+    const id = CAMPAIGN_SCENARIO_SEQUENCE[indexOrState];
+    if (!id) return null;
+    return ALL_CAMPAIGN_SCENARIOS.find(s => s.id === id) ?? null;
+  }
+  const completedIds = indexOrState.completedScenarios
+    .filter(r => r.victory)
+    .map(r => r.scenarioId);
+  const nextId = resolveNextScenarioId({
+    completedScenarios: completedIds,
+    favor: indexOrState.favor,
+    buceliariiLevel: indexOrState.buceliarii.level,
+    buceliariiAlive: indexOrState.buceliarii.alive,
+  });
+  if (!nextId) return null;
+  return ALL_CAMPAIGN_SCENARIOS.find(s => s.id === nextId) ?? null;
 }
 
 // ─── Secret goal evaluation context ──────────────────────────────────────────

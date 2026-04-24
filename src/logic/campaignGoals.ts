@@ -32,6 +32,16 @@ export function evaluateSecretGoal(
       return evaluateTricamarumGoal(goal, gameState, _campaign, baseXp);
     case 'neapol':
       return evaluateNeapolGoal(goal, gameState, _campaign, baseXp);
+    case 'roma_6a':
+      return evaluateRoma6aGoal(goal, gameState, baseXp);
+    case 'roma_6b':
+      return evaluateRoma6bGoal(goal, gameState, baseXp);
+    case 'ravenna':
+      return evaluateRavennaGoal(goal, gameState, _campaign, baseXp);
+    case 'calabria':
+      return evaluateCalabriaGoal(goal, gameState, _campaign, baseXp);
+    case 'epilog_a':
+      return evaluateEpilogAGoal(goal, gameState, baseXp);
     default:
       return { achieved: false, buceliariiXpEarned: baseXp };
   }
@@ -161,6 +171,95 @@ function evaluateNeapolGoal(
       u.position.col === aqueduct.position.col
   );
   return { achieved: onAqueduct, buceliariiXpEarned: baseXp };
+}
+
+// ─── Roma 6a ─────────────────────────────────────────────────────────────────
+
+function evaluateRoma6aGoal(goal: SecretGoalKind, gameState: GameState, baseXp: number): GoalEvaluation {
+  if (goal === 'glory') {
+    // Zničit alespoň 1 gotickou obléhací věž (siege_tower)
+    const towerKilled = gameState.destroyedUnits.some(
+      u => u.faction === 'tamerlane' && u.definitionType === 'siege_tower'
+    );
+    return { achieved: towerKilled, buceliariiXpEarned: baseXp };
+  }
+  // pragma: Bukelárii na 4 figurkách
+  const buc = gameState.units.find(u => u.definitionType === 'bucelarii');
+  return { achieved: !!buc && buc.hp >= 4, buceliariiXpEarned: baseXp };
+}
+
+// ─── Roma 6b ─────────────────────────────────────────────────────────────────
+
+function evaluateRoma6bGoal(goal: SecretGoalKind, gameState: GameState, baseXp: number): GoalEvaluation {
+  if (goal === 'glory') {
+    // Zabij Witigese
+    const witigesDead = gameState.destroyedUnits.some(u => u.definitionType === 'witiges');
+    return { achieved: witigesDead, buceliariiXpEarned: baseXp };
+  }
+  // pragma: ukonči s aspoň 3 byzantskými jednotkami naživu
+  const survivors = gameState.units.filter(u => u.faction === 'cilicia').length;
+  return { achieved: survivors >= 3, buceliariiXpEarned: baseXp };
+}
+
+// ─── Ravenna ─────────────────────────────────────────────────────────────────
+
+function evaluateRavennaGoal(
+  goal: SecretGoalKind,
+  gameState: GameState,
+  _campaign: CampaignState,
+  baseXp: number
+): GoalEvaluation {
+  if (goal === 'glory') {
+    // Diplomatické vítězství
+    const gothicFallen = gameState.destroyedUnits.filter(u => u.faction === 'tamerlane').length;
+    const belisarius = gameState.units.find(u => u.definitionType === 'belisarius' && u.faction === 'cilicia');
+    if (!belisarius) return { achieved: false, buceliariiXpEarned: baseXp };
+    const onPlaza = gameState.terrain.some(
+      t => t.terrain === 'village' &&
+           t.position.row === belisarius.position.row &&
+           t.position.col === belisarius.position.col
+    );
+    return { achieved: onPlaza && gothicFallen <= 5, buceliariiXpEarned: baseXp };
+  }
+  // pragma: obsaď pokladnici (fortress)
+  const treasury = gameState.terrain.find(t => t.terrain === 'fortress');
+  if (!treasury) return { achieved: false, buceliariiXpEarned: baseXp };
+  const onTreasury = gameState.units.some(
+    u => u.faction === 'cilicia' &&
+         u.position.row === treasury.position.row &&
+         u.position.col === treasury.position.col
+  );
+  return { achieved: onTreasury, buceliariiXpEarned: baseXp };
+}
+
+// ─── Kalábrie ────────────────────────────────────────────────────────────────
+
+function evaluateCalabriaGoal(
+  goal: SecretGoalKind,
+  gameState: GameState,
+  _campaign: CampaignState,
+  baseXp: number
+): GoalEvaluation {
+  if (goal === 'glory') {
+    const totilaDead = gameState.destroyedUnits.some(u => u.definitionType === 'totila');
+    return { achieved: totilaDead, buceliariiXpEarned: baseXp };
+  }
+  // pragma: žádná Bukelárska figurka nepadne — check via destroyedUnits & HP
+  const bucAlive = gameState.units.find(u => u.definitionType === 'bucelarii');
+  // Start HP 4, any loss means some figurine fell
+  return { achieved: !!bucAlive && bucAlive.hp === 4, buceliariiXpEarned: baseXp };
+}
+
+// ─── Epilog A ────────────────────────────────────────────────────────────────
+
+function evaluateEpilogAGoal(goal: SecretGoalKind, gameState: GameState, baseXp: number): GoalEvaluation {
+  if (goal === 'glory') {
+    // Vyhraj bez jediné ztráty
+    const noLosses = gameState.destroyedUnits.filter(u => u.faction === 'cilicia').length === 0;
+    return { achieved: noLosses, buceliariiXpEarned: baseXp };
+  }
+  const zaberganDead = gameState.destroyedUnits.some(u => u.definitionType === 'zabergan');
+  return { achieved: zaberganDead, buceliariiXpEarned: baseXp };
 }
 
 // ─── Bukelárii XP helper ─────────────────────────────────────────────────────
