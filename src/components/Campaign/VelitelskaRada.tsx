@@ -225,10 +225,19 @@ function GoalCard({
       onClick={onClick}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      className={`text-left p-4 rounded-lg border-2 transition-all ${accent} ${
-        selected ? selectedAccent : ''
+      className={`relative text-left p-4 rounded-lg border-2 transition-all ${accent} ${
+        selected ? selectedAccent + ' ring-2 ring-offset-2 ring-offset-gray-950' : ''
       }`}
+      style={selected
+        ? { borderWidth: 3 }
+        : undefined}
     >
+      {/* Zvýraznění stavu výběru v pravém horním rohu */}
+      {selected && (
+        <span className="absolute -top-3 -right-3 px-2 py-0.5 rounded-full bg-amber-500 text-gray-900 text-[10px] font-bold shadow-lg">
+          ✓ ZVOLENO
+        </span>
+      )}
       <div className="flex items-baseline justify-between mb-2">
         <div className="text-lg font-bold">{title}</div>
         <div className="text-xs font-bold opacity-80">{subtitle}</div>
