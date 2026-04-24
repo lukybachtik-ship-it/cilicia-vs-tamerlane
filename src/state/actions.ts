@@ -1,5 +1,6 @@
 import type { Position } from '../types/unit';
 import type { GameState } from '../types/game';
+import type { CampaignOverrides } from '../constants/scenarioSetup';
 
 export type GameAction =
   | { type: 'PLAY_CARD'; cardInstanceId: string }
@@ -8,9 +9,17 @@ export type GameAction =
   | { type: 'ACTIVATE_UNIT'; unitId: string }
   | { type: 'DEACTIVATE_UNIT'; unitId: string }
   | { type: 'CONFIRM_ACTIVATIONS' }
+  | { type: 'CONFIRM_MOVEMENT' }
   | { type: 'SELECT_UNIT'; unitId: string | null }
   | { type: 'MOVE_UNIT'; unitId: string; targetPosition: Position }
   | { type: 'ATTACK_UNIT'; attackerId: string; defenderId: string }
+  | { type: 'ATTACK_TERRAIN'; attackerId: string; targetPosition: Position }
+  | { type: 'ACTIVATE_ABILITY'; unitId: string }
+  | { type: 'SELECT_BETRAYAL_TARGET'; targetId: string }
+  | { type: 'CANCEL_BETRAYAL' }
   | { type: 'END_TURN' }
-  | { type: 'RESTART_GAME'; scenarioId?: string }
-  | { type: 'SET_STATE'; state: GameState };
+  | { type: 'CHOOSE_REINFORCEMENT_FLANK'; flank: 'left' | 'center' | 'right' }
+  | { type: 'RESTART_GAME'; scenarioId?: string; campaignOverrides?: CampaignOverrides }
+  | { type: 'SET_STATE'; state: GameState }
+  // Campaign-mode: in-battle Supply token akce
+  | { type: 'APPLY_SUPPLY_BONUS'; kind: 'bonus_die' | 'reinforcement'; spawnFaction?: 'cilicia' | 'tamerlane' };

@@ -23,13 +23,35 @@ const TERRAIN_BG: Record<TerrainType, string> = {
   forest: 'bg-green-900',
   hill: 'bg-yellow-900',
   fortress: 'bg-gray-700',
+  village: 'bg-amber-900',
+  tent: 'bg-yellow-700',
+  trench: 'bg-amber-950',
+  vineyard: 'bg-purple-900',
+  wall: 'bg-stone-500',
+  wagenburg: 'bg-amber-800',
+  ambush_forest: 'bg-green-950',
+  stream: 'bg-blue-900',
+  gate: 'bg-amber-700',
+  aqueduct_surface: 'bg-stone-400',
+  aqueduct_exit: 'bg-yellow-800',
 };
 
 const TERRAIN_LABEL: Record<TerrainType, string> = {
   plain: '',
-  forest: '🌲',
-  hill: '⛰',
-  fortress: '🏰',
+  forest: '',
+  hill: '',
+  fortress: '',
+  village: '',
+  tent: '',
+  trench: '',
+  vineyard: '',
+  wall: '',
+  wagenburg: '',
+  ambush_forest: '',
+  stream: '',
+  gate: '',
+  aqueduct_surface: '',
+  aqueduct_exit: '',
 };
 
 const ZONE_BORDER: Record<'left' | 'center' | 'right', string> = {

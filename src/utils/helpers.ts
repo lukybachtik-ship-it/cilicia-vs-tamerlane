@@ -1,5 +1,5 @@
 import type { Position } from '../types/unit';
-import { hexDistance, getHexNeighbors } from './hexGrid';
+import { hexDistance, getHexNeighbors, DEFAULT_GRID_ROWS, DEFAULT_GRID_COLS } from './hexGrid';
 
 let idCounter = 0;
 export function generateId(prefix = 'id'): string {
@@ -18,8 +18,13 @@ export function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export function isOnBoard(pos: Position): boolean {
-  return pos.row >= 1 && pos.row <= 9 && pos.col >= 1 && pos.col <= 9;
+/** Grid-aware board boundary check. */
+export function isOnBoard(
+  pos: Position,
+  gridRows = DEFAULT_GRID_ROWS,
+  gridCols = DEFAULT_GRID_COLS
+): boolean {
+  return pos.row >= 1 && pos.row <= gridRows && pos.col >= 1 && pos.col <= gridCols;
 }
 
 /** Hex distance (replaces Chebyshev — now delegates to hexDistance). */
@@ -42,7 +47,33 @@ export function getZone(col: number): 'left' | 'center' | 'right' {
   return 'right';
 }
 
-/** Get all 6 hex neighbours of a position (delegates to getHexNeighbors). */
-export function getNeighbors(pos: Position): Position[] {
-  return getHexNeighbors(pos);
+/** True if unit type is a cavalry variant (for pike-wall / anti-cavalry checks). */
+export function isCavalryType(type: string): boolean {
+  return (
+    type === 'light_cavalry' ||
+    type === 'heavy_cavalry' ||
+    type === 'horse_archers' ||
+    type === 'gendarme' ||
+    type === 'stradiot' ||
+    type === 'condottiero' ||
+    type === 'equites'
+  );
+}
+
+/** True if unit type is a "heavy armour" target for crossbow penalty / rodelero bonus. */
+export function isHeavyCavalryType(type: string): boolean {
+  return (
+    type === 'heavy_cavalry' ||
+    type === 'gendarme' ||
+    type === 'condottiero'
+  );
+}
+
+/** Get all 6 hex neighbours of a position (grid-aware). */
+export function getNeighbors(
+  pos: Position,
+  gridRows = DEFAULT_GRID_ROWS,
+  gridCols = DEFAULT_GRID_COLS
+): Position[] {
+  return getHexNeighbors(pos, gridRows, gridCols);
 }

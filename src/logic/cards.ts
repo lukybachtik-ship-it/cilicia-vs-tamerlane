@@ -80,7 +80,7 @@ export function canCardActivateUnit(
     if (!cavTypes.includes(unit.definitionType)) return false;
   }
   if (def.unitTypeFilter === 'ranged') {
-    const rangedTypes = ['archers', 'horse_archers'];
+    const rangedTypes = ['archers', 'horse_archers', 'siege_machine'];
     if (!rangedTypes.includes(unit.definitionType)) return false;
   }
   if (def.unitTypeFilter === 'one_per_section') {

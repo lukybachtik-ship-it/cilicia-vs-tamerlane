@@ -1,13 +1,17 @@
 import { useGame } from '../../state/GameContext';
+import { ALL_SCENARIOS } from '../../constants/scenarios';
 import { CardDisplay } from './CardDisplay';
+import { ScenarioLegend } from '../UI/ScenarioLegend';
 
 export function CardHand() {
   const { state, dispatch } = useGame();
+  const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
+  const ciliciaLabel = scenario?.ciliciaLabel ?? 'Kilikie';
+  const tamerlaneLabel = scenario?.tamerlaneLabel ?? 'Tamerlán';
+  const currentLabel = state.currentPlayer === 'cilicia' ? ciliciaLabel : tamerlaneLabel;
 
   const hand =
     state.currentPlayer === 'cilicia' ? state.ciliciaHand : state.tamerlaneHand;
-  const opponentHand =
-    state.currentPlayer === 'cilicia' ? state.tamerlaneHand : state.ciliciaHand;
 
   const canPlayCard = state.currentPhase === 'play_card';
 
@@ -43,7 +47,7 @@ export function CardHand() {
           state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'
         }`}
       >
-        {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} – tvoje ruka
+        {currentLabel} – tvoje ruka
       </div>
 
       {/* Active player's cards */}
@@ -62,32 +66,13 @@ export function CardHand() {
       </div>
 
       {/* Deck status */}
-      <div className="flex items-center gap-3 text-xs text-gray-400 justify-center mt-1">
-        <span>🃏 Balíček: {state.deck.length}</span>
-        <span>🗑 Odhoz: {state.discardPile.length}</span>
+      <div className="flex items-center gap-3 text-[10px] text-gray-400 justify-center mt-1">
+        <span>Balíček: {state.deck.length}</span>
+        <span>Odhoz: {state.discardPile.length}</span>
       </div>
 
-      {/* Opponent hand (face down) */}
-      <div className="mt-2 border-t border-gray-700 pt-2">
-        <div
-          className={`text-xs font-bold text-center mb-1 ${
-            state.currentPlayer === 'cilicia' ? 'text-red-400' : 'text-blue-400'
-          }`}
-        >
-          {state.currentPlayer === 'cilicia' ? '🔴 Tamerlán' : '🔵 Kilikie'} – ruka soupeře
-        </div>
-        <div className="flex gap-1 justify-center">
-          {opponentHand.map(card => (
-            <CardDisplay
-              key={card.instanceId}
-              card={card}
-              isPlayable={false}
-              onClick={() => {}}
-              faceDown
-            />
-          ))}
-        </div>
-      </div>
+      {/* Scenario legend (replaces opponent's hand section) */}
+      <ScenarioLegend />
     </div>
   );
 }
