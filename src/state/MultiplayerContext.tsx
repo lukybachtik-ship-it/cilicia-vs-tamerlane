@@ -10,7 +10,7 @@ export type ConnectionStatus =
   | 'error';
 
 export interface MultiplayerState {
-  mode: 'local' | 'online' | 'bot';
+  mode: 'local' | 'online' | 'bot' | 'campaign';
   botPlayer: PlayerTurn | null;  // which faction the bot controls (null unless mode='bot')
   roomCode: string | null;
   myPlayer: PlayerTurn | null;
@@ -20,7 +20,7 @@ export interface MultiplayerState {
 }
 
 interface MultiplayerContextValue extends MultiplayerState {
-  setMode: (mode: 'local' | 'online' | 'bot') => void;
+  setMode: (mode: 'local' | 'online' | 'bot' | 'campaign') => void;
   setBotPlayer: (player: PlayerTurn | null) => void;
   setRoomCode: (code: string) => void;
   setMyPlayer: (player: PlayerTurn) => void;
@@ -45,7 +45,7 @@ export function MultiplayerProvider({ children }: { children: React.ReactNode })
     error: null,
   });
 
-  const setMode = useCallback((mode: 'local' | 'online' | 'bot') => {
+  const setMode = useCallback((mode: 'local' | 'online' | 'bot' | 'campaign') => {
     setState(s => ({ ...s, mode }));
   }, []);
 

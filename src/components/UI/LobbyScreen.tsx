@@ -6,10 +6,12 @@ import { supabase } from '../../lib/supabase';
 import { buildInitialState } from '../../constants/scenarioSetup';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
 import { HowToContent } from './HowToContent';
+import { CampaignHub } from '../Campaign/CampaignHub';
+import { useCampaign } from '../../state/CampaignContext';
 
 import type { PlayerTurn } from '../../types/game';
 
-type LobbyView = 'home' | 'tutorial' | 'bot_setup' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining';
+type LobbyView = 'home' | 'tutorial' | 'bot_setup' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining' | 'campaign_hub';
 
 const SCENARIO_ICONS: Record<string, string> = {
   standard: '⚔️',
@@ -20,6 +22,7 @@ const SCENARIO_ICONS: Record<string, string> = {
 export function LobbyScreen() {
   const mp = useMultiplayer();
   const { startOnlineGame, dispatch } = useGame();
+  const campaignCtx = useCampaign();
 
   // Auto-fill join code if arriving from a shared URL
   const pendingJoinCode = sessionStorage.getItem('ctg_join_code') ?? '';
@@ -138,7 +141,28 @@ export function LobbyScreen() {
     dispatch({ type: 'RESTART_GAME' });
   }
 
+  function handleCampaign() {
+    setView('campaign_hub');
+  }
+
   // ── Views ──────────────────────────────────────────────────────────────────
+
+  if (view === 'campaign_hub') {
+    return (
+      <CampaignHub
+        onExitCampaign={() => setView('home')}
+        onStartScenario={() => {
+          // Kampaňový scénář má vlastní pre-battle / battle / post-battle flow
+          // řízený na úrovni App.tsx. Přepni mode na 'campaign' a uvolni
+          // lobby — App.tsx zobrazí VelitelskaRada.
+          mp.setMode('campaign');
+          mp.setConnectionStatus('connected');
+          mp.setMyPlayer('cilicia');
+          void campaignCtx; // touch to avoid unused var warning when lint strict
+        }}
+      />
+    );
+  }
 
   if (view === 'joining') {
     return (
@@ -384,6 +408,34 @@ export function LobbyScreen() {
         </div>
 
         <div className="flex flex-col gap-3">
+          <button
+            onClick={handleCampaign}
+            className="flex items-center gap-4 p-5 rounded-2xl border-2 border-amber-600 bg-gradient-to-r from-amber-950/40 to-amber-900/20
+                       hover:border-amber-400 hover:bg-amber-900/30
+                       hover:shadow-[0_0_24px_rgba(245,158,11,0.35)]
+                       transition-all duration-200 text-left relative"
+          >
+            <div className="w-12 h-12 flex-shrink-0 rounded-full bg-amber-900/60 border border-amber-600 flex items-center justify-center">
+              <svg viewBox="-12 -12 24 24" width="28" height="28">
+                <path
+                  d="M-8,4 L-6,-5 L-3,1 L0,-7 L3,1 L6,-5 L8,4 Z"
+                  fill="rgba(253,230,138,0.4)" stroke="#fde68a" strokeWidth="2" strokeLinejoin="round"
+                />
+                <circle cx={-6} cy={-5} r={1.5} fill="#fde68a" stroke="#78350f" strokeWidth="0.5" />
+                <circle cx={0} cy={-7} r={1.8} fill="#fde68a" stroke="#78350f" strokeWidth="0.5" />
+                <circle cx={6} cy={-5} r={1.5} fill="#fde68a" stroke="#78350f" strokeWidth="0.5" />
+                <rect x={-8} y={4} width={16} height={2.5} fill="#fde68a" stroke="#78350f" strokeWidth="0.6" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-amber-200 font-bold text-base">Belisariova kampaň</div>
+              <div className="text-amber-500/70 text-xs">7 propojených scénářů s perzistentní ekonomikou a rostoucí elitní jednotkou</div>
+            </div>
+            <div className="absolute top-1.5 right-2 text-[9px] font-bold text-amber-400 tracking-wide">
+              {campaignCtx.campaign ? 'POKRAČOVAT' : 'NOVÉ'}
+            </div>
+          </button>
+
           <button
             onClick={() => setView('create_scenario')}
             className="flex items-center gap-4 p-5 rounded-2xl border border-gray-700 bg-gray-900
