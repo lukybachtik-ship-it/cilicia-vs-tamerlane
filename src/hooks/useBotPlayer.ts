@@ -179,7 +179,7 @@ export function useBotPlayer() {
             }
           }
           if (!selected.hasAttacked && state.validAttackTargets.length > 0) {
-            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state, botPlayer);
+            const defenderId = chooseBotAttackTarget(state.validAttackTargets, state, botPlayer, selected.position);
             if (defenderId) {
               timer = setTimeout(
                 () => dispatch({ type: 'ATTACK_UNIT', attackerId: selected.id, defenderId }),

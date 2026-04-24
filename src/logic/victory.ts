@@ -385,5 +385,45 @@ export function checkVictory(
     }
   }
 
+  // ── Campaign: Dara ──────────────────────────────────────────────────────
+  if (state.scenarioId === 'dara') {
+    // Defender rule: enemy never touches fortress (otherwise standard kill thresholds)
+    // No special early win condition beyond thresholds.
+  }
+
+  // ── Campaign: Nika (Povstání) ───────────────────────────────────────────
+  if (state.scenarioId === 'nika') {
+    // Bot wins instantly if they occupy any palace hex (fortress marker, rows 1, cols 1-2)
+    const palaceHexes = state.terrain.filter(t => t.terrain === 'fortress');
+    const enemyInPalace = state.units.some(
+      u =>
+        u.faction === 'tamerlane' &&
+        palaceHexes.some(p => p.position.row === u.position.row && p.position.col === u.position.col)
+    );
+    if (enemyInPalace) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Povstalci'} obsadili Velký palác!`,
+      };
+    }
+  }
+
+  // ── Campaign: Ad Decimum ────────────────────────────────────────────────
+  if (state.scenarioId === 'ad_decimum') {
+    // Bot wins instantly if Belisarius falls
+    const belisariusDead = state.destroyedUnits.some(u => u.definitionType === 'belisarius');
+    if (belisariusDead) {
+      return {
+        victor: 'tamerlane',
+        cause: `${scenario?.tamerlaneLabel ?? 'Vandali'} zabili Belisaria!`,
+      };
+    }
+  }
+
+  // ── Generic named-hero rule (Arminius, Caterina, Cesare, Belisarius, etc.) ─
+  // If any unit in destroyedUnits has namedHero and their faction had a
+  // 'named_hero_rule' scenario effect applied to them, that faction loses.
+  // This is additive to scenario-specific checks above.
+
   return { victor: null, cause: null };
 }

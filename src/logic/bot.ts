@@ -337,13 +337,27 @@ export function chooseBotAttackTarget(
   validTargetIds: string[],
   state: GameState,
   botFaction?: PlayerTurn,
+  attackerPosition?: Position,
 ): string | null {
   if (validTargetIds.length === 0) return null;
+
+  // Campaign scenarios use "nearest threat" priority:
+  // prefer targets close to the attacker over high-value distant ones.
+  // This prevents the bot from metagaming focus-fire on Bukelárii.
+  const isCampaign = ['dara', 'nika', 'ad_decimum', 'tricamarum', 'neapol', 'roma_6a', 'roma_6b', 'ravenna', 'calabria'].includes(state.scenarioId);
 
   const scored = validTargetIds.map(id => {
     const target = state.units.find(u => u.id === id);
     if (!target) return { id, score: 0 };
     let score = (4 - target.hp) * 10; // prefer low-HP targets (almost dead)
+
+    // Campaign: strong preference for geographically nearest threat
+    if (isCampaign && attackerPosition) {
+      const dist = hexDistance(attackerPosition, target.position);
+      score += Math.max(0, 8 - dist) * 8; // +56 at dist=1, decays to 0 at dist=8
+      // De-prioritize extra-high-HP elite units so bot doesn't meta-hunt Bukelárii
+      if (target.hp >= 4) score -= 15;
+    }
 
     // Prefer targets on fortresses (block victory / clear objectives)
     const onFortress = state.terrain.some(

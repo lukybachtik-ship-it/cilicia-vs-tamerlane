@@ -815,6 +815,123 @@ export const CAMPAIGN_SCENARIO_DARA_DEF: ScenarioDefinition = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 2: Povstání Nika (532) — Belisarius vs dav v Konstantinopoli
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_NIKA_DEF: ScenarioDefinition = {
+  id: 'nika',
+  nameCs: 'Povstání Nika',
+  descriptionCs: 'Konstantinopol v plamenech. Hippodrom a dav povstalců vedený Hypatiem a Pompeiem hrozí Velkému paláci.',
+  flavourCs: 'Rok 532. Fani modrých a zelených zapálili Hippodrom a žádají abdikaci Justiniána. Belisarius musí rozprášit dav dřív, než se dostanou do Velkého paláce.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Povstalci',
+  difficultyCs: '🏛 Městská bitva',
+  tags: ['kampaň', 'městská', 'dav'],
+  gridRows: 11,
+  gridCols: 9,
+  killThresholdCilicia: 4,   // bot vyhrává pokud zabije 4 hráčovy jednotky
+  killThresholdTamerlane: 6, // hráč musí zničit 6 jednotek povstalců
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Zničit 6 povstaleckých jednotek',
+  victoryObjectiveTamerlaneCs: 'Obsadit Velký palác nebo zničit 4 byzantské jednotky',
+  isCampaignScenario: true,
+  terrain: [
+    // Velký palác — 2 hexy v severozápadním rohu (týl hráče)
+    { position: { row: 1, col: 1 }, terrain: 'fortress', elevation: 0 },
+    { position: { row: 1, col: 2 }, terrain: 'fortress', elevation: 0 },
+    // Hippodrom — 3 centrální hexy (drží Hypatius/Pompeius)
+    { position: { row: 7, col: 4 }, terrain: 'village', elevation: 0 },
+    { position: { row: 7, col: 5 }, terrain: 'village', elevation: 0 },
+    { position: { row: 7, col: 6 }, terrain: 'village', elevation: 0 },
+    // Barikády v ulicích (trench slouží jako barikáda — +1 obrana bránícímu)
+    { position: { row: 4, col: 3 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 5, col: 6 }, terrain: 'trench', elevation: 0 },
+    { position: { row: 6, col: 2 }, terrain: 'trench', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    // Belisarius + Bukelárii u paláce
+    { id: 'nk_belisarius', definitionType: 'belisarius', faction: 'cilicia', position: { row: 2, col: 2 } },
+    { id: 'nk_bucelarii',  definitionType: 'bucelarii',  faction: 'cilicia', position: { row: 2, col: 3 } },
+    // 2× heavy_infantry (římská pěchota)
+    { id: 'nk_hi1', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 2 } },
+    { id: 'nk_hi2', definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 4 } },
+    // 2× hunská jízda
+    { id: 'nk_ha1', definitionType: 'horse_archers', faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'nk_ha2', definitionType: 'horse_archers', faction: 'cilicia', position: { row: 4, col: 5 } },
+  ],
+  tamerlaneUnits: [
+    // Hippodrom: Hypatius + Pompeius (drží se tam)
+    { id: 'nk_hyp', definitionType: 'hypatius', faction: 'tamerlane', position: { row: 7, col: 5 } },
+    { id: 'nk_pom', definitionType: 'pompeius', faction: 'tamerlane', position: { row: 7, col: 6 } },
+    // Civilní dav v ulicích
+    { id: 'nk_mob1', definitionType: 'civilian_mob', faction: 'tamerlane', position: { row: 8, col: 3 } },
+    { id: 'nk_mob2', definitionType: 'civilian_mob', faction: 'tamerlane', position: { row: 8, col: 7 } },
+    { id: 'nk_mob3', definitionType: 'civilian_mob', faction: 'tamerlane', position: { row: 9, col: 4 } },
+    { id: 'nk_mob4', definitionType: 'civilian_mob', faction: 'tamerlane', position: { row: 9, col: 6 } },
+    // Dav s kameny na okrajích
+    { id: 'nk_stone1', definitionType: 'stone_throwing_mob', faction: 'tamerlane', position: { row: 10, col: 2 } },
+    { id: 'nk_stone2', definitionType: 'stone_throwing_mob', faction: 'tamerlane', position: { row: 10, col: 8 } },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaign scénář 3: Ad Decimum (533) — Belisarius vs Vandali v Africe
+// Vlny Vandalů řešeny přes sleepsUntilTurn (existující mechanika z Aškelonu).
+// ─────────────────────────────────────────────────────────────────────────────
+export const CAMPAIGN_SCENARIO_AD_DECIMUM_DEF: ScenarioDefinition = {
+  id: 'ad_decimum',
+  nameCs: 'Ad Decimum',
+  descriptionCs: 'Pobřežní Afrika, tři vandalské vlny se valí ze severu. Belisarius musí přežít a dobýt vesnici Ad Decimum.',
+  flavourCs: 'Rok 533. Belisarius přistál v Africe a pochoduje na Kartágo. Vandalský král Gelimer mobilizuje tři oddíly — každé pár kol dorazí jedna vlna z jiné strany.',
+  ciliciaLabel: 'Byzantinci',
+  tamerlaneLabel: 'Vandali',
+  difficultyCs: '⚔️ Ofenzivní',
+  tags: ['kampaň', 'vlny', 'afrika'],
+  gridRows: 11,
+  gridCols: 9,
+  killThresholdCilicia: 5,
+  killThresholdTamerlane: 5,
+  turnLimit: null,
+  victoryObjectiveCiliciaCs: 'Zničit 5 vandalských jednotek',
+  victoryObjectiveTamerlaneCs: 'Zabít Belisaria nebo zničit 5 byzantských jednotek',
+  isCampaignScenario: true,
+  terrain: [
+    // Vesnice Ad Decimum — 2 hexy uprostřed
+    { position: { row: 6, col: 4 }, terrain: 'village', elevation: 0 },
+    { position: { row: 6, col: 5 }, terrain: 'village', elevation: 0 },
+    // Pahorky (překážky pro LOS, bonus pro střelce)
+    { position: { row: 5, col: 2 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 5, col: 8 }, terrain: 'hill', elevation: 1 },
+    { position: { row: 8, col: 5 }, terrain: 'hill', elevation: 1 },
+    // Lesy na okrajích
+    { position: { row: 4, col: 1 }, terrain: 'forest', elevation: 0 },
+    { position: { row: 4, col: 9 }, terrain: 'forest', elevation: 0 },
+  ],
+  ciliciaUnits: [
+    // Belisariova armáda v jižní polovině
+    { id: 'ad_belisarius', definitionType: 'belisarius',   faction: 'cilicia', position: { row: 3, col: 5 } },
+    { id: 'ad_bucelarii',  definitionType: 'bucelarii',    faction: 'cilicia', position: { row: 3, col: 4 } },
+    { id: 'ad_heruli',     definitionType: 'heruli',       faction: 'cilicia', position: { row: 3, col: 6 } },
+    { id: 'ad_mauri',      definitionType: 'mauri_spearmen', faction: 'cilicia', position: { row: 2, col: 3 } },
+    { id: 'ad_ha1',        definitionType: 'horse_archers', faction: 'cilicia', position: { row: 2, col: 7 } },
+    { id: 'ad_hi1',        definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 4, col: 4 } },
+    { id: 'ad_hi2',        definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 4, col: 6 } },
+  ],
+  tamerlaneUnits: [
+    // Vlna A — Ammatas (SZ, aktivní od kola 1)
+    { id: 'ad_ammatas', definitionType: 'ammatas',         faction: 'tamerlane', position: { row: 10, col: 2 } },
+    { id: 'ad_vcA',     definitionType: 'vandal_cavalry',  faction: 'tamerlane', position: { row: 11, col: 1 } },
+    { id: 'ad_viA',     definitionType: 'vandal_infantry', faction: 'tamerlane', position: { row: 11, col: 3 } },
+    // Vlna B — Gelimer (S, probouzí se od kola 3)
+    { id: 'ad_gelimer', definitionType: 'gelimer',         faction: 'tamerlane', position: { row: 11, col: 5 }, sleepsUntilTurn: 3 },
+    { id: 'ad_vcB',     definitionType: 'vandal_cavalry',  faction: 'tamerlane', position: { row: 11, col: 4 }, sleepsUntilTurn: 3 },
+    // Vlna C — Tzazon flank (SV, probouzí se od kola 5)
+    { id: 'ad_tzazon',  definitionType: 'tzazon',          faction: 'tamerlane', position: { row: 10, col: 8 }, sleepsUntilTurn: 5 },
+    { id: 'ad_vcC',     definitionType: 'vandal_cavalry',  faction: 'tamerlane', position: { row: 11, col: 9 }, sleepsUntilTurn: 5 },
+    { id: 'ad_viC',     definitionType: 'vandal_infantry', faction: 'tamerlane', position: { row: 11, col: 7 }, sleepsUntilTurn: 5 },
+  ],
+};
+
 export const ALL_SCENARIOS: ScenarioDefinition[] = [
   SCENARIO_STANDARD,
   SCENARIO_ANKARA,
@@ -826,4 +943,6 @@ export const ALL_SCENARIOS: ScenarioDefinition[] = [
   SCENARIO_FORLI,
   SCENARIO_CERIGNOLA,
   CAMPAIGN_SCENARIO_DARA_DEF,
+  CAMPAIGN_SCENARIO_NIKA_DEF,
+  CAMPAIGN_SCENARIO_AD_DECIMUM_DEF,
 ];
