@@ -60,7 +60,9 @@ export function TurnPanel() {
             state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'
           }`}
         >
-          {state.currentPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'} hraje
+          {state.currentPlayer === 'cilicia'
+            ? (scenario?.ciliciaLabel ?? 'Kilikie')
+            : (scenario?.tamerlaneLabel ?? 'Tamerlán')} hraje
         </div>
         <div className="text-yellow-300 text-xs">
           {PHASE_LABELS[state.currentPhase]}

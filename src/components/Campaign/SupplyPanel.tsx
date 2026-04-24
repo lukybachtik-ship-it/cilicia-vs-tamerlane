@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCampaign } from '../../state/CampaignContext';
 import { useGame } from '../../state/GameContext';
+import { getCurrentCampaignScenario, STANDARD_COUNCIL_OPTIONS } from '../../constants/campaignScenarios';
 
 /**
  * In-battle Supply panel — zobrazuje aktuální SP a umožňuje utrácet je
@@ -34,6 +35,28 @@ export function SupplyPanel() {
   if (!campaign) return null;
 
   const sp = campaign.supplyTokens;
+
+  // Scénářová meta pro zobrazení tajného cíle a scénářových nákupů
+  const scenario = getCurrentCampaignScenario({
+    currentScenarioIndex: campaign.currentScenarioIndex,
+    completedScenarios: campaign.completedScenarios,
+    favor: campaign.favor,
+    buceliarii: campaign.buceliarii,
+  });
+  const goalDesc = scenario && campaign.currentSecretGoal
+    ? campaign.currentSecretGoal === 'glory'
+      ? scenario.goals.glory.descriptionCs
+      : scenario.goals.pragma.descriptionCs
+    : null;
+
+  const purchaseNames: Record<string, string> = {};
+  for (const opt of STANDARD_COUNCIL_OPTIONS) purchaseNames[opt.id] = opt.nameCs;
+  if (scenario?.exclusiveOption) {
+    purchaseNames[scenario.exclusiveOption.id] = scenario.exclusiveOption.nameCs;
+  }
+  const pregameBoughts = campaign.currentPurchases.filter(
+    p => !p.id.startsWith('in_battle_')
+  );
   const gameOver = state.currentPhase === 'game_over';
   const canPeek = !peekUsed && sp >= 3 && !gameOver;
   const canBonus = !bonusUsed && sp >= 1 && !gameOver;
@@ -63,7 +86,38 @@ export function SupplyPanel() {
   return (
     <>
       {/* Supply HUD (spodní pravý roh) */}
-      <div className="fixed bottom-2 right-2 z-30 bg-gray-900/95 border border-amber-700 rounded-lg p-2 shadow-xl max-w-[200px]">
+      <div className="fixed bottom-2 right-2 z-30 bg-gray-900/95 border border-amber-700 rounded-lg p-2 shadow-xl max-w-[240px]">
+        {/* Tajný cíl scénáře */}
+        {goalDesc && (
+          <div className="mb-2 pb-2 border-b border-gray-700/60">
+            <div className="text-[9px] uppercase tracking-wide text-gray-500 mb-0.5">
+              Tajný cíl ({campaign.currentSecretGoal === 'glory' ? 'Sláva' : 'Zisk'})
+            </div>
+            <div className="text-[10px] text-amber-200 leading-tight italic">
+              {goalDesc}
+            </div>
+            <div className="text-[9px] text-gray-500 mt-0.5">
+              Odměna: {campaign.currentSecretGoal === 'glory' ? '+1 Přízeň' : '+2 Zásoby'}
+            </div>
+          </div>
+        )}
+
+        {/* Pre-bitvou zakoupené z Velitelské rady */}
+        {pregameBoughts.length > 0 && (
+          <div className="mb-2 pb-2 border-b border-gray-700/60">
+            <div className="text-[9px] uppercase tracking-wide text-gray-500 mb-0.5">
+              Z velitelské rady
+            </div>
+            <ul className="space-y-0.5">
+              {pregameBoughts.map(p => (
+                <li key={p.id} className="text-[10px] text-emerald-200 leading-tight">
+                  ✓ {purchaseNames[p.id] ?? p.id}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div className="flex items-center gap-2 text-xs mb-1.5">
           <span className="text-amber-300 font-bold">Zásoby:</span>
           <span className="text-emerald-300 font-bold text-base">{sp}</span>
