@@ -282,7 +282,7 @@ export const CAMPAIGN_SCENARIO_EPILOG_B: CampaignScenarioDefinition = {
   contextCs: 'Žádná bitva. Belisarius před Justiniánem, 3 politické volby, které určí jeho odkaz.',
   chronicleCs: '„Purpur je nejlepší rubáš, ale slovo generála je víc než meč." — Theodorin odkaz.',
   mapLabel: 'Senát',
-  mapCoords: { x: 620, y: 210 },
+  mapCoords: { x: 700, y: 175 },
   goals: {
     glory: { descriptionCs: 'Nenastane (narrativní epilog).' },
     pragma: { descriptionCs: 'Nenastane (narrativní epilog).' },
@@ -296,7 +296,7 @@ export const CAMPAIGN_SCENARIO_EPILOG_C: CampaignScenarioDefinition = {
   contextCs: 'Shrnutí kampaně. Tvá cesta od Dary ke Konstantinopoli.',
   chronicleCs: '„Vše pomine. Říše, generálové, císaři. Zůstane jen vzpomínka na čest." — Prokopios.',
   mapLabel: 'Konec',
-  mapCoords: { x: 495, y: 300 },
+  mapCoords: { x: 460, y: 140 },
   goals: {
     glory: { descriptionCs: 'Nenastane.' },
     pragma: { descriptionCs: 'Nenastane.' },

@@ -54,7 +54,7 @@ export function Game() {
 
   // Block interactions when it's not our turn (online or bot mode)
   const isOnline = mode === 'online';
-  const isBot = mode === 'bot';
+  const isBot = mode === 'bot' || mode === 'campaign';
   const isMyTurn = mode === 'local' || state.currentPlayer === myPlayer;
 
   if (showScenarioSelect) {

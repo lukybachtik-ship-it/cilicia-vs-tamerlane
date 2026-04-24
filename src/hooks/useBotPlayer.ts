@@ -32,7 +32,7 @@ export function useBotPlayer() {
   const { mode, botPlayer } = useMultiplayer();
 
   const isBotTurn =
-    mode === 'bot' &&
+    (mode === 'bot' || mode === 'campaign') &&
     botPlayer !== null &&
     state.currentPlayer === botPlayer &&
     !state.victor;
