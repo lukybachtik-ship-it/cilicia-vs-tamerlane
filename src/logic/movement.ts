@@ -1,7 +1,7 @@
 import type { Position, UnitInstance } from '../types/unit';
 import type { GameState } from '../types/game';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
-import { posKey, isOnBoard, getNeighbors } from '../utils/helpers';
+import { posKey, isOnBoard, getNeighbors, isCavalryType } from '../utils/helpers';
 import { getMoveBonus, cannotMove as modCannotMove } from './modifiers';
 
 function getTerrainAt(pos: Position, state: GameState) {
@@ -16,17 +16,9 @@ function isOccupied(pos: Position, units: UnitInstance[], excludeId?: string): b
   );
 }
 
+/** Jednotný check — deleguje na utils/helpers.isCavalryType. */
 function isCavalry(unit: UnitInstance): boolean {
-  const t = unit.definitionType;
-  return (
-    t === 'light_cavalry' ||
-    t === 'heavy_cavalry' ||
-    t === 'horse_archers' ||
-    t === 'gendarme' ||
-    t === 'stradiot' ||
-    t === 'condottiero' ||
-    t === 'equites'
-  );
+  return isCavalryType(unit.definitionType);
 }
 
 /** True if the given terrain blocks all movement (like a wall or intact wagenburg).

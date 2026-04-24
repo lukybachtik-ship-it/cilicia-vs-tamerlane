@@ -2,7 +2,7 @@ import type { CardInstance, CardId } from '../types/card';
 import type { UnitInstance } from '../types/unit';
 import type { GameState } from '../types/game';
 import { CARD_DEFINITIONS, DECK_COMPOSITION } from '../constants/cardDefinitions';
-import { shuffle, generateId, getZone } from '../utils/helpers';
+import { shuffle, generateId, getZone, isCavalryType, isRangedType } from '../utils/helpers';
 
 /** Build the full shared deck from DECK_COMPOSITION, shuffled. */
 export function buildDeck(): CardInstance[] {
@@ -74,14 +74,14 @@ export function canCardActivateUnit(
     }
   }
 
-  // Unit type filter
+  // Unit type filter — single source of truth v utils/helpers.ts
+  // (Karta „Jízdní zteč" aktivuje všechny jezdce včetně Belisaria, Bukelárií,
+  //  gendarmů, stradiotů, perské/vandalské/gotské jízdy a hunské hordy.)
   if (def.unitTypeFilter === 'cavalry') {
-    const cavTypes = ['light_cavalry', 'heavy_cavalry', 'horse_archers'];
-    if (!cavTypes.includes(unit.definitionType)) return false;
+    if (!isCavalryType(unit.definitionType)) return false;
   }
   if (def.unitTypeFilter === 'ranged') {
-    const rangedTypes = ['archers', 'horse_archers', 'siege_machine'];
-    if (!rangedTypes.includes(unit.definitionType)) return false;
+    if (!isRangedType(unit.definitionType)) return false;
   }
   if (def.unitTypeFilter === 'one_per_section') {
     // Coordinated Advance: at most 1 unit per section already activated
