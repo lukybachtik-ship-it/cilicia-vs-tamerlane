@@ -756,6 +756,50 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         };
         return { ...state, activeModifiers: [...state.activeModifiers, mod] };
       }
+      if (action.kind === 'legionary_devotion') {
+        // Ultimate sink: +1 kostka všem hráčovým jednotkám na celé 1 kolo
+        const mod = {
+          id: generateId('mod_devotion'),
+          source: 'ability' as const,
+          sourceUnitId: undefined,
+          descriptionCs: 'Obětavost legionářů: všechny jednotky +1 kostka útoku',
+          targetFilter: { faction },
+          effect: { attackDice: 1 },
+          duration: { kind: 'turns' as const, remainingTurns: 1 },
+        };
+        return { ...state, activeModifiers: [...state.activeModifiers, mod] };
+      }
+      if (action.kind === 'buried_archers') {
+        // Pohřbení lukostřelci (Dara): +3 kostky na příští útok libovolné
+        // hráčovy jednotky (single_attack). Hráč si vybere kdy.
+        // Implementace: generický +3 modifier pro celou frakci typu single_attack.
+        // Protože single_attack vyžaduje sourceUnitId pro consumeSingleAttackMods,
+        // použijeme 1-turn modifier místo toho.
+        const mod = {
+          id: generateId('mod_buried_archers'),
+          source: 'ability' as const,
+          sourceUnitId: undefined,
+          descriptionCs: 'Pohřbení lukostřelci: +3 kostky dalšího útoku',
+          targetFilter: { faction },
+          effect: { attackDice: 3 },
+          duration: { kind: 'turns' as const, remainingTurns: 1 },
+        };
+        return { ...state, activeModifiers: [...state.activeModifiers, mod] };
+      }
+      if (action.kind === 'guerrilla_ambush') {
+        // Partyzánský přepad (Kalábrie): +2 kostky na příští útok. Ideálně
+        // z lesního hexu, ale pro MVP jen bonus k útoku.
+        const mod = {
+          id: generateId('mod_guerrilla'),
+          source: 'ability' as const,
+          sourceUnitId: undefined,
+          descriptionCs: 'Partyzánský přepad: +2 kostky dalšího útoku',
+          targetFilter: { faction },
+          effect: { attackDice: 2 },
+          duration: { kind: 'turns' as const, remainingTurns: 1 },
+        };
+        return { ...state, activeModifiers: [...state.activeModifiers, mod] };
+      }
       if (action.kind === 'reinforcement') {
         // Spawn light_infantry v home row (cilicia=1, tamerlane=gridRows)
         const homeRow = faction === 'cilicia' ? 1 : state.gridRows;
