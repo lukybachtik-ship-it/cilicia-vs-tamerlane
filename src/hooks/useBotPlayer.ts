@@ -60,7 +60,7 @@ export function useBotPlayer() {
     const unitStates = state.units
       .filter(u => u.faction === botPlayer)
       .map(u =>
-        `${u.id}:${u.hasMoved ? 1 : 0}:${u.hasAttacked ? 1 : 0}:${u.isActivated ? 1 : 0}:${u.specialAbilityUsed ? 1 : 0}:${u.pilumReady ? 1 : 0}:${u.warcryActive ? 1 : 0}:${u.hp}`
+        `${u.id}:${u.hasMoved ? 1 : 0}:${u.hasAttacked ? 1 : 0}:${u.isActivated ? 1 : 0}:${u.specialAbilityUsed ? 1 : 0}:${u.hp}`
       )
       .join(',');
     const key = [
@@ -69,6 +69,7 @@ export function useBotPlayer() {
       state.selectedUnitId ?? 'none',
       state.activatedUnitIds.length,
       state.activeScenarioEffects.length,
+      state.activeModifiers.length,
       state.pendingBetrayalSourceId ?? 'none',
       unitStates,
     ].join('|');
@@ -263,8 +264,10 @@ export function useBotPlayer() {
     // update hasMoved/hasAttacked/isActivated).
     // eslint-disable-next-line react-hooks/exhaustive-deps
     state.units.map(u =>
-      `${u.hasMoved}${u.hasAttacked}${u.isActivated}${u.specialAbilityUsed}${u.pilumReady}${u.warcryActive}${u.hp}`
+      `${u.hasMoved}${u.hasAttacked}${u.isActivated}${u.specialAbilityUsed}${u.hp}`
     ).join(''),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    state.activeModifiers.length,
     state.victor,
     state.pendingReinforcement,
     botPlayer,

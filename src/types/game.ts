@@ -1,6 +1,7 @@
 import type { UnitInstance, Position, UnitType, FactionId } from './unit';
 import type { CardInstance } from './card';
 import type { TerrainCell } from './terrain';
+import type { ActiveModifier } from '../logic/modifiers';
 
 export type TurnPhase =
   | 'play_card'                  // active player selects a card from hand
@@ -96,8 +97,13 @@ export interface GameState {
   // Reinforcement waves (Kilíkie uprising scenario)
   pendingReinforcement: PendingReinforcement | null;
 
-  // Scenario-wide effects
+  // Scenario-wide structural effects (visibility rules, hero-death loss rules)
+  // Heat debuff and other dice modifiers moved to activeModifiers.
   activeScenarioEffects: ScenarioEffect[];
+
+  // Central modifier ledger — all active buffs/debuffs (commander deaths,
+  // activated abilities, auras, scenario dice mods, status effects).
+  activeModifiers: ActiveModifier[];
 
   // Combat log
   combatLog: CombatLogEntry[];

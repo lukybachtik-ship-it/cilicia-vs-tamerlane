@@ -3,6 +3,7 @@ import type { GameState } from '../types/game';
 import { UNIT_DEFINITIONS } from './unitDefinitions';
 import { buildDeck, dealInitialHands } from '../logic/cards';
 import { ALL_SCENARIOS, SCENARIO_STANDARD, type ScenarioUnitSeed } from './scenarios';
+import { recomputeAuras } from '../logic/modifiers';
 
 // ─── Unit factory from scenario definition ─────────────────────────────────────
 function hydrateUnit(raw: ScenarioUnitSeed): UnitInstance {
@@ -19,8 +20,6 @@ function hydrateUnit(raw: ScenarioUnitSeed): UnitInstance {
     parthianPhase: 'none',
     moveHistoryThisTurn: [raw.position],
     specialAbilityUsed: false,
-    pilumReady: false,
-    warcryActive: false,
   };
 }
 
@@ -37,7 +36,7 @@ export function buildInitialState(scenarioId?: string): GameState {
     ...scenario.tamerlaneUnits.map(hydrateUnit),
   ];
 
-  return {
+  const initial: GameState = {
     scenarioId: scenario.id,
     gridRows: scenario.gridRows ?? 9,
     gridCols: scenario.gridCols ?? 9,
@@ -59,6 +58,7 @@ export function buildInitialState(scenarioId?: string): GameState {
     volleyShotsThisTurn: [],
     pendingReinforcement: null,
     activeScenarioEffects: (scenario.scenarioEffects ?? []).map(e => ({ ...e })),
+    activeModifiers: [],
     combatLog: [],
     victor: null,
     victoryCause: null,
@@ -67,4 +67,6 @@ export function buildInitialState(scenarioId?: string): GameState {
     validAttackTargets: [],
     validAttackTerrainTargets: [],
   };
+  // Seed initial auras (e.g. Caterina) at battle start
+  return recomputeAuras(initial);
 }

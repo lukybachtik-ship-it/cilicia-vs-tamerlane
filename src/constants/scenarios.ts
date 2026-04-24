@@ -20,7 +20,7 @@ export type ScenarioUnitSeed = Omit<
   UnitInstance,
   | 'hp' | 'hasMoved' | 'hasAttacked' | 'isActivated'
   | 'attackBonus' | 'moveBonus' | 'directFireLocked' | 'parthianPhase'
-  | 'moveHistoryThisTurn' | 'specialAbilityUsed' | 'pilumReady' | 'warcryActive'
+  | 'moveHistoryThisTurn' | 'specialAbilityUsed'
 >;
 
 export interface ScenarioDefinition {

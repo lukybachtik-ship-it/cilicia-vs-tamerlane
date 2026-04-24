@@ -23,6 +23,13 @@ import {
   revertExpiredBetrayals,
   hasAvailableAbility,
 } from '../logic/abilities';
+import {
+  advanceModifiers,
+  consumeSingleAttackMods,
+  recomputeAuras,
+  makeGunpowderPanicModifier,
+  makeCommanderDeathModifier,
+} from '../logic/modifiers';
 import { getZone, posEqual, generateId } from '../utils/helpers';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -50,8 +57,6 @@ function resetUnitForTurn(u: UnitInstance): UnitInstance {
     directFireLocked: false,
     parthianPhase: 'none',
     moveHistoryThisTurn: [u.position],
-    pilumReady: false,
-    warcryActive: false,
   };
 }
 
@@ -340,7 +345,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         units: newUnits,
       });
 
-      return {
+      const afterMove: GameState = {
         ...state,
         units: newUnits,
         selectedUnitId: action.unitId,
@@ -348,6 +353,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         validAttackTargets: newAttackTargets,
         validAttackTerrainTargets: newTerrainTargets,
       };
+      // Auras depend on positions — rebuild
+      return recomputeAuras(afterMove);
     }
 
     // ── Attack a unit ────────────────────────────────────────────────────────
@@ -392,6 +399,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
 
       // Normal defender damage
+      let gunpowderModToAdd: ReturnType<typeof makeGunpowderPanicModifier> | null = null;
       if (result.defenderDestroyed) {
         newUnits = newUnits.filter(u => u.id !== defender.id);
         newDestroyed = [...newDestroyed, { ...defender, hp: 0 }];
@@ -399,10 +407,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         newUnits = updateUnit(newUnits, defender.id, {
           hp: result.defenderNewHp,
           position: result.defenderNewPosition ?? defender.position,
-          gunpowderPanicUntilTurn: result.gunpowderPanicApplied
-            ? state.turnNumber + 1
-            : defender.gunpowderPanicUntilTurn,
         });
+        if (result.gunpowderPanicApplied) {
+          gunpowderModToAdd = makeGunpowderPanicModifier(defender, state.turnNumber + 1);
+        }
       }
 
       // Counter-attack
@@ -432,11 +440,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
 
-      // Mark attacker as attacked & clear pilumReady
+      // Mark attacker as attacked
       if (newUnits.find(u => u.id === attacker.id)) {
         newUnits = updateUnit(newUnits, attacker.id, {
           hasAttacked: true,
-          pilumReady: false,
         });
       }
 
@@ -464,21 +471,51 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const nextPhase = state.currentPhase;
 
-      const tmpState: GameState = {
+      const nextModifiers = [
+        ...state.activeModifiers,
+        ...(gunpowderModToAdd ? [gunpowderModToAdd] : []),
+      ];
+
+      let tmpState: GameState = {
         ...state,
         units: newUnits,
         destroyedUnits: newDestroyed,
         combatLog: newLog,
         currentPhase: nextPhase,
+        activeModifiers: nextModifiers,
       };
+
+      // Consume single_attack mods (pilum) for this attacker
+      tmpState = consumeSingleAttackMods(tmpState, attacker.id);
+
+      // Commander death: if any destroyed unit was a commander, emit its death modifier
+      const newlyDestroyedCommanders = newDestroyed.filter(
+        d => !state.destroyedUnits.some(p => p.id === d.id)
+      );
+      for (const fallen of newlyDestroyedCommanders) {
+        const def = UNIT_DEFINITIONS[fallen.definitionType];
+        if (def.isCommander && def.commanderDeathEffect) {
+          tmpState = {
+            ...tmpState,
+            activeModifiers: [
+              ...tmpState.activeModifiers,
+              makeCommanderDeathModifier(fallen, def.commanderDeathEffect),
+            ],
+          };
+        }
+      }
+
+      // Rebuild auras (source unit may have died or moved)
+      tmpState = recomputeAuras(tmpState);
+
       const { victor, cause } = checkVictory(tmpState);
 
-      const currentAttacker = newUnits.find(u => u.id === action.attackerId);
+      const currentAttacker = tmpState.units.find(u => u.id === action.attackerId);
       const newAttackTargets = currentAttacker
-        ? getValidAttackTargets(currentAttacker, { ...tmpState, units: newUnits })
+        ? getValidAttackTargets(currentAttacker, tmpState)
         : [];
       const newTerrainTargets = currentAttacker
-        ? getValidAttackTerrainTargets(currentAttacker, { ...tmpState, units: newUnits })
+        ? getValidAttackTerrainTargets(currentAttacker, tmpState)
         : [];
 
       return {
@@ -536,15 +573,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
       const newUnits = updateUnit(state.units, attacker.id, {
         hasAttacked: true,
-        pilumReady: false,
       });
 
-      const updated: GameState = {
+      let updated: GameState = {
         ...state,
         terrain: newTerrain,
         units: newUnits,
         combatLog: log,
       };
+      // Consume pilum if this attacker had it
+      updated = consumeSingleAttackMods(updated, attacker.id);
 
       const { victor, cause } = checkVictory(updated);
 
@@ -571,20 +609,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       switch (def.activatedAbility) {
         case 'warcry': {
           if (!unit.isActivated) return state;
-          const newUnits = state.units.map(u =>
-            u.id === unit.id ? applyWarcry(u) : u
-          );
-          return { ...state, units: newUnits };
+          return applyWarcry(state, unit);
         }
         case 'pilum': {
           if (!unit.isActivated) return state;
-          const newUnits = state.units.map(u =>
-            u.id === unit.id ? applyPilumReady(u) : u
-          );
+          let nextState = applyPilumReady(state, unit);
           // Recompute valid attack targets if this unit is selected & in attack phase
-          let nextState: GameState = { ...state, units: newUnits };
           if (state.selectedUnitId === unit.id && state.currentPhase === 'attack') {
-            const updatedUnit = newUnits.find(u => u.id === unit.id)!;
+            const updatedUnit = nextState.units.find(u => u.id === unit.id)!;
             nextState = {
               ...nextState,
               validAttackTargets: getValidAttackTargets(updatedUnit, nextState),
@@ -667,8 +699,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             parthianPhase: 'none',
             moveHistoryThisTurn: [pos],
             specialAbilityUsed: false,
-            pilumReady: false,
-            warcryActive: false,
           });
           spawned++;
         }
@@ -699,8 +729,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Revert expired betrayals
       const afterRevert = revertExpiredBetrayals(state);
 
+      // Advance (tick) all active modifiers — drops expired ones
+      const afterModifierTick = advanceModifiers(afterRevert);
+
       // Reset all units for next turn
-      const resetUnits = afterRevert.units.map(resetUnitForTurn);
+      const resetUnits = afterModifierTick.units.map(resetUnitForTurn);
 
       const nextPlayer: GameState['currentPlayer'] =
         state.currentPlayer === 'cilicia' ? 'tamerlane' : 'cilicia';
@@ -743,9 +776,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
       }
 
-      return {
+      const afterReset: GameState = {
         ...state,
         units: resetUnits,
+        activeModifiers: afterModifierTick.activeModifiers,
         deck: newDeck,
         discardPile: newDiscard,
         ...(state.currentPlayer === 'cilicia'
@@ -766,6 +800,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         validAttackTargets: [],
         validAttackTerrainTargets: [],
       };
+      // Rebuild positional auras for the new turn
+      return recomputeAuras(afterReset);
     }
 
     default:

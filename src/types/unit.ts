@@ -49,6 +49,49 @@ export interface Position {
   col: number; // 1–M
 }
 
+/**
+ * When a commander (isCommander=true) dies, a modifier is auto-generated
+ * from this spec. Inline import avoided — see src/logic/modifiers.ts for
+ * full shape. Here we keep type-level `unknown` to avoid circular imports;
+ * modifiers.ts re-declares it.
+ */
+export interface CommanderDeathSpec {
+  descriptionCs: string;
+  affectFaction?: FactionId;
+  affectUnitTypes?: UnitType[];
+  effect: {
+    attackDice?: number;
+    defenseDice?: number;
+    moveBonus?: number;
+    rangeBonus?: number;
+    cannotMove?: boolean;
+    cannotAttack?: boolean;
+    ignoresRetreat?: boolean;
+  };
+  durationTurns: number;
+}
+
+export interface AuraSpec {
+  descriptionCs: string;
+  radius: number;
+  targetFilter: {
+    faction?: FactionId;
+    exceptFaction?: FactionId;
+    unitTypes?: UnitType[];
+    unitClass?: UnitClass;
+    excludeSourceUnit?: boolean;
+  };
+  effect: {
+    attackDice?: number;
+    defenseDice?: number;
+    moveBonus?: number;
+    rangeBonus?: number;
+    cannotMove?: boolean;
+    cannotAttack?: boolean;
+    ignoresRetreat?: boolean;
+  };
+}
+
 export interface UnitDefinition {
   type: UnitType;
   unitClass: UnitClass;
@@ -78,6 +121,13 @@ export interface UnitDefinition {
   namedHero: boolean;           // Caterina, Cesare, Arminius: death = faction loses (if scenario rule)
   destroysWalls: boolean;       // Culverin/Siege: can damage 'wall' terrain
   hiddenInForest: boolean;      // Germanic units in ambush_forest: hidden beyond 2 hexes
+  /** Optional: marks the unit as a "named commander". When this unit dies,
+   *  the commanderDeathEffect (if present) is auto-applied as a modifier. */
+  isCommander?: boolean;
+  commanderDeathEffect?: CommanderDeathSpec;
+  /** Optional: unit emits a positional aura. Recomputed each turn and after
+   *  movement. See logic/modifiers.ts:recomputeAuras. */
+  auraEffect?: AuraSpec;
   // Czech display name
   nameCs: string;
   abbrevCs: string; // short 2-3 char abbreviation
@@ -102,12 +152,6 @@ export interface UnitInstance {
   moveHistoryThisTurn: Position[];
   // New: activated ability 1×/game (true once used)
   specialAbilityUsed: boolean;
-  // New: flag set by Pilum activation — next attack is ranged with +2 dice
-  pilumReady: boolean;
-  // New: flag set by Warcry activation — next attack gets +2 dice; move also temporarily +1
-  warcryActive: boolean;
-  // New: Gunpowder panic — turn number until which unit suffers -1 attack die (inclusive)
-  gunpowderPanicUntilTurn?: number;
   // New: Cesare's Betrayal — condottiero controlled by enemy until this turn ends (inclusive)
   betrayedUntilTurn?: number;
   /** Original faction before betrayal (restored when betrayal expires). */

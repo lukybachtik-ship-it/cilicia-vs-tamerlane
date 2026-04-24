@@ -2,6 +2,7 @@ import type { Position, UnitInstance } from '../types/unit';
 import type { GameState } from '../types/game';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 import { posKey, isOnBoard, getNeighbors } from '../utils/helpers';
+import { getMoveBonus, cannotMove as modCannotMove } from './modifiers';
 
 function getTerrainAt(pos: Position, state: GameState) {
   return state.terrain.find(
@@ -49,11 +50,11 @@ function forcesStop(terrainType: string): boolean {
  * BFS flood-fill for valid move destinations.
  */
 export function getValidMoves(unit: UnitInstance, state: GameState): Position[] {
+  if (modCannotMove(unit, state)) return [];
   const def = UNIT_DEFINITIONS[unit.definitionType];
   const ignoresStop = def.ignoresTerrainStop;
-  let maxMove = def.move + unit.moveBonus;
-  // Warcry temporarily gives +1 move
-  if (unit.warcryActive) maxMove += 1;
+  // Base move + card moveBonus + all active modifier bonuses (warcry etc.)
+  const maxMove = def.move + unit.moveBonus + getMoveBonus(unit, state);
   const { gridRows, gridCols } = state;
 
   const reachable: Position[] = [];

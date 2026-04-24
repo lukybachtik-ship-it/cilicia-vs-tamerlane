@@ -3,6 +3,12 @@ import type { UnitInstance, FactionId } from '../types/unit';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 import { chebyshevDistance } from '../utils/helpers';
 import { offsetToCube } from '../utils/hexGrid';
+import {
+  makeWarcryModifier,
+  makePilumReadyModifier,
+  makeAmbushSignalModifier,
+  modifierApplies,
+} from './modifiers';
 
 /**
  * Returns true if this unit has an activated ability currently available.
@@ -51,62 +57,70 @@ export function getVolleyBonus(attacker: UnitInstance, state: GameState): number
   return same >= 3 ? 1 : 0;
 }
 
-/** True if this unit currently suffers gunpowder panic (-1 attack die). */
+/** True if this unit currently suffers gunpowder panic (-1 attack die).
+ *  Implemented via the central modifier ledger. */
 export function hasGunpowderPanic(unit: UnitInstance, state: GameState): boolean {
-  return (
-    unit.gunpowderPanicUntilTurn !== undefined &&
-    unit.gunpowderPanicUntilTurn >= state.turnNumber
+  return state.activeModifiers.some(m => {
+    if (m.source !== 'status') return false;
+    if (!modifierApplies(m, unit, state)) return false;
+    return (m.effect.attackDice ?? 0) < 0;
+  });
+}
+
+/** True if this unit currently has a pilum-ready (single-attack) modifier. */
+export function hasPilumReadyMod(unit: UnitInstance, state: GameState): boolean {
+  return state.activeModifiers.some(m =>
+    m.source === 'ability' &&
+    m.duration.kind === 'single_attack' &&
+    !m.duration.consumed &&
+    m.sourceUnitId === unit.id
   );
 }
 
 /**
- * Apply Warcry activation to a germanic warrior.
- * +2 attack bonus & +1 move bonus for this turn; mark ability used; mark warcryActive.
+ * Warcry activation — emits a modifier for the source unit.
+ * Returns the updated state with the new modifier and the unit marked
+ * as having used its ability.
  */
-export function applyWarcry(unit: UnitInstance): UnitInstance {
-  return {
-    ...unit,
-    attackBonus: unit.attackBonus + 2,
-    moveBonus: unit.moveBonus + 1,
-    warcryActive: true,
-    specialAbilityUsed: true,
-  };
+export function applyWarcry(state: GameState, sourceUnit: UnitInstance): GameState {
+  const units = state.units.map(u =>
+    u.id === sourceUnit.id ? { ...u, specialAbilityUsed: true } : u
+  );
+  const newMod = makeWarcryModifier(sourceUnit);
+  return { ...state, units, activeModifiers: [...state.activeModifiers, newMod] };
+}
+
+/** Pilum activation — emits a single-attack modifier (+2 dice, +1 range). */
+export function applyPilumReady(state: GameState, sourceUnit: UnitInstance): GameState {
+  const units = state.units.map(u =>
+    u.id === sourceUnit.id ? { ...u, specialAbilityUsed: true } : u
+  );
+  const newMod = makePilumReadyModifier(sourceUnit);
+  return { ...state, units, activeModifiers: [...state.activeModifiers, newMod] };
 }
 
 /**
- * Apply Pilum activation — sets pilumReady so next attack can be ranged 1–2 with +2 dice.
- */
-export function applyPilumReady(unit: UnitInstance): UnitInstance {
-  return {
-    ...unit,
-    pilumReady: true,
-    specialAbilityUsed: true,
-  };
-}
-
-/**
- * Apply Ambush Signal: mark ability used, all same-faction units get +1 attackBonus this turn.
- * Also removes the 'ambush_hidden' scenario effect permanently (ambush is sprung).
+ * Ambush Signal: mark ability used; emit faction-wide +1 attack modifier
+ * for the rest of this turn; drop the 'ambush_hidden' scenario effect
+ * (ambush is sprung permanently).
  */
 export function applyAmbushSignal(state: GameState, source: UnitInstance): GameState {
-  const faction = source.faction;
-  const newUnits = state.units.map(u => {
-    if (u.id === source.id) {
-      return { ...u, specialAbilityUsed: true, attackBonus: u.attackBonus + 1 };
-    }
-    if (u.faction === faction) {
-      return { ...u, attackBonus: u.attackBonus + 1 };
-    }
-    return u;
-  });
+  const units = state.units.map(u =>
+    u.id === source.id ? { ...u, specialAbilityUsed: true } : u
+  );
+  const newMod = makeAmbushSignalModifier(source);
   const newEffects = state.activeScenarioEffects.filter(e => e.kind !== 'ambush_hidden');
-  return { ...state, units: newUnits, activeScenarioEffects: newEffects };
+  return {
+    ...state,
+    units,
+    activeScenarioEffects: newEffects,
+    activeModifiers: [...state.activeModifiers, newMod],
+  };
 }
 
 /**
  * Apply Betrayal: flip target condottiero to source's faction until end of source's turn.
- * Stores originalFaction via gunpowderPanicUntilTurn field is wrong — we use betrayedUntilTurn
- * and store origin via a parallel mechanism (in reducer we handle revert).
+ * Pure faction swap — not a dice modifier, so no ActiveModifier emission needed.
  */
 export function applyBetrayal(
   state: GameState,
@@ -129,9 +143,7 @@ export function applyBetrayal(
   return { ...state, units: newUnits };
 }
 
-/**
- * True if target is a valid adjacent enemy condottiero for Cesare's betrayal.
- */
+/** True if target is a valid adjacent enemy condottiero for Cesare's betrayal. */
 export function canBetray(source: UnitInstance, target: UnitInstance): boolean {
   return (
     target.faction !== source.faction &&
@@ -161,4 +173,3 @@ export function revertExpiredBetrayals(state: GameState): GameState {
   });
   return { ...state, units: newUnits };
 }
-

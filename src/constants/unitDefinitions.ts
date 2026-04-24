@@ -453,6 +453,18 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     attack: 4,
     maxHp: 5,
     namedHero: true,
+    // Inspirational aura — adjacent Cilicia defenders ignore one retreat result
+    auraEffect: {
+      descriptionCs: 'Inspirace Cateriny: sousední obránci ignorují ústup',
+      radius: 1,
+      targetFilter: {
+        faction: 'cilicia',
+        excludeSourceUnit: true,
+      },
+      effect: {
+        ignoresRetreat: true,
+      },
+    },
     nameCs: 'Caterina Sforza',
     abbrevCs: 'CS',
   },

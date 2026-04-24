@@ -5,9 +5,10 @@ import { rollDice } from '../utils/dice';
 import { generateId, chebyshevDistance, isCavalryType, isHeavyCavalryType } from '../utils/helpers';
 import { hasLOS } from './los';
 import { getRetreatPosition, getPanicRetreatPosition } from './movement';
-import { isChargingThisTurn, getVolleyBonus, hasGunpowderPanic } from './abilities';
+import { isChargingThisTurn, getVolleyBonus, hasPilumReadyMod } from './abilities';
 import { hasHeatDebuff } from './scenarioEffects';
 import { isHiddenFrom } from './visibility';
+import { getAttackDiceBonus, getRangeBonus, defenderIgnoresRetreat } from './modifiers';
 
 function getTerrainType(pos: { row: number; col: number }, state: GameState) {
   return (
@@ -128,15 +129,14 @@ export function resolveAttack(
   }
 
   // ── 1. Base dice count ──────────────────────────────────────────────────────
-  let diceCount = attackerDef.attack + attacker.attackBonus;
+  // Base = definition + card bonus + sum of all active modifiers
+  // (warcry, pilum, ambush signal, commander death, heat, gunpowder panic, etc.)
+  let diceCount = attackerDef.attack + attacker.attackBonus + getAttackDiceBonus(attacker, state);
 
-  // Pilum salva — if pilumReady & range 1–2, +2 dice (replaces normal attack)
-  const pilumConsumed = !isCounter && attacker.pilumReady && range >= 1 && range <= 2;
-  if (pilumConsumed) {
-    diceCount += 2;
-  }
+  // Pilum signal — track for log/flag purposes; dice bonus already in modifier.
+  const pilumConsumed = !isCounter && hasPilumReadyMod(attacker, state) && range >= 1 && range <= 2;
 
-  // ── 2. Archer moved penalty (not for counter-attacks) ───────────────────────
+  // ── 2. Archer moved penalty (not for counter-attacks, not if using pilum) ──
   if (attackerDef.movedAttackPenalty && attacker.hasMoved && !isCounter && !pilumConsumed) {
     diceCount = 1;
   }
@@ -188,16 +188,13 @@ export function resolveAttack(
   }
 
   // ── 4g. Heat debuff (Vercellae) ─────────────────────────────────────────────
+  // Kept as scenarioEffect (not dice modifier) so UI banner can show it
+  // separately from the unit modifier list.
   if (hasHeatDebuff(attacker, state)) {
     diceCount = Math.max(1, diceCount - 1);
   }
 
-  // ── 4h. Gunpowder panic debuff ──────────────────────────────────────────────
-  if (hasGunpowderPanic(attacker, state)) {
-    diceCount = Math.max(1, diceCount - 1);
-  }
-
-  // ── 4i. Pike wall reduces cavalry attack by 1 (formation deflects blows) ───
+  // ── 4h. Pike wall reduces cavalry attack by 1 (formation deflects blows) ───
   if (
     !isCounter &&
     range === 1 &&
@@ -244,6 +241,11 @@ export function resolveAttack(
   ).length;
   const supportBlocked = adjacentAllies >= 2 && retreats > 0;
   if (supportBlocked) {
+    retreats -= 1;
+  }
+
+  // ── 8c. Defender aura / modifier ignoresRetreat (Caterina) ──────────────────
+  if (defenderIgnoresRetreat(defender, state) && retreats > 0) {
     retreats -= 1;
   }
 
@@ -363,8 +365,9 @@ export function getValidAttackTargets(
   // Setup required: cannot attack on a turn the unit has moved
   if (def.setupRequired && attacker.hasMoved) return [];
 
-  // Pilum extends range to 2 for this attack
-  const rangeMax = attacker.pilumReady ? Math.max(2, def.rangeMax) : def.rangeMax;
+  // Range bonuses from modifiers (pilum +1 etc.) extend max range
+  const bonusRange = getRangeBonus(attacker, state);
+  const rangeMax = Math.max(def.rangeMax + bonusRange, def.rangeMax);
 
   const enemies = state.units.filter(u => u.faction !== attacker.faction);
 
@@ -416,8 +419,8 @@ export function resolveStructureAttack(
   state: GameState
 ): { hits: number; diceResults: number[]; diceCount: number } {
   const def = UNIT_DEFINITIONS[attacker.definitionType];
-  let diceCount = def.attack + attacker.attackBonus;
-  if (hasGunpowderPanic(attacker, state)) diceCount = Math.max(1, diceCount - 1);
+  // Base + card bonus + all active modifiers (gunpowder panic, warcry, pilum…)
+  let diceCount = def.attack + attacker.attackBonus + getAttackDiceBonus(attacker, state);
   if (def.movedAttackPenalty && attacker.hasMoved) diceCount = 1;
 
   const diceResults = rollDice(diceCount);
