@@ -22,4 +22,13 @@ export type GameAction =
   | { type: 'RESTART_GAME'; scenarioId?: string; campaignOverrides?: CampaignOverrides }
   | { type: 'SET_STATE'; state: GameState }
   // Campaign-mode: in-battle Supply token akce
-  | { type: 'APPLY_SUPPLY_BONUS'; kind: 'bonus_die' | 'reinforcement'; spawnFaction?: 'cilicia' | 'tamerlane' };
+  | {
+      type: 'APPLY_SUPPLY_BONUS';
+      kind:
+        | 'bonus_die'               // +1 attack die, faction-wide, 1 turn
+        | 'reinforcement'           // spawn 1 light_infantry in home row
+        | 'legionary_devotion'      // +1 attack die to all friendly units, 1 turn
+        | 'buried_archers'          // +3 attack dice for next attack (single_attack)
+        | 'guerrilla_ambush';       // +2 attack dice for next attack (single_attack)
+      spawnFaction?: 'cilicia' | 'tamerlane';
+    };

@@ -220,10 +220,42 @@ export function buildInitialState(scenarioId?: string, overrides?: CampaignOverr
       }
     }
 
-    // Průzkum (1 zás.): informativní — reveal pozic; v MVP jen tooltip ve SupplyPanelu
-    // Špion (3 zás.): odemkne free Peek (handled in SupplyPanel by checking purchases)
-    // Buried_archers (Dara 2 zás.), legionary_devotion (5 zás.): jednorázové bitevní akce
-    // — zatím neimplementováno, zobrazuje se jen jako "✓ zakoupeno" bez efektu
+    // ── Scénářové exkluzivní nákupy ─────────────────────────────────────
+
+    // Jan na levém křídle (Tricamarum): Jan Arménský +1 pohyb celou bitvu
+    if (overrides.purchases?.includes('jan_left_flank')) {
+      const jan = units.find(u => u.definitionType === 'jan_armenian');
+      if (jan) {
+        campaignModifiers.push({
+          id: generateId('mod_jan_flank'),
+          source: 'ability',
+          sourceUnitId: jan.id,
+          descriptionCs: 'Jan na levém křídle: +1 pohyb celou bitvu',
+          targetFilter: { unitIds: [jan.id] },
+          effect: { moveBonus: 1 },
+          duration: { kind: 'permanent' },
+        });
+      }
+    }
+
+    // Agentka v davu (Nika): první nalezený civilní dav má HP−2 (5 → 3 figurek)
+    if (overrides.purchases?.includes('agent_in_crowd')) {
+      const mob = units.find(
+        u => u.faction === 'tamerlane' && u.definitionType === 'civilian_mob'
+      );
+      if (mob) {
+        mob.hp = Math.max(1, mob.hp - 2);
+      }
+    }
+
+    // Průzkum (1 zás.): cosmetic — zobrazí se v SupplyPanelu, že má hráč
+    // info o nepříteli. Skutečná "reveal" už funguje implicitně (všechny
+    // jednotky jsou viditelné kromě ambush_forest).
+    // Špion (3 zás.): odemkne druhý Peek slot v SupplyPanelu.
+    // Buried_archers / legionary_devotion / guerrilla_network / secret_envoy:
+    // jednorázové bitevní akce, UI tlačítka v SupplyPanelu.
+    // Local_informant (Neapol 1 zás.): akvadukt je vždy viditelný jako terén,
+    // purchase je cosmetic (hráč ví, že ho může využít).
 
     // Difficulty bonus pro bota (tamerlane faction):
     //   easy: žádný bonus
