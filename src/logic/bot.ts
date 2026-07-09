@@ -9,7 +9,7 @@ import type { GameState, PlayerTurn } from '../types/game';
 import type { Position } from '../types/unit';
 import { CARD_DEFINITIONS } from '../constants/cardDefinitions';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
-import { canCardActivateUnit } from './cards';
+import { canCardActivateUnit, effectiveActivationCount } from './cards';
 import { getValidAttackTargets, getValidAttackTerrainTargets } from './combat';
 import { hasAvailableAbility, canBetray } from './abilities';
 import { hexDistance } from '../utils/hexGrid';
@@ -63,12 +63,10 @@ export function chooseBotCard(state: GameState, botFaction: PlayerTurn): string 
 
   for (const card of hand) {
     const def = CARD_DEFINITIONS[card.id];
-    const activatable = state.units.filter(
-      u => u.faction === botFaction &&
-           canCardActivateUnit(card, u, [], state) &&
-           !(u.sleepsUntilTurn !== undefined && state.turnNumber < u.sleepsUntilTurn)
-    );
-    let score = activatable.length * 10;
+    // Fallback karty (bez platných cílů) aktivují jen 1 jednotku — skóruj podle
+    // skutečné kapacity, ne podle počtu jednotek propuštěných fallbackem.
+    const activatableCount = effectiveActivationCount(card, state, botFaction);
+    let score = activatableCount * 10;
     score += def.attackBonus * (kilicieAggression ? 10 : 5);
     score += def.moveBonus * 3;
     // Cavalry Raid / General Offensive cards are high value
@@ -169,9 +167,7 @@ export function chooseBotDiscardCard(state: GameState, botFaction: PlayerTurn): 
 
   const scores = pending.map(card => {
     const def = CARD_DEFINITIONS[card.id];
-    const activatable = state.units.filter(
-      u => u.faction === botFaction && canCardActivateUnit(card, u, [], state)
-    ).length;
+    const activatable = effectiveActivationCount(card, state, botFaction);
     return { card, score: activatable * 10 + def.attackBonus * 5 + def.moveBonus * 3 };
   });
 

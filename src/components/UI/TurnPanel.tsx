@@ -3,6 +3,7 @@ import { useGame } from '../../state/GameContext';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { CARD_DEFINITIONS } from '../../constants/cardDefinitions';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
+import { isCardFallbackActive } from '../../logic/cards';
 import { RulesModal } from './RulesModal';
 
 function formatKillThreshold(n: number): string {
@@ -173,6 +174,11 @@ export function TurnPanel() {
           <div className="text-white text-xs font-bold">
             {CARD_DEFINITIONS[state.playedCard.id].nameCs}
           </div>
+          {state.currentPhase === 'activate_units' && isCardFallbackActive(state.playedCard, state) && (
+            <div className="text-amber-400 text-[10px] mt-1 leading-tight">
+              ⚠ Karta nemá platné cíle — můžeš místo toho aktivovat 1 libovolnou jednotku.
+            </div>
+          )}
           <div className="text-gray-400 text-[10px]">
             Aktivováno: {state.activatedUnitIds.length}/{
               Math.min(99, CARD_DEFINITIONS[state.playedCard.id].maxActivations)

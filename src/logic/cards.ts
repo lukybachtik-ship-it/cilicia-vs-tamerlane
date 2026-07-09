@@ -53,16 +53,25 @@ export function drawCards(
   return { drawn, newDeck: d, newDiscard: disc };
 }
 
+/** True if the unit is still asleep and cannot act this turn (Ascalon waves). */
+function isSleepingUnit(unit: UnitInstance, state: GameState): boolean {
+  return unit.sleepsUntilTurn !== undefined && state.turnNumber < unit.sleepsUntilTurn;
+}
+
 /**
- * Check whether the currently played card allows activating a given unit.
+ * Pure restriction check: does this unit satisfy the card's section and
+ * unit-type limits? (Ignores maxActivations / already-activated state.)
+ *
+ * Unit type filter — single source of truth v utils/helpers.ts
+ * (Karta „Jízdní zteč" aktivuje všechny jezdce včetně Belisaria, Bukelárií,
+ *  rytířů, nájezdníků, perské/vandalské/gotské jízdy a hunské hordy.)
  */
-export function canCardActivateUnit(
-  playedCard: CardInstance,
+function passesCardRestrictions(
+  def: (typeof CARD_DEFINITIONS)[CardId],
   unit: UnitInstance,
-  activatedIds: string[],
   state: GameState
 ): boolean {
-  const def = CARD_DEFINITIONS[playedCard.id];
+  if (isSleepingUnit(unit, state)) return false;
 
   // Section restriction
   if (def.sectionRestricted) {
@@ -74,9 +83,6 @@ export function canCardActivateUnit(
     }
   }
 
-  // Unit type filter — single source of truth v utils/helpers.ts
-  // (Karta „Jízdní zteč" aktivuje všechny jezdce včetně Belisaria, Bukelárií,
-  //  gendarmů, stradiotů, perské/vandalské/gotské jízdy a hunské hordy.)
   if (def.unitTypeFilter === 'cavalry') {
     if (!isCavalryType(unit.definitionType)) return false;
   }
@@ -92,6 +98,63 @@ export function canCardActivateUnit(
     // Jen jednotky na křídlech (mimo střed)
     if (getZone(unit.position.col) === 'center') return false;
   }
+
+  return true;
+}
+
+/**
+ * Fallback pravidlo: pokud zahraná karta nemá ŽÁDNOU jednotku, která by
+ * splnila její omezení (např. Jízdní zteč bez jediné jízdy, sekční karta
+ * s prázdnou sekcí), hráč smí místo toho aktivovat 1 libovolnou jednotku
+ * kdekoliv — karta tak nikdy nezasekne hru.
+ */
+export function isCardFallbackActive(playedCard: CardInstance, state: GameState): boolean {
+  const def = CARD_DEFINITIONS[playedCard.id];
+  return !state.units.some(
+    u => u.faction === state.currentPlayer && passesCardRestrictions(def, u, state)
+  );
+}
+
+/**
+ * Kolik jednotek karta reálně dokáže aktivovat (pro bot skórování a UI).
+ * Ve fallback režimu je to vždy 1.
+ */
+export function effectiveActivationCount(
+  playedCard: CardInstance,
+  state: GameState,
+  faction: GameState['currentPlayer']
+): number {
+  const def = CARD_DEFINITIONS[playedCard.id];
+  const eligible = state.units.filter(
+    u => u.faction === faction && passesCardRestrictions(def, u, state)
+  ).length;
+  if (eligible === 0) return state.units.some(u => u.faction === faction) ? 1 : 0;
+  return Math.min(eligible, def.maxActivations);
+}
+
+/**
+ * Check whether the currently played card allows activating a given unit.
+ */
+export function canCardActivateUnit(
+  playedCard: CardInstance,
+  unit: UnitInstance,
+  activatedIds: string[],
+  state: GameState
+): boolean {
+  const def = CARD_DEFINITIONS[playedCard.id];
+
+  // Unit must belong to current player and not be already activated/asleep
+  if (unit.faction !== state.currentPlayer) return false;
+  if (activatedIds.includes(unit.id)) return false;
+  if (isSleepingUnit(unit, state)) return false;
+
+  // Fallback: karta bez platných cílů → 1 libovolná jednotka kdekoliv
+  if (isCardFallbackActive(playedCard, state)) {
+    return activatedIds.length < 1;
+  }
+
+  if (!passesCardRestrictions(def, unit, state)) return false;
+
   if (def.unitTypeFilter === 'one_per_section') {
     // Coordinated Advance: at most 1 unit per section already activated
     const unitSection = getZone(unit.position.col);
@@ -104,12 +167,6 @@ export function canCardActivateUnit(
 
   // Max activations check
   if (activatedIds.length >= def.maxActivations) return false;
-
-  // Unit must belong to current player
-  if (unit.faction !== state.currentPlayer) return false;
-
-  // Unit must not already be activated
-  if (activatedIds.includes(unit.id)) return false;
 
   return true;
 }
