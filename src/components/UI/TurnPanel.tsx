@@ -18,7 +18,7 @@ const PHASE_LABELS: Record<string, string> = {
   move: '3. Pohyb',
   attack: '4. Útok',
   end_turn: '5. Konec tahu',
-  game_over: '🏆 Konec hry',
+  game_over: 'Konec hry',
 };
 
 
@@ -120,7 +120,7 @@ export function TurnPanel() {
       {scenario?.reinforcementWaves && scenario.reinforcementWaves.length > 0 && (
         <div className="bg-gray-800 rounded-lg p-2">
           <div className="text-orange-400 text-[10px] font-bold mb-1">
-            ⚔️ Posily {scenario.tamerlaneLabel}
+            Posily — {scenario.tamerlaneLabel}
           </div>
           {scenario.reinforcementWaves.map((wave, i) => {
             const arrived = state.turnNumber > wave.triggerAfterTurn;
@@ -152,7 +152,7 @@ export function TurnPanel() {
         return (
           <div className="bg-gray-800 rounded-lg p-2">
             <div className="text-orange-400 text-[10px] font-bold mb-1">
-              🔔 Turecké posily (probuzení)
+              Turecké posily (probuzení)
             </div>
             {turns.map(t => {
               const arrived = state.turnNumber >= t;
@@ -209,7 +209,7 @@ export function TurnPanel() {
             <div className="text-cyan-400 text-[10px]">🌲 Ignoruje terénní stop</div>
           )}
           {UNIT_DEFINITIONS[selectedUnit.definitionType].siegeBonus && (
-            <div className="text-orange-400 text-[10px]">🏰 +2 kostky vs. pevnost</div>
+            <div className="text-orange-400 text-[10px]">+2 kostky vs. pevnost</div>
           )}
           {selectedUnit.isActivated && (
             <div className="text-green-400 text-[10px]">✓ Aktivována</div>
@@ -218,7 +218,7 @@ export function TurnPanel() {
             <div className="text-orange-400 text-[10px]">↑ Pohybovala se</div>
           )}
           {selectedUnit.hasAttacked && (
-            <div className="text-purple-400 text-[10px]">⚔ Zaútočila</div>
+            <div className="text-purple-400 text-[10px]">Zaútočila</div>
           )}
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
-import { UNIT_ICONS } from '../../constants/unitIcons';
+import { UNIT_ICONS, UNIT_FRAMES, UNIT_FRAME_COLORS, getIconCategory } from '../../constants/unitIcons';
+import { IconStatMove, IconStatDice, IconStatRange, IconStatHp } from '../../constants/uiIcons';
 import { useGame } from '../../state/GameContext';
 import type { UnitType } from '../../types/unit';
 
@@ -61,14 +62,19 @@ export function UnitLegend() {
               const def = UNIT_DEFINITIONS[type];
               const icon = UNIT_ICONS[type];
               const faction = factionByType.get(type) ?? 'both';
+              const category = getIconCategory(type);
+              const frame = UNIT_FRAMES[category];
+              const isHeavy = def.unitClass === 'heavy';
               const ringColor =
-                faction === 'cilicia' ? '#3b82f6' :
-                faction === 'tamerlane' ? '#ef4444' :
+                faction === 'cilicia' ? UNIT_FRAME_COLORS.cilicia.stroke :
+                faction === 'tamerlane' ? UNIT_FRAME_COLORS.tamerlane.stroke :
                 '#a3a3a3';
               const bgColor =
-                faction === 'cilicia' ? '#1e3a8a' :
-                faction === 'tamerlane' ? '#7f1d1d' :
-                '#404040';
+                faction === 'cilicia'
+                  ? (isHeavy ? UNIT_FRAME_COLORS.cilicia.heavy : UNIT_FRAME_COLORS.cilicia.light)
+                  : faction === 'tamerlane'
+                    ? (isHeavy ? UNIT_FRAME_COLORS.tamerlane.heavy : UNIT_FRAME_COLORS.tamerlane.light)
+                    : '#404040';
 
               return (
                 <div
@@ -81,25 +87,24 @@ export function UnitLegend() {
                     height={ICON_SIZE}
                     viewBox={`${-ICON_R - 2} ${-ICON_R - 2} ${ICON_SIZE} ${ICON_SIZE}`}
                   >
-                    <circle
-                      cx={0} cy={0}
-                      r={ICON_R}
-                      fill={bgColor}
-                      stroke={ringColor}
-                      strokeWidth="1.5"
-                    />
-                    <g transform={`scale(${SCALE})`} style={{ pointerEvents: 'none' }}>
-                      {icon}
+                    <g transform={`scale(${SCALE})`}>
+                      <path d={frame.d} fill={bgColor} stroke={ringColor} strokeWidth={2} strokeLinejoin="round" />
+                      {isHeavy && (
+                        <path d={frame.inner} fill="none" stroke={ringColor} strokeWidth={1.3} opacity={0.7} />
+                      )}
+                      <g transform="translate(0,-1.5) scale(0.82)" style={{ pointerEvents: 'none' }}>
+                        {icon}
+                      </g>
                     </g>
                   </svg>
                   <span className="text-gray-300 text-[9px] font-semibold text-center leading-tight">
                     {def.nameCs}
                   </span>
-                  <div className="flex gap-1 text-[8px] text-gray-500">
-                    <span title="Pohyb">◈{def.move}</span>
-                    <span title="Útok">⚔{def.attack}</span>
-                    {def.rangeMax > 1 && <span title="Dosah">⟶{def.rangeMax}</span>}
-                    <span title="HP">♥{def.maxHp}</span>
+                  <div className="flex gap-1.5 text-[8px] text-gray-500 items-center">
+                    <span title="Pohyb" className="flex items-center gap-0.5"><IconStatMove size={9} />{def.move}</span>
+                    <span title="Útočné kostky" className="flex items-center gap-0.5"><IconStatDice size={9} />{def.attack}</span>
+                    {def.rangeMax > 1 && <span title="Dostřel" className="flex items-center gap-0.5"><IconStatRange size={9} />{def.rangeMax}</span>}
+                    <span title="HP" className="flex items-center gap-0.5"><IconStatHp size={9} />{def.maxHp}</span>
                   </div>
                 </div>
               );
@@ -108,12 +113,18 @@ export function UnitLegend() {
 
           <div className="mt-3 pt-2 border-t border-gray-700 text-[9px] text-gray-500 leading-relaxed">
             <div>
-              <span className="text-blue-400">● modrý kruh</span> = tvá strana,{' '}
-              <span className="text-red-400">● červený</span> = soupeř,{' '}
-              <span className="text-gray-400">● šedý</span> = obě strany
+              <span className="text-blue-400">● modrá</span> = tvá strana,{' '}
+              <span className="text-red-400">● červená</span> = soupeř,{' '}
+              <span className="text-gray-400">● šedá</span> = obě strany
             </div>
             <div className="mt-0.5">
-              Symboly: ◈ pohyb · ⚔ útočné kostky · ⟶ dostřel · ♥ HP (figurky)
+              Tvar rámu: čtverec pěchota · kosočtverec jízda · kruh střelci · šestiúhelník stroj — dvojitý rám = těžká jednotka
+            </div>
+            <div className="mt-0.5 flex items-center gap-2 flex-wrap">
+              <span className="flex items-center gap-0.5"><IconStatMove size={10} /> pohyb</span>
+              <span className="flex items-center gap-0.5"><IconStatDice size={10} /> útočné kostky</span>
+              <span className="flex items-center gap-0.5"><IconStatRange size={10} /> dostřel</span>
+              <span className="flex items-center gap-0.5"><IconStatHp size={10} /> HP</span>
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ import type { TerrainType } from '../../types/terrain';
 import type { Position } from '../../types/unit';
 import { canCardActivateUnit } from '../../logic/cards';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
-import { UNIT_ICONS } from '../../constants/unitIcons';
+import { UNIT_ICONS, UNIT_FRAMES, UNIT_FRAME_COLORS, getIconCategory } from '../../constants/unitIcons';
 import { isHiddenFrom } from '../../logic/visibility';
 import { hasAvailableAbility, hasGunpowderPanic, isChargingThisTurn, getVolleyBonus } from '../../logic/abilities';
 import { canBetray } from '../../logic/abilities';
@@ -36,10 +36,10 @@ import {
 const UNIT_R = 19;
 
 const TERRAIN_FILL: Record<TerrainType, string> = {
-  plain:            'url(#grad-plain)',
-  forest:           'url(#grad-forest)',
-  hill:             'url(#grad-hill)',
-  fortress:         'url(#grad-fortress)',
+  plain:            '#3e372c', // přepsáno šachovnicí (row+col)%2 níže
+  forest:           '#1d4a2a',
+  hill:             '#6e5124',
+  fortress:         '#4a5160',
   village:          'url(#grad-village)',
   tent:             'url(#grad-tent)',
   trench:           'url(#grad-trench)',
@@ -51,24 +51,6 @@ const TERRAIN_FILL: Record<TerrainType, string> = {
   gate:             '#5a4020',
   aqueduct_surface: '#9a9080',
   aqueduct_exit:    '#3a2818',
-};
-
-const TERRAIN_STROKE: Record<TerrainType, string> = {
-  plain:            '#4a4540',
-  forest:           '#2d5c33',
-  hill:             '#6b4f2e',
-  fortress:         '#666666',
-  village:          '#8B4513',
-  tent:             '#cc9900',
-  trench:           '#573920',
-  vineyard:         '#6b4a8f',
-  wall:             '#8d8477',
-  wagenburg:        '#7a5228',
-  ambush_forest:    '#1a4a25',
-  stream:           '#3b82f6',
-  gate:             '#3d2815',
-  aqueduct_surface: '#5c584e',
-  aqueduct_exit:    '#fbbf24',
 };
 
 // (terrain emoji map removed — using TerrainGlyph SVG component)
@@ -390,13 +372,22 @@ export function Board() {
           </marker>
         </defs>
 
+        {/* ── Board background ─────────────────────────────────────────── */}
+        <rect
+          x={0} y={0}
+          width={getSvgSize(state.gridRows, state.gridCols).width}
+          height={getSvgSize(state.gridRows, state.gridCols).height}
+          rx={8}
+          fill="#181410"
+        />
+
         {/* ── Zone labels ──────────────────────────────────────────────── */}
         {zoneLabels.map(z => (
           <text
             key={z.label}
             x={z.x} y={zoneLabelY}
             textAnchor="middle"
-            fontSize="10"
+            fontSize="12.5"
             fontWeight="bold"
             fill={z.color}
             style={{ pointerEvents: 'none' }}
@@ -426,9 +417,9 @@ export function Board() {
             const pts = hexPolygonPoints(x, y);
 
             const zoneTint: Record<string, string> = {
-              left:   'rgba(251,146,60,0.15)',
-              center: 'rgba(74,222,128,0.08)',
-              right:  'rgba(192,132,252,0.15)',
+              left:   'rgba(180,83,9,0.16)',
+              center: 'rgba(21,128,61,0.13)',
+              right:  'rgba(126,34,206,0.15)',
             };
 
             return (
@@ -442,9 +433,11 @@ export function Board() {
                 {/* Base terrain */}
                 <polygon
                   points={pts}
-                  fill={TERRAIN_FILL[terrain]}
-                  stroke={TERRAIN_STROKE[terrain]}
-                  strokeWidth={1}
+                  fill={terrain === 'plain'
+                    ? ((row + col) % 2 === 0 ? '#3e372c' : '#443c30')
+                    : TERRAIN_FILL[terrain]}
+                  stroke="#241f17"
+                  strokeWidth={1.4}
                 />
                 {/* Zone tint */}
                 <polygon
@@ -541,8 +534,9 @@ export function Board() {
                 <text
                   x={x - HEX_SIZE * 0.56}
                   y={y - HEX_SIZE * 0.72}
-                  fontSize="7"
-                  fill="rgba(156,163,175,0.5)"
+                  fontSize="5.5"
+                  fontFamily="ui-monospace, monospace"
+                  fill="rgba(255,255,255,0.28)"
                   style={{ pointerEvents: 'none' }}
                 >
                   {col},{row}
@@ -556,13 +550,13 @@ export function Board() {
         <line
           x1={sep1x} y1={HEX_MARGIN / 2}
           x2={sep1x} y2={getSvgSize(state.gridRows, state.gridCols).height - HEX_MARGIN / 2}
-          stroke="rgba(255,255,255,0.12)" strokeWidth={1} strokeDasharray="4,4"
+          stroke="rgba(255,255,255,0.35)" strokeWidth={1.2} strokeDasharray="5 6"
           style={{ pointerEvents: 'none' }}
         />
         <line
           x1={sep2x} y1={HEX_MARGIN / 2}
           x2={sep2x} y2={getSvgSize(state.gridRows, state.gridCols).height - HEX_MARGIN / 2}
-          stroke="rgba(255,255,255,0.12)" strokeWidth={1} strokeDasharray="4,4"
+          stroke="rgba(255,255,255,0.35)" strokeWidth={1.2} strokeDasharray="5 6"
           style={{ pointerEvents: 'none' }}
         />
 
@@ -611,14 +605,17 @@ export function Board() {
           const terrain   = getTerrainAt(unit.position.row, unit.position.col);
           const elevation = getTerrainElevation(unit.position.row, unit.position.col);
 
+          const category  = getIconCategory(unit.definitionType);
+          const frame     = UNIT_FRAMES[category];
+          const isHeavy   = def.unitClass === 'heavy';
+          const palette   = UNIT_FRAME_COLORS[isCilicia ? 'cilicia' : 'tamerlane'];
           const fill = isSleeping             ? '#374151'
             : isActivated                     ? '#14532d'
-            : isCilicia                       ? '#1e3a8a'
-            : '#7f1d1d';
+            : isHeavy                         ? palette.heavy
+            : palette.light;
           const stroke = isSleeping           ? '#6b7280'
             : isActivated                     ? '#22c55e'
-            : isCilicia                       ? '#3b82f6'
-            : '#ef4444';
+            : palette.stroke;
 
           const ringColor = isSelected     ? '#ffffff'
             : isBetrayalTarget             ? '#ffd46a'
@@ -626,22 +623,22 @@ export function Board() {
             : isEligible                   ? '#fbbf24'
             : null;
 
-          // HP dots (coordinates relative to unit origin 0,0)
-          const hpSpacing = 9;
-          const hpY_rel   = UNIT_R * 0.65 + 7;
+          // HP tečky uvnitř rámu (lokální souřadnice viewBoxu -19..19)
+          const hpSpacing = def.maxHp > 3 ? 3.4 : 4;
           const hpDots = Array.from({ length: def.maxHp }, (_, i) => {
             const filled   = i < unit.hp;
             const dotColor = !filled ? '#374151'
               : unit.hp === 3       ? '#4ade80'
               : unit.hp === 2       ? '#facc15'
-              : '#f87171';
+              : unit.hp === 1       ? '#f87171'
+              : '#4ade80';
             const dotX_rel = -((def.maxHp - 1) / 2) * hpSpacing + i * hpSpacing;
             return (
               <circle
                 key={i}
                 cx={dotX_rel}
-                cy={hpY_rel}
-                r={3.5}
+                cy={9.5}
+                r={1.5}
                 fill={dotColor}
                 style={{ pointerEvents: 'none' }}
               />
@@ -675,34 +672,41 @@ export function Board() {
                 />
               )}
 
-              {/* Unit body circle */}
-              <circle
-                cx={0} cy={0}
-                r={UNIT_R}
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={1.5}
-              />
-
-              {/* Unit type icon */}
-              <g style={{ pointerEvents: 'none' }}>
-                {UNIT_ICONS[unit.definitionType] ?? (
-                  <text
-                    x={0} y={-2}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize="11"
-                    fontWeight="bold"
-                    fill="white"
+              {/* Unit token — rám dle třídy + glyf zbraně + HP tečky */}
+              <g transform="scale(1.45)">
+                <path
+                  d={frame.d}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                />
+                {isHeavy && (
+                  <path
+                    d={frame.inner}
+                    fill="none"
+                    stroke={stroke}
+                    strokeWidth={1.3}
+                    opacity={0.7}
                     style={{ pointerEvents: 'none' }}
-                  >
-                    {def.abbrevCs}
-                  </text>
+                  />
                 )}
+                <g transform="translate(0,-1.5) scale(0.82)" style={{ pointerEvents: 'none' }}>
+                  {UNIT_ICONS[unit.definitionType] ?? (
+                    <text
+                      x={0} y={-2}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fontSize="11"
+                      fontWeight="bold"
+                      fill="white"
+                    >
+                      {def.abbrevCs}
+                    </text>
+                  )}
+                </g>
+                {hpDots}
               </g>
-
-              {/* HP dots */}
-              {hpDots}
 
               {/* Status: has moved — small orange dot */}
               {unit.hasMoved && (

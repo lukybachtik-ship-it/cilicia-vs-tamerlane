@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { IconAttack } from '../../constants/uiIcons';
 import { useGame } from '../../state/GameContext';
 import type { CombatLogEntry } from '../../types/game';
 
@@ -64,7 +65,7 @@ export function CombatLog() {
 
   return (
     <div className="flex flex-col gap-1 h-full">
-      <div className="text-gray-400 text-xs font-bold mb-1">⚔ Bojový deník</div>
+      <div className="text-gray-400 text-xs font-bold mb-1 flex items-center gap-1"><IconAttack size={12} /> Bojový deník</div>
       <div className="flex-1 overflow-y-auto flex flex-col gap-1.5 max-h-96">
         {log.length === 0 && (
           <div className="text-gray-600 text-xs text-center mt-4">Zatím žádné boje</div>

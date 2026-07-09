@@ -1,11 +1,12 @@
 import React from 'react';
 import { useGame } from '../../state/GameContext';
+import { IconCard, IconCheck, IconMove, IconAttack } from '../../constants/uiIcons';
 
 const PHASES = [
-  { id: 'play_card',      icon: '🃏', label: 'Karta' },
-  { id: 'activate_units', icon: '⚡', label: 'Aktivace' },
-  { id: 'move',           icon: '🚶', label: 'Pohyb' },
-  { id: 'attack',         icon: '⚔️',  label: 'Útok' },
+  { id: 'play_card',      icon: <IconCard size={12} />,   label: 'Karta' },
+  { id: 'activate_units', icon: <IconCheck size={12} />,  label: 'Aktivace' },
+  { id: 'move',           icon: <IconMove size={12} />,   label: 'Pohyb' },
+  { id: 'attack',         icon: <IconAttack size={12} />, label: 'Útok' },
 ];
 
 const PHASE_DESCRIPTIONS: Record<string, string> = {
@@ -47,7 +48,7 @@ export function PhaseIndicator() {
                   ${!isActive && !isDone ? 'bg-gray-800 text-gray-600' : ''}
                 `}
               >
-                <span>{p.icon}</span>
+                <span className="flex items-center">{p.icon}</span>
                 <span>{p.label}</span>
               </div>
               {i < PHASES.length - 1 && (

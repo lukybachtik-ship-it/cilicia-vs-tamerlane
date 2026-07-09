@@ -16,6 +16,7 @@ import { useBotPlayer } from '../hooks/useBotPlayer';
 import { playEndTurnSound } from '../utils/sounds';
 import { ALL_SCENARIOS } from '../constants/scenarios';
 import { SupplyPanel } from './Campaign/SupplyPanel';
+import { IconBot } from '../constants/uiIcons';
 
 const PHASE_HINTS: Record<string, string> = {
   play_card: 'Vyber kartu ze své ruky.',
@@ -30,12 +31,12 @@ const PHASE_HINTS: Record<string, string> = {
 };
 
 const OPPONENT_PHASE_LABELS: Record<string, string> = {
-  play_card:      '🃏 Vybírá kartu…',
-  select_section: '🃏 Vybírá sekci ofenzívy…',
-  discard_drawn:  '🃏 Zahodí průzkumnou kartu…',
-  activate_units: '⚡ Aktivuje jednotky…',
-  move:           '🚶 Pohybuje jednotkami…',
-  attack:         '⚔️ Útočí…',
+  play_card:      'Vybírá kartu…',
+  select_section: 'Vybírá sekci ofenzívy…',
+  discard_drawn:  'Zahodí průzkumnou kartu…',
+  activate_units: 'Aktivuje jednotky…',
+  move:           'Pohybuje jednotkami…',
+  attack:         'Útočí…',
 };
 
 export function Game() {
@@ -153,7 +154,7 @@ export function Game() {
         {isBot && state.currentPlayer === botPlayer && state.currentPhase !== 'game_over' && (
           <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center z-20 pointer-events-none">
             <div className="bg-gray-900 border border-purple-700 rounded-2xl px-8 py-5 text-center shadow-2xl min-w-56">
-              <div className="text-3xl mb-2 animate-pulse">🤖</div>
+              <div className="mb-2 animate-pulse flex justify-center text-purple-300"><IconBot size={34} /></div>
               <p className="text-gray-300 text-base font-semibold">Bot přemýšlí…</p>
               <p className={`text-sm font-bold mt-1 ${state.currentPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'}`}>
                 {currentLabel}

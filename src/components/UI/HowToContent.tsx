@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { RulesModal } from './RulesModal';
+import { IconCard, IconCheck, IconMove, IconAttack } from '../../constants/uiIcons';
 
 /**
  * How-to-play guide content — used both in ScenarioSelect (tab) and LobbyScreen (tutorial view).
@@ -26,13 +27,13 @@ export function HowToContent() {
           <h2 className="text-yellow-300 font-bold text-base mb-3">🔄 Průběh tahu</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
-              { icon: '🃏', num: '1', title: 'Zahraj kartu', desc: 'Zvol kartu z ruky. Karta určí, které jednotky a kolik jich můžeš aktivovat.' },
-              { icon: '⚡', num: '2', title: 'Aktivuj jednotky', desc: 'Klikni na žlutě označené jednotky (max. dle karty), pak "Potvrdit".' },
-              { icon: '🚶', num: '3', title: 'Pohyb', desc: 'Každá aktivovaná jednotka se může pohnout o svůj pohyb (hexů).' },
-              { icon: '⚔️', num: '4', title: 'Útok', desc: 'Zaútoč na sousední nebo vzdálené nepřátele. Pak ukonči tah.' },
+              { icon: <IconCard size={22} />,   num: '1', title: 'Zahraj kartu', desc: 'Zvol kartu z ruky. Karta určí, které jednotky a kolik jich můžeš aktivovat.' },
+              { icon: <IconCheck size={22} />,  num: '2', title: 'Aktivuj jednotky', desc: 'Klikni na žlutě označené jednotky (max. dle karty), pak "Potvrdit".' },
+              { icon: <IconMove size={22} />,   num: '3', title: 'Pohyb', desc: 'Každá aktivovaná jednotka se může pohnout o svůj pohyb (hexů).' },
+              { icon: <IconAttack size={22} />, num: '4', title: 'Útok', desc: 'Zaútoč na sousední nebo vzdálené nepřátele. Pak ukonči tah.' },
             ].map(step => (
               <div key={step.num} className="bg-gray-800 rounded-xl p-3 flex flex-col gap-1">
-                <div className="text-2xl">{step.icon}</div>
+                <div className="text-yellow-300">{step.icon}</div>
                 <div className="text-yellow-300 font-bold text-xs">{step.num}. {step.title}</div>
                 <div className="text-gray-400 text-[10px] leading-relaxed">{step.desc}</div>
               </div>
@@ -42,7 +43,7 @@ export function HowToContent() {
 
         {/* Cards */}
         <section>
-          <h2 className="text-yellow-300 font-bold text-base mb-2">🃏 Karty</h2>
+          <h2 className="text-yellow-300 font-bold text-base mb-2">Karty</h2>
           <div className="space-y-1.5 text-gray-300 text-xs">
             <div className="flex gap-2 items-start">
               <span className="text-orange-400 font-bold w-16 shrink-0">Levé/Střed/Pravé</span>
@@ -61,7 +62,7 @@ export function HowToContent() {
 
         {/* Combat */}
         <section>
-          <h2 className="text-yellow-300 font-bold text-base mb-2">⚔️ Boj — kostky</h2>
+          <h2 className="text-yellow-300 font-bold text-base mb-2">Boj — kostky</h2>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gray-800 rounded-lg p-3">
               <div className="text-blue-300 font-bold text-xs mb-2">vs. Lehká jednotka</div>
@@ -132,7 +133,7 @@ export function HowToContent() {
 
         {/* Victory */}
         <section>
-          <h2 className="text-yellow-300 font-bold text-base mb-2">🏆 Jak vyhrát</h2>
+          <h2 className="text-yellow-300 font-bold text-base mb-2">Jak vyhrát</h2>
           <p className="text-gray-300 text-xs leading-relaxed mb-2">
             Každý scénář má jiné podmínky vítězství (popsané v kartičce scénáře a na pravém panelu během hry):
           </p>
@@ -151,7 +152,7 @@ export function HowToContent() {
             onClick={() => setRulesOpen(true)}
             className="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-xs transition-colors"
           >
-            📖 Otevřít plná pravidla
+            Otevřít plná pravidla
           </button>
         </div>
       </div>

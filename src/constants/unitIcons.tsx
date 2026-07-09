@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { isCavalryType, isRangedType } from '../utils/helpers';
+
 const PI = { pointerEvents: 'none' as const };
 
 /**
@@ -745,3 +747,201 @@ export const UNIT_ICONS: Record<string, React.ReactNode> = {
     </>
   ),
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Nový ikonový systém (grafický redesign): tvar rámu = třída jednotky,
+// zbraň uvnitř = typ. Kreslené ve viewBoxu -19 -19 38 38 (střed 0,0).
+//   Čtverec → pěchota · Kosočtverec → jízda · Kruh → střelci · Šestiúhelník → stroj
+//   Těžká jednotka = dvojitý rám + tmavší výplň.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type IconCategory = 'infantry' | 'cavalry' | 'ranged' | 'machine';
+
+export const UNIT_ICON_CATEGORY: Record<string, IconCategory> = {
+  light_infantry: 'infantry', heavy_infantry: 'infantry', pikeman: 'infantry',
+  rodelero: 'infantry', elite_guard: 'infantry', scout: 'infantry',
+  militia: 'infantry',
+  light_cavalry: 'cavalry', heavy_cavalry: 'cavalry', gendarme: 'cavalry',
+  stradiot: 'cavalry', condottiero: 'cavalry', horse_archers: 'cavalry',
+  archers: 'ranged', crossbowman: 'ranged', arquebusier: 'ranged',
+  culverin: 'machine', siege_machine: 'machine',
+};
+
+/** Kategorie i pro kampaňové typy bez explicitního mapování. */
+export function getIconCategory(type: string): IconCategory {
+  const explicit = UNIT_ICON_CATEGORY[type];
+  if (explicit) return explicit;
+  if (isCavalryType(type)) return 'cavalry';
+  if (isRangedType(type)) return 'ranged';
+  return 'infantry';
+}
+
+/** Rámy: vnější path + vnitřní path (vnitřní kreslit jen u unitClass === 'heavy'). */
+export const UNIT_FRAMES: Record<IconCategory, { d: string; inner: string }> = {
+  infantry: {
+    d: 'M-12.5,-12.5 L12.5,-12.5 L12.5,12.5 L-12.5,12.5 Z',
+    inner: 'M-9.2,-9.2 L9.2,-9.2 L9.2,9.2 L-9.2,9.2 Z',
+  },
+  cavalry: {
+    d: 'M0,-15.5 L15.5,0 L0,15.5 L-15.5,0 Z',
+    inner: 'M0,-11.6 L11.6,0 L0,11.6 L-11.6,0 Z',
+  },
+  ranged: {
+    d: 'M-13,0 A13,13 0 1 0 13,0 A13,13 0 1 0 -13,0 Z',
+    inner: 'M-9.6,0 A9.6,9.6 0 1 0 9.6,0 A9.6,9.6 0 1 0 -9.6,0 Z',
+  },
+  machine: {
+    d: 'M14.5,0 L7.25,12.56 L-7.25,12.56 L-14.5,0 L-7.25,-12.56 L7.25,-12.56 Z',
+    inner: 'M11,0 L5.5,9.53 L-5.5,9.53 L-11,0 L-5.5,-9.53 L5.5,-9.53 Z',
+  },
+};
+
+/** Barvy rámu: fill dle strany + váhy, stroke dle strany. */
+export const UNIT_FRAME_COLORS = {
+  cilicia:   { light: '#2563eb', heavy: '#1e40af', stroke: '#93c5fd' },
+  tamerlane: { light: '#b91c1c', heavy: '#991b1b', stroke: '#fca5a5' },
+};
+
+/** Nové glyfy zbraní 16 veřejných typů — přepíší původní kresby. */
+const REDESIGNED_GLYPHS: Record<string, React.ReactNode> = {
+  // Meč diagonálně — lehká pěchota
+  light_infantry: (
+    <>
+      <line x1={-5.5} y1={5.5} x2={4.5} y2={-4.5} stroke="white" strokeWidth={2.2} strokeLinecap="round" style={PI} />
+      <line x1={0.6} y1={-4.4} x2={4.4} y2={-0.6} stroke="white" strokeWidth={1.8} strokeLinecap="round" style={PI} />
+      <circle cx={-6.3} cy={6.3} r={1.4} fill="white" style={PI} />
+    </>
+  ),
+  // Halapartna — těžká pěchota
+  heavy_infantry: (
+    <>
+      <line x1={0} y1={8.5} x2={0} y2={-6.5} stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+      <path d="M0,-7 Q-7,-7.5 -7,-2 Q-3.5,-3.5 0,-2 Z" fill="rgba(255,255,255,0.92)" stroke="white" strokeWidth={1} strokeLinejoin="round" style={PI} />
+      <polygon points="0,-10.5 -1.8,-7 1.8,-7" fill="white" style={PI} />
+    </>
+  ),
+  // Dvě piky — kopiník
+  pikeman: (
+    <>
+      <line x1={-3.5} y1={9} x2={-3.5} y2={-6.5} stroke="white" strokeWidth={1.8} strokeLinecap="round" style={PI} />
+      <polygon points="-3.5,-10 -5.3,-6.5 -1.7,-6.5" fill="white" style={PI} />
+      <line x1={3.5} y1={9} x2={3.5} y2={-6.5} stroke="white" strokeWidth={1.8} strokeLinecap="round" style={PI} />
+      <polygon points="3.5,-10 1.7,-6.5 5.3,-6.5" fill="white" style={PI} />
+    </>
+  ),
+  // Rodela + krátký meč — šermíř
+  rodelero: (
+    <>
+      <circle cx={-3} cy={0.5} r={5.5} fill="rgba(255,255,255,0.15)" stroke="white" strokeWidth={2} style={PI} />
+      <circle cx={-3} cy={0.5} r={1.5} fill="white" style={PI} />
+      <line x1={2.8} y1={6} x2={8.5} y2={0.3} stroke="white" strokeWidth={2.2} strokeLinecap="round" style={PI} />
+      <line x1={3.4} y1={2.6} x2={6.2} y2={5.4} stroke="white" strokeWidth={1.5} strokeLinecap="round" style={PI} />
+    </>
+  ),
+  // Svislý meč + jiskra — elitní garda
+  elite_guard: (
+    <>
+      <line x1={0} y1={8.5} x2={0} y2={-4.5} stroke="white" strokeWidth={2.2} strokeLinecap="round" style={PI} />
+      <line x1={-4} y1={-1.5} x2={4} y2={-1.5} stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+      <polygon points="0,-8.5 -2,-4.5 2,-4.5" fill="white" style={PI} />
+      <path d="M6.5,-8.5 l1,2 2,1 -2,1 -1,2 -1,-2 -2,-1 2,-1 Z" fill="white" style={PI} />
+    </>
+  ),
+  // Oko — zvěd
+  scout: (
+    <>
+      <ellipse cx={0} cy={0} rx={7} ry={4.6} fill="none" stroke="white" strokeWidth={2} style={PI} />
+      <circle cx={0} cy={0} r={2.2} fill="white" style={PI} />
+    </>
+  ),
+  // Dvojitý chevron — lehká jízda
+  light_cavalry: (
+    <>
+      <polyline points="-5.5,-5.5 1.5,0 -5.5,5.5" fill="none" stroke="white" strokeWidth={2.6} strokeLinejoin="round" strokeLinecap="round" style={PI} />
+      <polyline points="0,-6.5 7,0 0,6.5" fill="none" stroke="white" strokeWidth={1.8} strokeLinejoin="round" strokeLinecap="round" opacity={0.55} style={PI} />
+    </>
+  ),
+  // Svislé kopí — těžká jízda
+  heavy_cavalry: (
+    <>
+      <line x1={0} y1={9} x2={0} y2={-4.5} stroke="white" strokeWidth={2.4} strokeLinecap="round" style={PI} />
+      <polygon points="0,-9 -3,-4 3,-4" fill="white" style={PI} />
+      <line x1={-5} y1={0.5} x2={5} y2={0.5} stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+    </>
+  ),
+  // Kopí s praporkem — rytíř (gendarm)
+  gendarme: (
+    <>
+      <line x1={-7} y1={7} x2={6.5} y2={-6.5} stroke="white" strokeWidth={2.2} strokeLinecap="round" style={PI} />
+      <polygon points="8.2,-8.2 4.4,-7 7,-4.4" fill="white" style={PI} />
+      <path d="M1.2,-1.2 L7.5,-3 L3.5,2 Z" fill="white" style={PI} />
+    </>
+  ),
+  // Zakřivená šavle — nájezdník (stradiot)
+  stradiot: (
+    <>
+      <path d="M-6.5,5.5 Q0,-7.5 7,-3.5" fill="none" stroke="white" strokeWidth={2.4} strokeLinecap="round" style={PI} />
+      <polygon points="7.8,-3.2 4,-5.2 5,-1.4" fill="white" style={PI} />
+      <circle cx={-6.5} cy={5.5} r={1.6} fill="white" style={PI} />
+    </>
+  ),
+  // Meč + mince — žoldnéřská jízda (kondotiér)
+  condottiero: (
+    <>
+      <line x1={-4.5} y1={6.5} x2={5.5} y2={-3.5} stroke="white" strokeWidth={2.2} strokeLinecap="round" style={PI} />
+      <line x1={1.9} y1={-3.7} x2={5.3} y2={-0.3} stroke="white" strokeWidth={1.7} strokeLinecap="round" style={PI} />
+      <circle cx={-5.5} cy={-5.5} r={3} fill="none" stroke="white" strokeWidth={1.8} style={PI} />
+      <circle cx={-5.5} cy={-5.5} r={0.9} fill="white" style={PI} />
+    </>
+  ),
+  // Malý luk + šíp — jízdní lučištníci
+  horse_archers: (
+    <>
+      <path d="M-3,-6.5 Q5.5,0 -3,6.5" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+      <line x1={-3} y1={-6.5} x2={-3} y2={6.5} stroke="white" strokeWidth={1} opacity={0.5} style={PI} />
+      <line x1={-7} y1={0} x2={4} y2={0} stroke="white" strokeWidth={1.6} style={PI} />
+      <polygon points="5.5,0 1.8,-2.2 1.8,2.2" fill="white" style={PI} />
+    </>
+  ),
+  // Luk + šíp — střelci
+  archers: (
+    <>
+      <path d="M-1.5,-8 Q8.5,0 -1.5,8" fill="none" stroke="white" strokeWidth={2.4} strokeLinecap="round" style={PI} />
+      <line x1={-1.5} y1={-8} x2={-1.5} y2={8} stroke="white" strokeWidth={1.1} opacity={0.5} style={PI} />
+      <line x1={-7.5} y1={0} x2={5} y2={0} stroke="white" strokeWidth={1.7} style={PI} />
+      <polygon points="6.5,0 2.6,-2.4 2.6,2.4" fill="white" style={PI} />
+    </>
+  ),
+  // Kuše — kušiník
+  crossbowman: (
+    <>
+      <path d="M-7.5,-4.5 Q-7.5,-1 -3.5,-1" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+      <path d="M7.5,-4.5 Q7.5,-1 3.5,-1" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+      <line x1={-7.5} y1={-2.8} x2={7.5} y2={-2.8} stroke="white" strokeWidth={1.3} style={PI} />
+      <rect x={-1.7} y={-2.8} width={3.4} height={8.5} fill="white" style={PI} />
+      <rect x={-3.6} y={5.7} width={7.2} height={2.6} fill="white" style={PI} />
+      <line x1={0} y1={-2.8} x2={0} y2={-7} stroke="white" strokeWidth={1.6} style={PI} />
+      <polygon points="0,-9 -1.6,-6 1.6,-6" fill="white" style={PI} />
+    </>
+  ),
+  // Arkebuza — mušketýr
+  arquebusier: (
+    <>
+      <line x1={-6.5} y1={4.5} x2={7.5} y2={-3.5} stroke="white" strokeWidth={2.4} strokeLinecap="round" style={PI} />
+      <path d="M-9,7.5 L-5.5,7.5 L-4.5,4.5 L-8,3.2 Z" fill="white" style={PI} />
+      <line x1={7.5} y1={-3.5} x2={8.5} y2={-5.5} stroke="white" strokeWidth={2} strokeLinecap="round" style={PI} />
+      <line x1={-1.2} y1={1.6} x2={-0.2} y2={-1.6} stroke="white" strokeWidth={1.4} strokeLinecap="round" style={PI} />
+    </>
+  ),
+  // Dělová hlaveň + kolo — polní dělo
+  culverin: (
+    <>
+      <polygon points="-8,0 5.5,-5.8 7,-2.6 -6.5,3.2" fill="white" style={PI} />
+      <circle cx={0} cy={5} r={3.8} fill="none" stroke="white" strokeWidth={1.8} style={PI} />
+      <line x1={0} y1={1.4} x2={0} y2={8.6} stroke="white" strokeWidth={1} style={PI} />
+      <line x1={-3.6} y1={5} x2={3.6} y2={5} stroke="white" strokeWidth={1} style={PI} />
+    </>
+  ),
+};
+
+Object.assign(UNIT_ICONS, REDESIGNED_GLYPHS);

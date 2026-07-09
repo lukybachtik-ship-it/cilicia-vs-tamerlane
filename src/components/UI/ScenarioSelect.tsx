@@ -3,12 +3,7 @@ import { useGame } from '../../state/GameContext';
 import { getVisibleScenarios } from '../../constants/scenarios';
 import { APP_TITLE, APP_SUBTITLE, isAdminUnlocked } from '../../constants/branding';
 import { HowToContent } from './HowToContent';
-
-const SCENARIO_ICONS: Record<string, string> = {
-  standard:     '⚔️',
-  ankara:       '🏇',
-  breakthrough: '🏰',
-};
+import { ScenarioMiniMap, DifficultyPennant, difficultyText } from './ScenarioMiniMap';
 
 type Tab = 'scenarios' | 'howto';
 
@@ -40,8 +35,8 @@ export function ScenarioSelect() {
         {/* Tabs */}
         <div className="flex justify-center gap-1 mb-4 flex-shrink-0">
           {([
-            { id: 'scenarios', label: '⚔️ Scénáře' },
-            { id: 'howto',     label: '📖 Jak hrát' },
+            { id: 'scenarios', label: 'Scénáře' },
+            { id: 'howto',     label: 'Jak hrát' },
           ] as { id: Tab; label: string }[]).map(t => (
             <button
               key={t.id}
@@ -68,12 +63,13 @@ export function ScenarioSelect() {
                            border-gray-700 bg-gray-900 hover:border-blue-500 hover:bg-gray-800
                            hover:shadow-[0_0_24px_rgba(59,130,246,0.2)]"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl">{SCENARIO_ICONS[scenario.id] ?? '🗡'}</span>
+                <ScenarioMiniMap scenario={scenario} />
+                <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-white font-bold text-base leading-tight">{scenario.nameCs}</div>
-                    <div className="text-xs mt-0.5">{scenario.difficultyCs}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">{difficultyText(scenario.difficultyCs)}</div>
                   </div>
+                  <DifficultyPennant difficultyCs={scenario.difficultyCs} />
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {scenario.tags.map(tag => (
@@ -87,9 +83,9 @@ export function ScenarioSelect() {
                 <p className="text-gray-600 text-[10px] italic leading-relaxed border-t border-gray-800 pt-2">
                   {scenario.flavourCs}
                 </p>
-                <div className="flex justify-between text-[10px] text-gray-500">
-                  <span>🔵 {scenario.ciliciaLabel}: {scenario.ciliciaUnits.length} j.</span>
-                  <span>🔴 {scenario.tamerlaneLabel}: {scenario.tamerlaneUnits.length} j.</span>
+                <div className="flex justify-between text-[10px]">
+                  <span style={{ color: '#60a5fa' }}>{scenario.ciliciaLabel}: {scenario.ciliciaUnits.length} j.</span>
+                  <span style={{ color: '#f87171' }}>{scenario.tamerlaneLabel}: {scenario.tamerlaneUnits.length} j.</span>
                 </div>
                 <div className="mt-1 w-full text-center py-2 rounded-lg text-sm font-bold
                                 bg-gray-800 group-hover:bg-blue-600 text-gray-400 group-hover:text-white

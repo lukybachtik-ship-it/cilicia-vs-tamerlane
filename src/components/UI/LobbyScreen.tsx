@@ -7,18 +7,14 @@ import { buildInitialState } from '../../constants/scenarioSetup';
 import { getVisibleScenarios } from '../../constants/scenarios';
 import { APP_TITLE, APP_SUBTITLE, isAdminUnlocked, unlockAdmin, lockAdmin } from '../../constants/branding';
 import { HowToContent } from './HowToContent';
+import { ScenarioMiniMap, DifficultyPennant, difficultyText } from './ScenarioMiniMap';
+import { IconOnline, IconJoin, IconBot, IconHotseat, IconBook } from '../../constants/uiIcons';
 import { CampaignHub } from '../Campaign/CampaignHub';
 import { useCampaign } from '../../state/CampaignContext';
 
 import type { PlayerTurn } from '../../types/game';
 
 type LobbyView = 'home' | 'tutorial' | 'bot_setup' | 'create_scenario' | 'create_waiting' | 'join_input' | 'joining' | 'campaign_hub';
-
-const SCENARIO_ICONS: Record<string, string> = {
-  standard: '⚔️',
-  ankara: '🏇',
-  breakthrough: '🏰',
-};
 
 export function LobbyScreen() {
   const mp = useMultiplayer();
@@ -191,7 +187,7 @@ export function LobbyScreen() {
     return (
       <FullscreenContainer>
         <div className="text-center">
-          <div className="text-4xl mb-4 animate-pulse">🔗</div>
+          <div className="mb-4 animate-pulse flex justify-center text-green-400"><IconJoin size={40} /></div>
           <p className="text-gray-300 text-lg">Připojuji se k místnosti <span className="text-yellow-400 font-bold">{joinCode.toUpperCase()}</span>…</p>
         </div>
       </FullscreenContainer>
@@ -253,12 +249,18 @@ export function LobbyScreen() {
                            border-gray-700 bg-gray-900 hover:border-blue-500 hover:bg-gray-800
                            hover:shadow-[0_0_24px_rgba(59,130,246,0.2)] disabled:opacity-50"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl">{SCENARIO_ICONS[scenario.id] ?? '🗡'}</span>
+                <ScenarioMiniMap scenario={scenario} />
+                <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-white font-bold text-base leading-tight">{scenario.nameCs}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">{scenario.difficultyCs}</div>
+                    <div className="text-[11px] mt-0.5">
+                      <span style={{ color: '#60a5fa' }}>{scenario.ciliciaLabel}</span>
+                      <span className="text-gray-500"> proti </span>
+                      <span style={{ color: '#f87171' }}>{scenario.tamerlaneLabel}</span>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-0.5">{difficultyText(scenario.difficultyCs)}</div>
                   </div>
+                  <DifficultyPennant difficultyCs={scenario.difficultyCs} />
                 </div>
                 <p className="text-gray-400 text-xs leading-relaxed">{scenario.descriptionCs}</p>
                 <div className="mt-1 w-full text-center py-2 rounded-lg text-sm font-bold
@@ -288,7 +290,7 @@ export function LobbyScreen() {
     return (
       <FullscreenContainer>
         <div className="w-full max-w-sm text-center">
-          <div className="text-5xl mb-4">🔗</div>
+          <div className="mb-4 flex justify-center text-green-400"><IconJoin size={48} /></div>
           <h2 className="text-2xl font-bold text-white mb-2">Připojit se ke hře</h2>
           <p className="text-gray-400 text-sm mb-6">Zadej 6místný kód místnosti od prvního hráče.</p>
 
@@ -330,7 +332,7 @@ export function LobbyScreen() {
       <FullscreenContainer>
         <div className="w-full max-w-3xl mx-4 flex flex-col" style={{ maxHeight: '90vh' }}>
           <div className="flex items-center justify-between mb-4 flex-shrink-0">
-            <h2 className="text-2xl font-bold text-white">📖 Jak hrát</h2>
+            <h2 className="text-2xl font-bold text-white flex items-center justify-center gap-2"><span className="text-yellow-500"><IconBook size={26} /></span> Jak hrát</h2>
             <button onClick={() => setView('home')} className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
               ✕ Zavřít
             </button>
@@ -349,7 +351,7 @@ export function LobbyScreen() {
       <FullscreenContainer>
         <div className="w-full max-w-3xl mx-4">
           <div className="text-center mb-5">
-            <h2 className="text-2xl font-bold text-white">🤖 Hra s botem</h2>
+            <h2 className="text-2xl font-bold text-white flex items-center justify-center gap-2"><span className="text-purple-400"><IconBot size={26} /></span> Hra s botem</h2>
             <p className="text-gray-500 text-sm mt-1">Vyber svou stranu a scénář</p>
           </div>
 
@@ -369,13 +371,13 @@ export function LobbyScreen() {
                       : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-500'
                   }`}
                 >
-                  {side === 'cilicia' ? '🔵 Modrá strana' : '🔴 Červená strana'}
+                  <span className={side === 'cilicia' ? 'text-blue-400' : 'text-red-400'}>●</span> {side === 'cilicia' ? 'Modrá strana' : 'Červená strana'}
                   {botSide === side && <span className="text-[10px] opacity-70">(ty)</span>}
                 </button>
               ))}
             </div>
             <p className="text-gray-600 text-[10px] text-center mt-1">
-              Bot hraje za {botSide === 'cilicia' ? '🔴 červenou' : '🔵 modrou'} stranu.
+              Bot hraje za {botSide === 'cilicia' ? 'červenou' : 'modrou'} stranu.
               {' '}Modrá strana vždy hraje jako první.
             </p>
           </div>
@@ -390,12 +392,18 @@ export function LobbyScreen() {
                            border-gray-700 bg-gray-900 hover:border-purple-500 hover:bg-gray-800
                            hover:shadow-[0_0_24px_rgba(168,85,247,0.2)]"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{SCENARIO_ICONS[scenario.id] ?? '🗡'}</span>
+                <ScenarioMiniMap scenario={scenario} />
+                <div className="flex items-center justify-between gap-2">
                   <div>
                     <div className="text-white font-bold text-sm leading-tight">{scenario.nameCs}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">{scenario.difficultyCs}</div>
+                    <div className="text-[11px] mt-0.5">
+                      <span style={{ color: '#60a5fa' }}>{scenario.ciliciaLabel}</span>
+                      <span className="text-gray-500"> proti </span>
+                      <span style={{ color: '#f87171' }}>{scenario.tamerlaneLabel}</span>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-0.5">{difficultyText(scenario.difficultyCs)}</div>
                   </div>
+                  <DifficultyPennant difficultyCs={scenario.difficultyCs} />
                 </div>
                 <p className="text-gray-400 text-xs leading-relaxed">{scenario.descriptionCs}</p>
                 <div className="mt-auto w-full text-center py-1.5 rounded-lg text-xs font-bold
@@ -465,7 +473,7 @@ export function LobbyScreen() {
                        hover:border-blue-500 hover:bg-gray-800 hover:shadow-[0_0_24px_rgba(59,130,246,0.2)]
                        transition-all duration-200 text-left"
           >
-            <span className="text-3xl">🌐</span>
+            <span className="text-blue-400"><IconOnline size={30} /></span>
             <div>
               <div className="text-white font-bold">Vytvořit online hru</div>
               <div className="text-gray-500 text-xs">Hrát přes internet s druhým hráčem</div>
@@ -478,7 +486,7 @@ export function LobbyScreen() {
                        hover:border-green-500 hover:bg-gray-800 hover:shadow-[0_0_24px_rgba(34,197,94,0.2)]
                        transition-all duration-200 text-left"
           >
-            <span className="text-3xl">🔗</span>
+            <span className="text-green-400"><IconJoin size={30} /></span>
             <div>
               <div className="text-white font-bold">Připojit se ke hře</div>
               <div className="text-gray-500 text-xs">Zadat kód místnosti od soupeře</div>
@@ -491,7 +499,7 @@ export function LobbyScreen() {
                        hover:border-purple-500 hover:bg-gray-800 hover:shadow-[0_0_24px_rgba(168,85,247,0.2)]
                        transition-all duration-200 text-left"
           >
-            <span className="text-3xl">🤖</span>
+            <span className="text-purple-400"><IconBot size={30} /></span>
             <div>
               <div className="text-white font-bold">Hra s botem</div>
               <div className="text-gray-500 text-xs">Hrát proti počítačovému protivníkovi</div>
@@ -504,7 +512,7 @@ export function LobbyScreen() {
                        hover:border-gray-500 hover:bg-gray-800
                        transition-all duration-200 text-left"
           >
-            <span className="text-3xl">👥</span>
+            <span className="text-gray-300"><IconHotseat size={30} /></span>
             <div>
               <div className="text-white font-bold">Lokální hra (hotseat)</div>
               <div className="text-gray-500 text-xs">Dva hráči na jednom zařízení</div>
@@ -517,7 +525,7 @@ export function LobbyScreen() {
                        hover:border-yellow-600 hover:bg-gray-800 hover:shadow-[0_0_24px_rgba(202,138,4,0.15)]
                        transition-all duration-200 text-left"
           >
-            <span className="text-3xl">📖</span>
+            <span className="text-yellow-500"><IconBook size={30} /></span>
             <div>
               <div className="text-white font-bold">Jak hrát — návod</div>
               <div className="text-gray-500 text-xs">Pravidla, průběh tahu, boj, terén</div>

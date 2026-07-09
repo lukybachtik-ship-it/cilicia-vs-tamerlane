@@ -1,6 +1,7 @@
 import { useGame } from '../../state/GameContext';
 import { playSelectSound } from '../../utils/sounds';
 import { ALL_SCENARIOS } from '../../constants/scenarios';
+import { IconTrophy } from '../../constants/uiIcons';
 
 export function VictoryModal() {
   const { state, openScenarioSelect } = useGame();
@@ -20,7 +21,9 @@ export function VictoryModal() {
           ${isCilicia ? 'bg-blue-950 border-blue-500' : 'bg-red-950 border-red-500'}
         `}
       >
-        <div className="text-5xl mb-4">{isCilicia ? '🏰' : '⚔️'}</div>
+        <div className={`mb-4 flex justify-center ${isCilicia ? 'text-blue-300' : 'text-red-300'}`}>
+          <IconTrophy size={56} />
+        </div>
         <h2 className={`text-2xl font-bold mb-2 ${isCilicia ? 'text-blue-300' : 'text-red-300'}`}>
           {victorLabel} vítězí!
         </h2>
