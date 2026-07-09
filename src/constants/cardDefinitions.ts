@@ -14,7 +14,7 @@ export const CARD_DEFINITIONS: Record<CardId, CardDefinition> = {
     noMoveAllowed: false,
     scoutDraw: true,
     generalOffensive: false,
-    description: 'Aktivuj 1 jednotku na levém křídle. Dobeř 2 karty, zahod 1.',
+    description: 'Aktivuj 1 jednotku na levém křídle. Dober 2 karty, zahoď 1.',
   },
   scout_center: {
     id: 'scout_center',
@@ -29,7 +29,7 @@ export const CARD_DEFINITIONS: Record<CardId, CardDefinition> = {
     noMoveAllowed: false,
     scoutDraw: true,
     generalOffensive: false,
-    description: 'Aktivuj 1 jednotku ve středu. Dobeř 2 karty, zahod 1.',
+    description: 'Aktivuj 1 jednotku ve středu. Dober 2 karty, zahoď 1.',
   },
   scout_right: {
     id: 'scout_right',
@@ -44,7 +44,7 @@ export const CARD_DEFINITIONS: Record<CardId, CardDefinition> = {
     noMoveAllowed: false,
     scoutDraw: true,
     generalOffensive: false,
-    description: 'Aktivuj 1 jednotku na pravém křídle. Dobeř 2 karty, zahod 1.',
+    description: 'Aktivuj 1 jednotku na pravém křídle. Dober 2 karty, zahoď 1.',
   },
   skirmish_left: {
     id: 'skirmish_left',
@@ -211,6 +211,51 @@ export const CARD_DEFINITIONS: Record<CardId, CardDefinition> = {
     generalOffensive: true,
     description: 'Vyber 1 sekci. Všechny tvé jednotky v ní se mohou pohnout o 1 a zaútočit.',
   },
+  forced_march: {
+    id: 'forced_march',
+    nameCs: 'Nucený pochod',
+    category: 'tactical',
+    section: 'any',
+    maxActivations: 2,
+    unitTypeFilter: 'any',
+    sectionRestricted: false,
+    moveBonus: 2,
+    attackBonus: 0,
+    noMoveAllowed: false,
+    scoutDraw: false,
+    generalOffensive: false,
+    description: 'Aktivuj až 2 jednotky kdekoliv. Pohyb +2 — rychlý přesun přes bojiště.',
+  },
+  infantry_assault: {
+    id: 'infantry_assault',
+    nameCs: 'Pěchota vpřed',
+    category: 'tactical',
+    section: 'any',
+    maxActivations: 3,
+    unitTypeFilter: 'infantry',
+    sectionRestricted: false,
+    moveBonus: 1,
+    attackBonus: 0,
+    noMoveAllowed: false,
+    scoutDraw: false,
+    generalOffensive: false,
+    description: 'Aktivuj až 3 pěší jednotky kdekoliv (ne jízdu ani střelce). Pohyb +1.',
+  },
+  flank_maneuver: {
+    id: 'flank_maneuver',
+    nameCs: 'Obchvatný manévr',
+    category: 'tactical',
+    section: 'any',
+    maxActivations: 2,
+    unitTypeFilter: 'flanks',
+    sectionRestricted: false,
+    moveBonus: 1,
+    attackBonus: 1,
+    noMoveAllowed: false,
+    scoutDraw: false,
+    generalOffensive: false,
+    description: 'Aktivuj až 2 jednotky na křídlech (mimo střed). Pohyb +1, Útok +1.',
+  },
   // ── Campaign event cards ────────────────────────────────────────────────
   theodora_event: {
     id: 'theodora_event',
@@ -225,11 +270,11 @@ export const CARD_DEFINITIONS: Record<CardId, CardDefinition> = {
     noMoveAllowed: false,
     scoutDraw: true,       // „+1 karta" — využijeme existující scout mechaniku (draw 2, discard 1 → net +1)
     generalOffensive: false,
-    description: 'Theodořina inspirace: aktivuj 1 jednotku s +2 kostkami útoku a dobeř si další kartu.',
+    description: 'Theodořina inspirace: aktivuj 1 jednotku s +2 kostkami útoku a dober si další kartu.',
   },
 };
 
-// How many copies of each card in the shared deck (total 14 cards)
+// How many copies of each card in the shared deck (total 17 cards)
 export const DECK_COMPOSITION: Partial<Record<CardId, number>> = {
   scout_left: 1, scout_center: 1, scout_right: 1,
   skirmish_left: 1, skirmish_center: 1, skirmish_right: 1,
@@ -239,4 +284,7 @@ export const DECK_COMPOSITION: Partial<Record<CardId, number>> = {
   direct_fire: 1,
   inspiring_commander: 1,
   general_offensive: 1,
+  forced_march: 1,
+  infantry_assault: 1,
+  flank_maneuver: 1,
 };

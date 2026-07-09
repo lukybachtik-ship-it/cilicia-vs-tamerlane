@@ -83,6 +83,15 @@ export function canCardActivateUnit(
   if (def.unitTypeFilter === 'ranged') {
     if (!isRangedType(unit.definitionType)) return false;
   }
+  if (def.unitTypeFilter === 'infantry') {
+    // Pěší jednotky = vše, co není jízda ani střelec (kopiníci, šermíři,
+    // lehká/těžká pěchota, garda, milice, zvěd…)
+    if (isCavalryType(unit.definitionType) || isRangedType(unit.definitionType)) return false;
+  }
+  if (def.unitTypeFilter === 'flanks') {
+    // Jen jednotky na křídlech (mimo střed)
+    if (getZone(unit.position.col) === 'center') return false;
+  }
   if (def.unitTypeFilter === 'one_per_section') {
     // Coordinated Advance: at most 1 unit per section already activated
     const unitSection = getZone(unit.position.col);

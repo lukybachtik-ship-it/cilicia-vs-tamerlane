@@ -33,6 +33,11 @@ export function ScenarioLegend() {
   const hasAny = (pred: (u: UnitType) => boolean) =>
     unitTypes.some(t => pred(t));
 
+  // Ničení hradeb dává smysl jen tam, kde bořitelný terén skutečně je
+  const hasDestructibleTerrain = scenario.terrain.some(
+    t => t.terrain === 'wall' || t.terrain === 'gate' || t.terrain === 'wagenburg'
+  );
+
   const mechanicFlags = {
     pikeWall: hasAny(t => UNIT_DEFINITIONS[t].pikeWall),
     chargeRequires3Hex: hasAny(t => UNIT_DEFINITIONS[t].chargeRequires3Hex),
@@ -40,7 +45,7 @@ export function ScenarioLegend() {
     gunpowderWeapon: hasAny(t => UNIT_DEFINITIONS[t].gunpowderWeapon),
     setupRequired: hasAny(t => UNIT_DEFINITIONS[t].setupRequired),
     antiHeavyCavalry: hasAny(t => UNIT_DEFINITIONS[t].antiHeavyCavalry),
-    destroysWalls: hasAny(t => UNIT_DEFINITIONS[t].destroysWalls),
+    destroysWalls: hasAny(t => UNIT_DEFINITIONS[t].destroysWalls) && hasDestructibleTerrain,
     namedHero: hasAny(t => UNIT_DEFINITIONS[t].namedHero),
     hiddenInForest: hasAny(t => UNIT_DEFINITIONS[t].hiddenInForest),
   };
@@ -148,7 +153,7 @@ export function ScenarioLegend() {
               <li><b>Anti-jízda</b>: šermíř +1 kostka proti těžké jízdě / rytířům</li>
             )}
             {mechanicFlags.destroysWalls && (
-              <li><b>Ničení hradeb</b>: dělostřelectvo může ostřelovat zdi (klik na hex)</li>
+              <li><b>Ničení hradeb</b>: dělo může střílet přímo na hex hradby a probourat v ní průchod (hradba má vlastní HP)</li>
             )}
           </ul>
         </div>

@@ -409,7 +409,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     nameCs: 'Kušiník',
     abbrevCs: 'KU',
   },
-  // Kulverina — polní dělo; ničí hradby, range 1–5, setup required.
+  // Polní dělo — extrémní dostřel, slabší proti jednotkám (+2 vs pevnost/hradby); setup required.
   culverin: {
     ...DEFAULTS,
     type: 'culverin',
@@ -417,7 +417,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     move: 1,
     rangeMin: 2,
     rangeMax: 5,
-    attack: 4,
+    attack: 2,
     maxHp: 2,
     reducedMeleeDefense: true,
     meleeAttackPenalty: true,

@@ -19,7 +19,7 @@ function DiceTab() {
         <h3 className="text-yellow-300 font-bold mb-2">Výsledky hodu kostkou</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gray-700 rounded p-3">
-            <div className="text-blue-300 font-bold mb-1">Lehká jednotka (obranca)</div>
+            <div className="text-blue-300 font-bold mb-1">Lehká jednotka (obránce)</div>
             <div className="flex gap-1 mb-1">
               {[1, 2, 6].map(v => (
                 <span key={v} className="w-6 h-6 flex items-center justify-center bg-green-600 rounded text-xs font-bold">{v}</span>
@@ -38,7 +38,7 @@ function DiceTab() {
             </div>
           </div>
           <div className="bg-gray-700 rounded p-3">
-            <div className="text-red-300 font-bold mb-1">Těžká jednotka (obranca)</div>
+            <div className="text-red-300 font-bold mb-1">Těžká jednotka (obránce)</div>
             <div className="flex gap-1 mb-1">
               {[3, 4, 6].map(v => (
                 <span key={v} className="w-6 h-6 flex items-center justify-center bg-green-600 rounded text-xs font-bold">{v}</span>
@@ -63,9 +63,9 @@ function DiceTab() {
         <h3 className="text-yellow-300 font-bold mb-2">Průběh souboje</h3>
         <ol className="list-decimal list-inside space-y-1 text-gray-300 text-xs">
           <li>Útočník hází <span className="text-white">Útok</span> + bonusy kostek.</li>
-          <li>Penalizace: pohyb lukostřelce (jen 1 kostka), přímý souboj střelce (−1 kostka), terén obrancy (les/kopec/pevnost: −1 kostka útočníka).</li>
+          <li>Penalizace: pohyb lukostřelce (jen 1 kostka), přímý souboj střelce (−1 kostka), terén obránce (les/kopec/pevnost: −1 kostka útočníka).</li>
           <li>Výsledky se vyhodnotí podle třídy obrany.</li>
-          <li>Obranca provede <span className="text-purple-300">protiútok</span> (pokud přežil).</li>
+          <li>Obránce provede <span className="text-purple-300">protiútok</span> (pokud přežil a neustoupil).</li>
           <li>Modrá strana: pevnost/kopec obránci dává +1 kostku protiútoku.</li>
         </ol>
       </section>
@@ -73,7 +73,7 @@ function DiceTab() {
       <section>
         <h3 className="text-yellow-300 font-bold mb-2">Ústup & Zásah</h3>
         <ul className="space-y-1 text-gray-300 text-xs list-disc list-inside">
-          <li>1+ zásah → obranca ztratí 1 HP (nebo se stáhne, pokud HP sníží na 0).</li>
+          <li>Každý zásah → obránce ztratí 1 HP.</li>
           <li>Pevnost ignoruje první ústup (blokuje ho) a převede ho na zásah.</li>
           <li>Ústup: jednotka se posune 1 hex k vlastnímu kraji.</li>
           <li>Zničení: HP dosáhne 0 → jednotka odstraněna z hry.</li>
@@ -111,6 +111,7 @@ function UnitsTab() {
     if (u.antiHeavyCavalry)    s.push('+1 kostka proti těžké jízdě');
     if (u.setupRequired)       s.push('Nemůže střílet v tahu, kdy se pohnulo');
     if (u.siegeBonus)          s.push('+2 kostky proti pevnosti');
+    if (u.destroysWalls)       s.push('Ničí hradby — může střílet na hex hradby (ve scénářích s hradbami)');
     if (u.ignoresTerrainStop)  s.push('Nezastavuje v lese/pevnosti');
     if (u.reducedMeleeDefense) s.push('−1 kostka v protiútoku v přímém boji');
     if (u.movedAttackPenalty)  s.push('Pohyb → jen 1 kostka útoku');
@@ -152,7 +153,8 @@ function UnitsTab() {
 
 // ── Tab: Cards ────────────────────────────────────────────────────────────────
 function CardsTab() {
-  const cards = Object.values(CARD_DEFINITIONS);
+  // Kampaňové event karty (Theodora…) se v přehledu základní hry nezobrazují
+  const cards = Object.values(CARD_DEFINITIONS).filter(c => c.id !== 'theodora_event');
   const positional = cards.filter(c => c.category === 'positional');
   const tactical = cards.filter(c => c.category === 'tactical');
 
@@ -204,15 +206,15 @@ function TerrainTab() {
     },
     {
       icon: '🌲', name: 'Les', color: 'text-green-400',
-      desc: 'Pohyb se zastaví při vstupu. Blokuje výhled (nelze střílet skrz). Obranca: +1 obrana.',
+      desc: 'Pohyb se zastaví při vstupu. Blokuje výhled (nelze střílet skrz). Obránce: +1 obrana.',
     },
     {
       icon: '⛰', name: 'Kopec', color: 'text-yellow-600',
-      desc: 'Pohyb se zastaví při vstupu. Výšková výhoda blokuje výhled pro jednotky níže. Obranca na kopci: +1 obrana. Modrá strana: protiútok +1 kostka z kopce.',
+      desc: 'Pohyb se zastaví při vstupu. Výšková výhoda blokuje výhled pro jednotky níže. Obránce na kopci: +1 obrana. Modrá strana: protiútok +1 kostka z kopce.',
     },
     {
       icon: '🏰', name: 'Pevnost', color: 'text-gray-400',
-      desc: 'Jízda sem nemůže vstoupit. Pohyb se zastaví. Blokuje výhled. Obranca: +1 obrana a ignoruje první ústup (přemění ho na zásah). Modrá strana: protiútok +1 kostka z pevnosti.',
+      desc: 'Jízda sem nemůže vstoupit. Pohyb se zastaví. Blokuje výhled. Obránce: +1 obrana a ignoruje první ústup (přemění ho na zásah). Modrá strana: protiútok +1 kostka z pevnosti.',
     },
   ];
 
@@ -245,7 +247,7 @@ function TerrainTab() {
           <div className="bg-gray-700 rounded p-2.5">
             <div className="text-red-400 font-bold text-xs mb-1">🏰 Vítězství obsazením pevnosti</div>
             <div className="text-gray-400 text-xs">
-              Pokud tvá pěchota (lehká nebo těžká) stojí na <span className="text-gray-300">pevnosti</span> na konci kola, vítězíš okamžitě — platí ve scénářích, kde je to uvedeno jako cíl.
+              Obsaď <span className="text-gray-300">pevnost</span> pěchotou (lehkou nebo těžkou) a udrž ji přes celý soupeřův tah. Pokud tam tvá pěchota stojí i po jeho tahu, vítězíš — platí ve scénářích, kde je to uvedeno jako cíl.
             </div>
           </div>
         </div>

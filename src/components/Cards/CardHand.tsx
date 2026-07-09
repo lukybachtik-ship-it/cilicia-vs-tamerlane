@@ -20,7 +20,7 @@ export function CardHand() {
     return (
       <div className="flex flex-col gap-2">
         <div className="text-yellow-300 text-xs font-bold text-center">
-          Průzkum: Zahod 1 kartu
+          Průzkum: zahoď 1 kartu
         </div>
         <div className="flex flex-wrap gap-2 justify-center">
           {state.pendingDrawnCards.map(card => (

@@ -60,7 +60,7 @@ export interface ScenarioDefinition {
 export const SCENARIO_STANDARD: ScenarioDefinition = {
   id: 'standard',
   nameCs: 'Bitva u Fornova',
-  descriptionCs: 'Opevněný dvorec stojí uprostřed údolí řeky Taro. Kdo obsadí střed pěchotou, ovládne cestu na sever. Symetrická bitva vhodná pro první hru.',
+  descriptionCs: 'Opevněný dvorec stojí uprostřed údolí řeky Taro. Kdo ho obsadí pěchotou a udrží přes soupeřův tah, ovládne cestu na sever. Symetrická bitva vhodná pro první hru.',
   flavourCs: 'Červenec 1495. Francouzský král Karel VIII. táhne s neapolskou kořistí domů. V údolí Taro mu cestu zastoupila armáda Italské ligy — střetnutí rozhodne o osudu celé výpravy.',
   ciliciaLabel: 'Francouzi',
   tamerlaneLabel: 'Italská liga',
@@ -69,8 +69,8 @@ export const SCENARIO_STANDARD: ScenarioDefinition = {
   killThresholdCilicia: 4,
   killThresholdTamerlane: 4,
   turnLimit: null,
-  victoryObjectiveCiliciaCs: 'Obsadit pevnost pěchotou nebo zničit 4 nepřátele',
-  victoryObjectiveTamerlaneCs: 'Obsadit pevnost pěchotou nebo zničit 4 nepřátele',
+  victoryObjectiveCiliciaCs: 'Obsadit pevnost pěchotou a udržet ji přes soupeřův tah (nebo zničit 4 nepřátele)',
+  victoryObjectiveTamerlaneCs: 'Obsadit pevnost pěchotou a udržet ji přes soupeřův tah (nebo zničit 4 nepřátele)',
   terrain: [
     // Pevnost uprostřed bojiště
     { position: { row: 5, col: 5 }, terrain: 'fortress', elevation: 0 },
@@ -236,7 +236,7 @@ export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
     // Najatí gendarmové na křídlech (řada 9)
     { id: 'tam_hc_1',  definitionType: 'gendarme',       faction: 'tamerlane', position: { row: 9, col: 2 } },
     { id: 'tam_hi_1',  definitionType: 'pikeman',        faction: 'tamerlane', position: { row: 9, col: 4 } },
-    { id: 'tam_hi_2',  definitionType: 'pikeman',        faction: 'tamerlane', position: { row: 9, col: 5 } },
+    { id: 'tam_hi_2',  definitionType: 'arquebusier',    faction: 'tamerlane', position: { row: 8, col: 5 } }, // 3. mušketýr v řadě 8 → možná salva
     { id: 'tam_hi_3',  definitionType: 'pikeman',        faction: 'tamerlane', position: { row: 9, col: 6 } },
     { id: 'tam_hc_2',  definitionType: 'gendarme',       faction: 'tamerlane', position: { row: 9, col: 8 } },
     // Kulveriny + arkebuzíři (řada 8)

@@ -74,12 +74,18 @@ export function checkVictory(
 
   // ── Scenario-specific conditions ───────────────────────────────────────────
 
-  if (state.scenarioId === 'standard') {
-    // Either side's infantry on the central fortress wins
+  if (state.scenarioId === 'standard' && isEndOfTurn) {
+    // Fortress must be occupied by infantry AND HELD through the enemy's turn.
+    // Checked only at end of turn, and only for the player who is NOT ending
+    // their turn right now — their infantry survived the opponent's whole
+    // turn on the fortress, so the hold is complete.
     const fortress = state.terrain.find(t => t.terrain === 'fortress');
     if (fortress) {
+      const holderFaction: PlayerTurn =
+        state.currentPlayer === 'cilicia' ? 'tamerlane' : 'cilicia';
       const onFortress = state.units.find(
         u =>
+          u.faction === holderFaction &&
           u.position.row === fortress.position.row &&
           u.position.col === fortress.position.col &&
           (u.definitionType === 'light_infantry' ||
@@ -87,11 +93,13 @@ export function checkVictory(
             u.definitionType === 'elite_guard')
       );
       if (onFortress) {
-        const victor: PlayerTurn = onFortress.faction === 'cilicia' ? 'cilicia' : 'tamerlane';
-        const label = victor === 'cilicia'
+        const label = holderFaction === 'cilicia'
           ? (scenario?.ciliciaLabel ?? 'Modrá strana')
           : (scenario?.tamerlaneLabel ?? 'Červená strana');
-        return { victor, cause: `${label}: pěchota obsadila střed bojiště!` };
+        return {
+          victor: holderFaction,
+          cause: `${label}: pěchota obsadila střed bojiště a udržela ho přes soupeřův tah!`,
+        };
       }
     }
   }

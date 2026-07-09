@@ -12,7 +12,7 @@ function formatKillThreshold(n: number): string {
 const PHASE_LABELS: Record<string, string> = {
   play_card: '1. Zahraj kartu',
   select_section: '1b. Vyber sekci',
-  discard_drawn: '1c. Zahod kartu',
+  discard_drawn: '1c. Zahoď kartu',
   activate_units: '2. Aktivuj jednotky',
   move: '3. Pohyb',
   attack: '4. Útok',

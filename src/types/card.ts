@@ -7,12 +7,15 @@ export type CardId =
   | 'direct_fire'
   | 'inspiring_commander'
   | 'general_offensive'
+  | 'forced_march'
+  | 'infantry_assault'
+  | 'flank_maneuver'
   // Campaign event cards (scénář-triggered)
   | 'theodora_event';
 
 export type CardSection = 'left' | 'center' | 'right' | 'any';
 
-export type UnitTypeFilter = 'any' | 'cavalry' | 'ranged' | 'one_per_section';
+export type UnitTypeFilter = 'any' | 'cavalry' | 'ranged' | 'infantry' | 'flanks' | 'one_per_section';
 
 export interface CardDefinition {
   id: CardId;
