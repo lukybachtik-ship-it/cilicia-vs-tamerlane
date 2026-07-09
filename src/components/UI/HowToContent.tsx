@@ -14,8 +14,8 @@ export function HowToContent() {
         <section>
           <h2 className="text-yellow-300 font-bold text-base mb-2">🎯 Cíl hry</h2>
           <p className="text-gray-300 leading-relaxed">
-            Dvě strany — <span className="text-blue-400 font-semibold">Kilikie</span> a{' '}
-            <span className="text-red-400 font-semibold">Tamerlán</span> — bojují na hexagonální mapě.
+            Dvě strany — <span className="text-blue-400 font-semibold">modrá</span> a{' '}
+            <span className="text-red-400 font-semibold">červená</span> — bojují na hexagonální mapě.
             Hraješ karty, aktivuješ jednotky, pohybuješ s nimi a útočíš na nepřátele.
             Vyhraj splněním podmínek scénáře (zlikviduj dost nepřátel nebo splň cíl).
           </p>

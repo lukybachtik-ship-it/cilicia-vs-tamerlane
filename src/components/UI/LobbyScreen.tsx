@@ -4,7 +4,8 @@ import { useGame } from '../../state/GameContext';
 import { createRoom, joinRoom, getRoomState } from '../../services/multiplayerService';
 import { supabase } from '../../lib/supabase';
 import { buildInitialState } from '../../constants/scenarioSetup';
-import { ALL_SCENARIOS } from '../../constants/scenarios';
+import { getVisibleScenarios } from '../../constants/scenarios';
+import { APP_TITLE, APP_SUBTITLE, isAdminUnlocked, unlockAdmin, lockAdmin } from '../../constants/branding';
 import { HowToContent } from './HowToContent';
 import { CampaignHub } from '../Campaign/CampaignHub';
 import { useCampaign } from '../../state/CampaignContext';
@@ -31,7 +32,24 @@ export function LobbyScreen() {
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [botSide, setBotSide] = useState<PlayerTurn>('cilicia'); // human plays this side
+  const [adminUnlocked, setAdminUnlocked] = useState(isAdminUnlocked());
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const visibleScenarios = getVisibleScenarios(adminUnlocked);
+
+  function handleAdminToggle() {
+    if (adminUnlocked) {
+      lockAdmin();
+      setAdminUnlocked(false);
+      return;
+    }
+    const pw = window.prompt('Heslo dev režimu:');
+    if (pw && unlockAdmin(pw)) {
+      setAdminUnlocked(true);
+    } else if (pw !== null) {
+      window.alert('Nesprávné heslo.');
+    }
+  }
 
   // Clear session storage once consumed
   useEffect(() => {
@@ -221,7 +239,7 @@ export function LobbyScreen() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            {ALL_SCENARIOS.filter(s => !s.isCampaignScenario).map(scenario => (
+            {visibleScenarios.map(scenario => (
               <button
                 key={scenario.id}
                 onClick={() => handleCreateGame(scenario.id)}
@@ -346,20 +364,20 @@ export function LobbyScreen() {
                       : 'border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-500'
                   }`}
                 >
-                  {side === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'}
+                  {side === 'cilicia' ? '🔵 Modrá strana' : '🔴 Červená strana'}
                   {botSide === side && <span className="text-[10px] opacity-70">(ty)</span>}
                 </button>
               ))}
             </div>
             <p className="text-gray-600 text-[10px] text-center mt-1">
-              Bot hraje za {botSide === 'cilicia' ? '🔴 Tamerlána' : '🔵 Kilikiję'}.
-              {' '}Kilikie vždy hraje jako první.
+              Bot hraje za {botSide === 'cilicia' ? '🔴 červenou' : '🔵 modrou'} stranu.
+              {' '}Modrá strana vždy hraje jako první.
             </p>
           </div>
 
           {/* Scenario selection */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-            {ALL_SCENARIOS.filter(s => !s.isCampaignScenario).map(scenario => (
+            {visibleScenarios.map(scenario => (
               <button
                 key={scenario.id}
                 onClick={() => handleBotGame(scenario.id)}
@@ -400,14 +418,13 @@ export function LobbyScreen() {
       <div className="w-full max-w-md text-center">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-1 tracking-wide">
-            ⚔ <span className="text-blue-400">Kilikie</span>
-            <span className="text-gray-500 text-2xl mx-3">vs</span>
-            <span className="text-red-400">Tamerlán</span>
+            ⚔ <span className="text-amber-300">{APP_TITLE}</span>
           </h1>
-          <p className="text-gray-500 text-sm">Taktická tahová válečná hra</p>
+          <p className="text-gray-500 text-sm">{APP_SUBTITLE}</p>
         </div>
 
         <div className="flex flex-col gap-3">
+          {adminUnlocked && (
           <button
             onClick={handleCampaign}
             className="flex items-center gap-4 p-5 rounded-2xl border-2 border-amber-600 bg-gradient-to-r from-amber-950/40 to-amber-900/20
@@ -435,6 +452,7 @@ export function LobbyScreen() {
               {campaignCtx.campaign ? 'POKRAČOVAT' : 'NOVÉ'}
             </div>
           </button>
+          )}
 
           <button
             onClick={() => setView('create_scenario')}
@@ -502,7 +520,17 @@ export function LobbyScreen() {
           </button>
         </div>
 
-        <p className="text-gray-700 text-xs mt-8">Command &amp; Colors inspired · Hex-based tactics · Czech UI</p>
+        <p className="text-gray-700 text-xs mt-8">
+          Command &amp; Colors inspired · Hex-based tactics · Czech UI
+          {' '}
+          <button
+            onClick={handleAdminToggle}
+            className="text-gray-800 hover:text-gray-500 transition-colors ml-1"
+            title={adminUnlocked ? 'Zamknout dev režim' : 'Dev režim'}
+          >
+            {adminUnlocked ? '🔓' : '·'}
+          </button>
+        </p>
       </div>
     </FullscreenContainer>
   );

@@ -61,8 +61,8 @@ export function TurnPanel() {
           }`}
         >
           {state.currentPlayer === 'cilicia'
-            ? (scenario?.ciliciaLabel ?? 'Kilikie')
-            : (scenario?.tamerlaneLabel ?? 'Tamerlán')} hraje
+            ? (scenario?.ciliciaLabel ?? 'Modrá strana')
+            : (scenario?.tamerlaneLabel ?? 'Červená strana')} hraje
         </div>
         <div className="text-yellow-300 text-xs">
           {PHASE_LABELS[state.currentPhase]}
@@ -94,14 +94,14 @@ export function TurnPanel() {
         </div>
         <div className="flex justify-between text-center">
           <div>
-            <div className="text-blue-400 text-[10px]">{scenario?.ciliciaLabel ?? 'Kilikie'}</div>
+            <div className="text-blue-400 text-[10px]">{scenario?.ciliciaLabel ?? 'Modrá strana'}</div>
             <div className="text-white font-bold text-lg leading-tight">
               {tamerlaneLosses}/{formatKillThreshold(scenario?.killThresholdTamerlane ?? 5)}
             </div>
           </div>
           <div className="text-gray-500 self-center text-xs">vs</div>
           <div>
-            <div className="text-red-400 text-[10px]">{scenario?.tamerlaneLabel ?? 'Tamerlán'}</div>
+            <div className="text-red-400 text-[10px]">{scenario?.tamerlaneLabel ?? 'Červená strana'}</div>
             <div className="text-white font-bold text-lg leading-tight">
               {ciliciaLosses}/{formatKillThreshold(scenario?.killThresholdCilicia ?? 5)}
             </div>

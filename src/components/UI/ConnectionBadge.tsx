@@ -1,5 +1,6 @@
 import { useMultiplayer } from '../../state/MultiplayerContext';
 import { useGame } from '../../state/GameContext';
+import { getFactionLabel } from '../../constants/scenarios';
 
 export function ConnectionBadge() {
   const { mode, roomCode, myPlayer, connectionStatus, leaveGame } = useMultiplayer();
@@ -17,7 +18,7 @@ export function ConnectionBadge() {
       <span className="text-gray-300 font-mono font-bold">{roomCode}</span>
       <span className="text-gray-500">|</span>
       <span className={myPlayer === 'cilicia' ? 'text-blue-400' : 'text-red-400'}>
-        {myPlayer === 'cilicia' ? '🔵 Kilikie' : '🔴 Tamerlán'}
+        {myPlayer === 'cilicia' ? '🔵' : '🔴'} {myPlayer ? getFactionLabel(state.scenarioId, myPlayer) : ''}
       </span>
       {connectionStatus === 'connected' && (
         <>

@@ -5,6 +5,7 @@ import { rollDice } from '../utils/dice';
 import { generateId, chebyshevDistance, isCavalryType, isHeavyCavalryType } from '../utils/helpers';
 import { hasLOS } from './los';
 import { getRetreatPosition, getPanicRetreatPosition } from './movement';
+import { getFactionLabel } from '../constants/scenarios';
 import { isChargingThisTurn, getVolleyBonus, hasPilumReadyMod } from './abilities';
 import { hasHeatDebuff } from './scenarioEffects';
 import { isHiddenFrom } from './visibility';
@@ -95,8 +96,8 @@ export function resolveAttack(
     const logEntry: CombatLogEntry = {
       id: generateId('combat'),
       turn: state.turnNumber,
-      attackerName: `${attackerDef.nameCs} (${attacker.faction === 'cilicia' ? 'Kilikie' : 'Tamerlán'})`,
-      defenderName: `${defenderDef.nameCs} (${defender.faction === 'cilicia' ? 'Kilikie' : 'Tamerlán'})`,
+      attackerName: `${attackerDef.nameCs} (${getFactionLabel(state.scenarioId, attacker.faction)})`,
+      defenderName: `${defenderDef.nameCs} (${getFactionLabel(state.scenarioId, defender.faction)})`,
       diceCount: 0,
       diceResults: [],
       hits: 0,
@@ -283,8 +284,8 @@ export function resolveAttack(
   const logEntry: CombatLogEntry = {
     id: generateId('combat'),
     turn: state.turnNumber,
-    attackerName: `${attackerDef.nameCs} (${attacker.faction === 'cilicia' ? 'Kilikie' : 'Tamerlán'})`,
-    defenderName: `${defenderDef.nameCs} (${defender.faction === 'cilicia' ? 'Kilikie' : 'Tamerlán'})`,
+    attackerName: `${attackerDef.nameCs} (${getFactionLabel(state.scenarioId, attacker.faction)})`,
+    defenderName: `${defenderDef.nameCs} (${getFactionLabel(state.scenarioId, defender.faction)})`,
     diceCount,
     diceResults,
     hits,

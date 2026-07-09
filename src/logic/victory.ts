@@ -48,7 +48,7 @@ export function checkVictory(
       const winner: PlayerTurn = faction === 'cilicia' ? 'tamerlane' : 'cilicia';
       return {
         victor: winner,
-        cause: `Hrdina padl — ${faction === 'cilicia' ? (scenario?.ciliciaLabel ?? 'Kilikie') : (scenario?.tamerlaneLabel ?? 'Tamerlán')} se hroutí bez vůdce!`,
+        cause: `Hrdina padl — ${faction === 'cilicia' ? (scenario?.ciliciaLabel ?? 'Modrá strana') : (scenario?.tamerlaneLabel ?? 'Červená strana')} se hroutí bez vůdce!`,
       };
     }
   }
@@ -61,14 +61,14 @@ export function checkVictory(
   if (state.scenarioId !== 'kilicie_uprising' && ciliciaLosses >= killCilicia) {
     return {
       victor: 'tamerlane',
-      cause: `${scenario?.tamerlaneLabel ?? 'Tamerlán'} zničil ${killCilicia} nepřátelských jednotek!`,
+      cause: `${scenario?.tamerlaneLabel ?? 'Červená strana'}: zničeno ${killCilicia} nepřátelských jednotek — vítězství!`,
     };
   }
   // Kilikie může vyhrát zabitím nepřátel v každém scénáři
   if (tamerlaneLosses >= killTamerlane) {
     return {
       victor: 'cilicia',
-      cause: `${scenario?.ciliciaLabel ?? 'Kilikie'} zničila ${killTamerlane} nepřátelských jednotek!`,
+      cause: `${scenario?.ciliciaLabel ?? 'Modrá strana'}: zničeno ${killTamerlane} nepřátelských jednotek — vítězství!`,
     };
   }
 
@@ -89,8 +89,8 @@ export function checkVictory(
       if (onFortress) {
         const victor: PlayerTurn = onFortress.faction === 'cilicia' ? 'cilicia' : 'tamerlane';
         const label = victor === 'cilicia'
-          ? (scenario?.ciliciaLabel ?? 'Kilikie')
-          : (scenario?.tamerlaneLabel ?? 'Tamerlán');
+          ? (scenario?.ciliciaLabel ?? 'Modrá strana')
+          : (scenario?.tamerlaneLabel ?? 'Červená strana');
         return { victor, cause: `${label}: pěchota obsadila střed bojiště!` };
       }
     }
@@ -107,7 +107,7 @@ export function checkVictory(
     if (encirclingCavalry.length >= 2) {
       return {
         victor: 'tamerlane',
-        cause: `${scenario?.tamerlaneLabel ?? 'Mongolové'} obklíčili koalici! (${encirclingCavalry.length} jezdci v týlu)`,
+        cause: `${scenario?.tamerlaneLabel ?? 'Červená strana'}: obklíčení dokonáno! (${encirclingCavalry.length} jezdci v týlu)`,
       };
     }
 
@@ -121,7 +121,7 @@ export function checkVictory(
     ) {
       return {
         victor: 'cilicia',
-        cause: `${scenario?.ciliciaLabel ?? 'Koalice'} přežila ${scenario.turnLimit} tahů!`,
+        cause: `${scenario?.ciliciaLabel ?? 'Modrá strana'}: přežito ${scenario.turnLimit} tahů — ústup se zdařil!`,
       };
     }
   }
@@ -141,7 +141,7 @@ export function checkVictory(
       if (allOccupied) {
         return {
           victor: 'tamerlane',
-          cause: `${scenario?.tamerlaneLabel ?? 'Útočníci'} obsadili obě pevnosti!`,
+          cause: `${scenario?.tamerlaneLabel ?? 'Červená strana'}: obě pevnosti obsazeny!`,
         };
       }
     }
@@ -156,7 +156,7 @@ export function checkVictory(
     ) {
       return {
         victor: 'cilicia',
-        cause: `${scenario?.ciliciaLabel ?? 'Obránci'} ubránili pevnosti po ${scenario.turnLimit} tahů!`,
+        cause: `${scenario?.ciliciaLabel ?? 'Modrá strana'}: pevnosti ubráněny po ${scenario.turnLimit} tahů!`,
       };
     }
   }

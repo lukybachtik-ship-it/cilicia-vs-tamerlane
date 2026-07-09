@@ -37,6 +37,8 @@ export interface ScenarioDefinition {
   tags: string[];
   /** Hide from the standard scenario picker (accessible only via Campaign mode). */
   isCampaignScenario?: boolean;
+  /** Skrytý před hráči — zobrazí se jen v odemčeném dev režimu (viz branding.ts). */
+  hidden?: boolean;
   // Grid dimensions (default 9×9 if omitted)
   gridRows?: number;
   gridCols?: number;
@@ -53,15 +55,15 @@ export interface ScenarioDefinition {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Scénář 1: Bitva o střed
+// Scénář 1: Bitva u Fornova (1495)
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_STANDARD: ScenarioDefinition = {
   id: 'standard',
-  nameCs: 'Bitva o střed',
-  descriptionCs: 'Pevnost stojí uprostřed bojiště. Kdo obsadí střed pěchotou, zvítězí. Symetrická bitva vhodná pro první hru.',
-  flavourCs: 'Arménské království Kilikie čelí náporu Tamerlánových mongolských hord na otevřeném poli.',
-  ciliciaLabel: 'Kilikie',
-  tamerlaneLabel: 'Tamerlán',
+  nameCs: 'Bitva u Fornova',
+  descriptionCs: 'Opevněný dvorec stojí uprostřed údolí řeky Taro. Kdo obsadí střed pěchotou, ovládne cestu na sever. Symetrická bitva vhodná pro první hru.',
+  flavourCs: 'Červenec 1495. Francouzský král Karel VIII. táhne s neapolskou kořistí domů. V údolí Taro mu cestu zastoupila armáda Italské ligy — střetnutí rozhodne o osudu celé výpravy.',
+  ciliciaLabel: 'Francouzi',
+  tamerlaneLabel: 'Italská liga',
   difficultyCs: '⚖️ Vyvážená',
   tags: ['výchozí', 'vyvážená'],
   killThresholdCilicia: 4,
@@ -115,16 +117,16 @@ export const SCENARIO_STANDARD: ScenarioDefinition = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Scénář 2: Obklíčení u Ankary (1402)
+// Scénář 2: Ústup od Garigliana (1503)
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_ANKARA: ScenarioDefinition = {
   id: 'ankara',
-  nameCs: 'Obklíčení u Ankary',
-  descriptionCs: 'Kilikie drží pevnost jako štáb. Tamerlán útočí masivní jízdou na obou křídlech a snaží se obklíčit koalici. Kilikie musí přežít 12 tahů.',
-  flavourCs: '28. července 1402. Tamerlánovy mongolské hordy obklíčily osmansko-cilickou koalici u Ankary. Mongolské jezdectvo hrozí totálním obklíčením.',
-  ciliciaLabel: 'Koalice',
-  tamerlaneLabel: 'Mongolové',
-  difficultyCs: '🔴 Těžká pro Koalici',
+  nameCs: 'Ústup od Garigliana',
+  descriptionCs: 'Francouzi drží opevněný tábor a musí přežít 12 tahů. Španělé útočí rychlou jízdou na obou křídlech a snaží se ústup proměnit v obklíčení.',
+  flavourCs: 'Prosinec 1503. Gonzalo de Córdoba nečekaně překročil rozvodněnou řeku Garigliano. Francouzská armáda se v dešti a blátě stahuje ke Gaetě — španělská lehká jízda jí visí v zádech.',
+  ciliciaLabel: 'Francouzi',
+  tamerlaneLabel: 'Španělé',
+  difficultyCs: '🔴 Těžká pro Francouze',
   tags: ['historická', 'asymetrická', 'přežití'],
   killThresholdCilicia: 4,
   killThresholdTamerlane: 5,
@@ -132,7 +134,7 @@ export const SCENARIO_ANKARA: ScenarioDefinition = {
   victoryObjectiveCiliciaCs: 'Přežít 12 tahů nebo zničit 5 nepřátel',
   victoryObjectiveTamerlaneCs: 'Zničit 4 nepřátele nebo obklíčit (2 jezdci v řadách 1–2)',
   terrain: [
-    // Pevnost jako štáb Koalice
+    // Opevněný tábor Francouzů
     { position: { row: 3, col: 5 }, terrain: 'fortress', elevation: 0 },
     // Kopce
     { position: { row: 3, col: 2 }, terrain: 'hill',    elevation: 1 },
@@ -146,50 +148,50 @@ export const SCENARIO_ANKARA: ScenarioDefinition = {
     { position: { row: 7, col: 5 }, terrain: 'forest',  elevation: 0 },
   ],
   ciliciaUnits: [
-    // Zvěd a jízda na křídle (řada 1)
+    // Zvěd a gendarmové na křídle (řada 1)
     { id: 'cil_sc_1',  definitionType: 'scout',          faction: 'cilicia', position: { row: 1, col: 1 } },
-    { id: 'cil_ar_1',  definitionType: 'archers',         faction: 'cilicia', position: { row: 1, col: 3 } },
-    { id: 'cil_ar_2',  definitionType: 'archers',         faction: 'cilicia', position: { row: 1, col: 5 } },
-    { id: 'cil_ar_3',  definitionType: 'archers',         faction: 'cilicia', position: { row: 1, col: 7 } },
-    { id: 'cil_lc_1',  definitionType: 'light_cavalry',   faction: 'cilicia', position: { row: 1, col: 9 } },
+    { id: 'cil_ar_1',  definitionType: 'crossbowman',     faction: 'cilicia', position: { row: 1, col: 3 } },
+    { id: 'cil_ar_2',  definitionType: 'crossbowman',     faction: 'cilicia', position: { row: 1, col: 5 } },
+    { id: 'cil_ar_3',  definitionType: 'crossbowman',     faction: 'cilicia', position: { row: 1, col: 7 } },
+    { id: 'cil_lc_1',  definitionType: 'gendarme',        faction: 'cilicia', position: { row: 1, col: 9 } },
     // Slabá pěchota na křídlech (řada 2)
     { id: 'cil_li_1',  definitionType: 'light_infantry',  faction: 'cilicia', position: { row: 2, col: 2 } },
     { id: 'cil_li_2',  definitionType: 'light_infantry',  faction: 'cilicia', position: { row: 2, col: 8 } },
-    // Silné pěchotní centrum (řada 2)
-    { id: 'cil_hi_1',  definitionType: 'heavy_infantry',  faction: 'cilicia', position: { row: 2, col: 4 } },
-    { id: 'cil_hi_2',  definitionType: 'heavy_infantry',  faction: 'cilicia', position: { row: 2, col: 5 } },
-    { id: 'cil_hi_3',  definitionType: 'heavy_infantry',  faction: 'cilicia', position: { row: 2, col: 6 } },
+    // Švýcarští pikenýři — pevné centrum (řada 2)
+    { id: 'cil_hi_1',  definitionType: 'pikeman',         faction: 'cilicia', position: { row: 2, col: 4 } },
+    { id: 'cil_hi_2',  definitionType: 'pikeman',         faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'cil_hi_3',  definitionType: 'pikeman',         faction: 'cilicia', position: { row: 2, col: 6 } },
   ],
   tamerlaneUnits: [
-    // Levé křídlo: průzkum + jízdní lučištníci + těžká jízda
+    // Levé křídlo: průzkum + jinetes (stradioti) + kondotiér
     { id: 'tam_sc_1',  definitionType: 'scout',           faction: 'tamerlane', position: { row: 9, col: 1 } },
-    { id: 'tam_ha_1',  definitionType: 'horse_archers',   faction: 'tamerlane', position: { row: 8, col: 2 } },
-    { id: 'tam_ha_2',  definitionType: 'horse_archers',   faction: 'tamerlane', position: { row: 9, col: 2 } },
-    { id: 'tam_hc_1',  definitionType: 'heavy_cavalry',   faction: 'tamerlane', position: { row: 9, col: 3 } },
+    { id: 'tam_ha_1',  definitionType: 'stradiot',        faction: 'tamerlane', position: { row: 8, col: 2 } },
+    { id: 'tam_ha_2',  definitionType: 'stradiot',        faction: 'tamerlane', position: { row: 9, col: 2 } },
+    { id: 'tam_hc_1',  definitionType: 'condottiero',     faction: 'tamerlane', position: { row: 9, col: 3 } },
     // Střed: pěchota
-    { id: 'tam_hc_3',  definitionType: 'heavy_cavalry',   faction: 'tamerlane', position: { row: 8, col: 5 } },
-    { id: 'tam_hi_1',  definitionType: 'heavy_infantry',  faction: 'tamerlane', position: { row: 9, col: 4 } },
-    { id: 'tam_hi_2',  definitionType: 'heavy_infantry',  faction: 'tamerlane', position: { row: 9, col: 6 } },
-    { id: 'tam_li_1',  definitionType: 'light_infantry',  faction: 'tamerlane', position: { row: 8, col: 4 } },
-    { id: 'tam_li_2',  definitionType: 'light_infantry',  faction: 'tamerlane', position: { row: 8, col: 6 } },
-    // Pravé křídlo: jízdní lučištníci + těžká jízda
-    { id: 'tam_ha_3',  definitionType: 'horse_archers',   faction: 'tamerlane', position: { row: 8, col: 8 } },
-    { id: 'tam_ha_4',  definitionType: 'horse_archers',   faction: 'tamerlane', position: { row: 9, col: 8 } },
-    { id: 'tam_hc_2',  definitionType: 'heavy_cavalry',   faction: 'tamerlane', position: { row: 9, col: 7 } },
+    { id: 'tam_hc_3',  definitionType: 'condottiero',     faction: 'tamerlane', position: { row: 8, col: 5 } },
+    { id: 'tam_hi_1',  definitionType: 'pikeman',         faction: 'tamerlane', position: { row: 9, col: 4 } },
+    { id: 'tam_hi_2',  definitionType: 'pikeman',         faction: 'tamerlane', position: { row: 9, col: 6 } },
+    { id: 'tam_li_1',  definitionType: 'rodelero',        faction: 'tamerlane', position: { row: 8, col: 4 } },
+    { id: 'tam_li_2',  definitionType: 'rodelero',        faction: 'tamerlane', position: { row: 8, col: 6 } },
+    // Pravé křídlo: jinetes (stradioti) + kondotiér
+    { id: 'tam_ha_3',  definitionType: 'stradiot',        faction: 'tamerlane', position: { row: 8, col: 8 } },
+    { id: 'tam_ha_4',  definitionType: 'stradiot',        faction: 'tamerlane', position: { row: 9, col: 8 } },
+    { id: 'tam_hc_2',  definitionType: 'condottiero',     faction: 'tamerlane', position: { row: 9, col: 7 } },
   ],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Scénář 3: Obléhání pevností
+// Scénář 3: Obléhání Pisy (1500)
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
   id: 'breakthrough',
-  nameCs: 'Obléhání pevností',
-  descriptionCs: 'Kilikie brání dvě pevnosti. Tamerlán musí obsadit obě nebo zničit 5 nepřátel. Kilikie musí přežít 14 tahů nebo zničit 4 útočníky.',
-  flavourCs: 'Tamerlánovy obléhací stroje mají za úkol prorazit arménskou obrannou linii a obsadit obě pevnosti najednou.',
-  ciliciaLabel: 'Obránci',
-  tamerlaneLabel: 'Útočníci',
-  difficultyCs: '🔵 Těžká pro Útočníky',
+  nameCs: 'Obléhání Pisy',
+  descriptionCs: 'Pisa brání dvě bašty městského opevnění. Florencie musí obsadit obě, nebo zničit 5 obránců. Pisané musí vydržet 14 tahů, nebo zničit 4 útočníky.',
+  flavourCs: 'Léto 1500. Florencie si najala francouzské kopiníky a polní kulveriny, aby konečně zlomila odbojnou Pisu. Město ale drží — jako už tolikrát.',
+  ciliciaLabel: 'Pisané',
+  tamerlaneLabel: 'Florencie',
+  difficultyCs: '🔵 Těžká pro Florencii',
   tags: ['obrana', 'obléhání', 'asymetrická', 'přežití'],
   killThresholdCilicia: 5,
   killThresholdTamerlane: 4,
@@ -215,37 +217,37 @@ export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
     { position: { row: 6, col: 7 }, terrain: 'forest',   elevation: 0 },
   ],
   ciliciaUnits: [
-    // Elitní garda v levé pevnosti
+    // Městská garda v levé baště
     { id: 'cil_eg_1',  definitionType: 'elite_guard',    faction: 'cilicia', position: { row: 4, col: 3 } },
-    // Lehká pěchota v pravé pevnosti a centru
+    // Lehká pěchota v pravé baště a centru
     { id: 'cil_li_1',  definitionType: 'light_infantry', faction: 'cilicia', position: { row: 4, col: 7 } },
     { id: 'cil_li_2',  definitionType: 'light_infantry', faction: 'cilicia', position: { row: 3, col: 5 } },
     { id: 'cil_li_3',  definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 3 } },
     { id: 'cil_li_4',  definitionType: 'light_infantry', faction: 'cilicia', position: { row: 2, col: 7 } },
-    // Těžká pěchota – záloha
-    { id: 'cil_hi_1',  definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 3 } },
-    { id: 'cil_hi_2',  definitionType: 'heavy_infantry', faction: 'cilicia', position: { row: 3, col: 7 } },
-    // Lučištníci na výšinách
-    { id: 'cil_ar_1',  definitionType: 'archers',         faction: 'cilicia', position: { row: 1, col: 3 } },
-    { id: 'cil_ar_2',  definitionType: 'archers',         faction: 'cilicia', position: { row: 2, col: 5 } },
-    { id: 'cil_ar_3',  definitionType: 'archers',         faction: 'cilicia', position: { row: 1, col: 7 } },
+    // Pikenýři – záloha
+    { id: 'cil_hi_1',  definitionType: 'pikeman',        faction: 'cilicia', position: { row: 3, col: 3 } },
+    { id: 'cil_hi_2',  definitionType: 'pikeman',        faction: 'cilicia', position: { row: 3, col: 7 } },
+    // Kušiníci na výšinách
+    { id: 'cil_ar_1',  definitionType: 'crossbowman',     faction: 'cilicia', position: { row: 1, col: 3 } },
+    { id: 'cil_ar_2',  definitionType: 'crossbowman',     faction: 'cilicia', position: { row: 2, col: 5 } },
+    { id: 'cil_ar_3',  definitionType: 'crossbowman',     faction: 'cilicia', position: { row: 1, col: 7 } },
   ],
   tamerlaneUnits: [
-    // Těžká jízda na křídle (řada 9)
-    { id: 'tam_hc_1',  definitionType: 'heavy_cavalry',  faction: 'tamerlane', position: { row: 9, col: 2 } },
-    { id: 'tam_hi_1',  definitionType: 'heavy_infantry', faction: 'tamerlane', position: { row: 9, col: 4 } },
-    { id: 'tam_hi_2',  definitionType: 'heavy_infantry', faction: 'tamerlane', position: { row: 9, col: 5 } },
-    { id: 'tam_hi_3',  definitionType: 'heavy_infantry', faction: 'tamerlane', position: { row: 9, col: 6 } },
-    { id: 'tam_hc_2',  definitionType: 'heavy_cavalry',  faction: 'tamerlane', position: { row: 9, col: 8 } },
-    // Obléhací stroje + pěchota (řada 8)
-    { id: 'tam_ha_1',  definitionType: 'horse_archers',  faction: 'tamerlane', position: { row: 8, col: 1 } },
-    { id: 'tam_li_1',  definitionType: 'light_infantry', faction: 'tamerlane', position: { row: 8, col: 3 } },
-    { id: 'tam_os_1',  definitionType: 'siege_machine',  faction: 'tamerlane', position: { row: 8, col: 4 } },
-    { id: 'tam_os_2',  definitionType: 'siege_machine',  faction: 'tamerlane', position: { row: 8, col: 6 } },
-    { id: 'tam_li_2',  definitionType: 'light_infantry', faction: 'tamerlane', position: { row: 8, col: 7 } },
-    { id: 'tam_ha_2',  definitionType: 'horse_archers',  faction: 'tamerlane', position: { row: 8, col: 9 } },
-    // Průzkum a jízdní lučištníci (řada 7)
-    { id: 'tam_ha_3',  definitionType: 'horse_archers',  faction: 'tamerlane', position: { row: 7, col: 3 } },
+    // Najatí gendarmové na křídlech (řada 9)
+    { id: 'tam_hc_1',  definitionType: 'gendarme',       faction: 'tamerlane', position: { row: 9, col: 2 } },
+    { id: 'tam_hi_1',  definitionType: 'pikeman',        faction: 'tamerlane', position: { row: 9, col: 4 } },
+    { id: 'tam_hi_2',  definitionType: 'pikeman',        faction: 'tamerlane', position: { row: 9, col: 5 } },
+    { id: 'tam_hi_3',  definitionType: 'pikeman',        faction: 'tamerlane', position: { row: 9, col: 6 } },
+    { id: 'tam_hc_2',  definitionType: 'gendarme',       faction: 'tamerlane', position: { row: 9, col: 8 } },
+    // Kulveriny + arkebuzíři (řada 8)
+    { id: 'tam_ha_1',  definitionType: 'stradiot',       faction: 'tamerlane', position: { row: 8, col: 1 } },
+    { id: 'tam_li_1',  definitionType: 'arquebusier',    faction: 'tamerlane', position: { row: 8, col: 3 } },
+    { id: 'tam_os_1',  definitionType: 'culverin',       faction: 'tamerlane', position: { row: 8, col: 4 } },
+    { id: 'tam_os_2',  definitionType: 'culverin',       faction: 'tamerlane', position: { row: 8, col: 6 } },
+    { id: 'tam_li_2',  definitionType: 'arquebusier',    faction: 'tamerlane', position: { row: 8, col: 7 } },
+    { id: 'tam_ha_2',  definitionType: 'stradiot',       faction: 'tamerlane', position: { row: 8, col: 9 } },
+    // Průzkum a stradioti (řada 7)
+    { id: 'tam_ha_3',  definitionType: 'stradiot',       faction: 'tamerlane', position: { row: 7, col: 3 } },
     { id: 'tam_sc_1',  definitionType: 'scout',          faction: 'tamerlane', position: { row: 7, col: 5 } },
   ],
 };
@@ -257,6 +259,7 @@ export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_ASCALON: ScenarioDefinition = {
   id: 'ascalon',
+  hidden: true,
   nameCs: 'Aškelon – Přepad za úsvitu',
   descriptionCs: 'Křižáci se za tmy vplíží do tureckého tábora. Musí dobýt velitelský stan, než se probudí celá posádka. Turci se probouzejí ve vlnách — každé dvě kola přichází další posily.',
   flavourCs: 'Rok 1099. Po dobytí Jeruzaléma se křižácké vojsko vydalo na jih, kde v hustých olivovnících spí turecká posádka Aškelonu. Ranní opar skrývá jejich pohyb — ale ne nadlouho.',
@@ -320,6 +323,7 @@ export const SCENARIO_ASCALON: ScenarioDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_KILICIE_UPRISING: ScenarioDefinition = {
   id: 'kilicie_uprising',
+  hidden: true,
   nameCs: 'Povstání v Kilíkii',
   descriptionCs: 'Kilická milice povstala proti Tamerlánovu jhu. Křižáci vyslali předvoj, ale hlavní síla přijde pozdě. Tamerlánova rychlá jízda musí překonat tvrdohlavé vesničany i rytířský předvoj.',
   flavourCs: 'Rok 1400. Tamerlán zpustošil Kilíkii a vyžaduje tributy. Vesničané se zvedají k odporu — ale jsou slabí. Křižáčtí rytíři se vydávají na pochod a dávají předvoj vpřed. Každá hodina se počítá.',
@@ -426,6 +430,7 @@ export const SCENARIO_KILICIE_UPRISING: ScenarioDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_TEUTOBURG: ScenarioDefinition = {
   id: 'teutoburg',
+  hidden: true,
   nameCs: 'Les Teutoburský',
   descriptionCs:
     'Varovy tři legie pochodují v úzkém průseku hustým lesem. Germánské kmeny pod Arminiem čekají ukryté mezi stromy. Římané musí projít — nebo pobít vůdce povstání.',
@@ -521,6 +526,7 @@ export const SCENARIO_TEUTOBURG: ScenarioDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_VERCELLAE: ScenarioDefinition = {
   id: 'vercellae',
+  hidden: true,
   nameCs: 'Bitva u Vercellae',
   descriptionCs:
     'Mariovy legie se střetávají s obrovskou hordou Kimbrů na rozpálené italské pláni. Kimbrové útočí zuřivě, ale letní slunce je rychle vysiluje. Římská disciplína musí vydržet první nápor.',
@@ -603,6 +609,7 @@ export const SCENARIO_VERCELLAE: ScenarioDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_FORLI: ScenarioDefinition = {
   id: 'forli',
+  hidden: true,
   nameCs: 'Obléhání Forlì',
   descriptionCs:
     'Cesare Borgia útočí na citadelu Ravaldino. Caterina Sforza, "La Tigre", velí z hradeb sama. Borgiovy kulveriny musí rozbít zdi dříve, než Caterina jeho vojsko vyčerpá.',
@@ -689,6 +696,7 @@ export const SCENARIO_FORLI: ScenarioDefinition = {
 // ─────────────────────────────────────────────────────────────────────────────
 export const SCENARIO_CERIGNOLA: ScenarioDefinition = {
   id: 'cerignola',
+  hidden: true,
   nameCs: 'Bitva u Cerignoly',
   descriptionCs:
     'První bitva v dějinách, kterou rozhodly ruční palné zbraně. Francouzští gendarmi útočí na španělské zákopy, ale arkebuzíři za okopy a vinicemi střílí dřív, než piky dorazí. Volejová palba mění válku navždy.',
@@ -1421,3 +1429,29 @@ export const ALL_SCENARIOS: ScenarioDefinition[] = [
   CAMPAIGN_SCENARIO_CALABRIA_DEF,
   CAMPAIGN_SCENARIO_EPILOG_A_DEF,
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpery pro výběr scénářů a názvy stran
+// ─────────────────────────────────────────────────────────────────────────────
+import { BLUE_LABEL_FALLBACK, RED_LABEL_FALLBACK } from './branding';
+
+/**
+ * Scénáře viditelné ve výběru. Kampaňové scénáře se nenabízejí nikdy;
+ * scénáře s `hidden: true` jen v odemčeném dev režimu.
+ */
+export function getVisibleScenarios(includeHidden: boolean): ScenarioDefinition[] {
+  return ALL_SCENARIOS.filter(
+    s => !s.isCampaignScenario && (includeHidden || !s.hidden)
+  );
+}
+
+/** Zobrazovaný název strany podle scénáře (s neutrálním fallbackem). */
+export function getFactionLabel(
+  scenarioId: string,
+  faction: 'cilicia' | 'tamerlane'
+): string {
+  const s = ALL_SCENARIOS.find(x => x.id === scenarioId);
+  return faction === 'cilicia'
+    ? (s?.ciliciaLabel ?? BLUE_LABEL_FALLBACK)
+    : (s?.tamerlaneLabel ?? RED_LABEL_FALLBACK);
+}

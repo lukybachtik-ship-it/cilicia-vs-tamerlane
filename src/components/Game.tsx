@@ -44,8 +44,8 @@ export function Game() {
   useBotPlayer();
 
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
-  const ciliciaLabel = scenario?.ciliciaLabel ?? 'Kilikie';
-  const tamerlaneLabel = scenario?.tamerlaneLabel ?? 'Tamerlán';
+  const ciliciaLabel = scenario?.ciliciaLabel ?? 'Modrá strana';
+  const tamerlaneLabel = scenario?.tamerlaneLabel ?? 'Červená strana';
   const currentLabel = state.currentPlayer === 'cilicia' ? ciliciaLabel : tamerlaneLabel;
   const inActivatePhase = state.currentPhase === 'activate_units';
   const inMovePhase = state.currentPhase === 'move';

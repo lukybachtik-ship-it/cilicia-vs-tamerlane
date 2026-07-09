@@ -3,7 +3,7 @@ import type { UnitInstance } from '../types/unit';
 import type { GameAction } from './actions';
 import { CARD_DEFINITIONS } from '../constants/cardDefinitions';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
-import { ALL_SCENARIOS } from '../constants/scenarios';
+import { ALL_SCENARIOS, getFactionLabel } from '../constants/scenarios';
 import { buildInitialState } from '../constants/scenarioSetup';
 import { getValidMoves } from '../logic/movement';
 import {
@@ -583,7 +583,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         {
           id: generateId('combat'),
           turn: state.turnNumber,
-          attackerName: `${UNIT_DEFINITIONS[attacker.definitionType].nameCs} (${attacker.faction === 'cilicia' ? 'Kilikie' : 'Tamerlán'})`,
+          attackerName: `${UNIT_DEFINITIONS[attacker.definitionType].nameCs} (${getFactionLabel(state.scenarioId, attacker.faction)})`,
           defenderName: newHp <= 0 ? '🏰 Hradba zbořena!' : `🏰 Hradba (HP ${currentHp}→${newHp})`,
           diceCount,
           diceResults,

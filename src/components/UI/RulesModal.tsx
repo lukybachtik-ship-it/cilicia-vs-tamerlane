@@ -66,7 +66,7 @@ function DiceTab() {
           <li>Penalizace: pohyb lukostřelce (jen 1 kostka), přímý souboj střelce (−1 kostka), terén obrancy (les/kopec/pevnost: −1 kostka útočníka).</li>
           <li>Výsledky se vyhodnotí podle třídy obrany.</li>
           <li>Obranca provede <span className="text-purple-300">protiútok</span> (pokud přežil).</li>
-          <li>Kilikie: pevnost/kopec obrancovi dává +1 kostka protiútoku.</li>
+          <li>Modrá strana: pevnost/kopec obránci dává +1 kostku protiútoku.</li>
         </ol>
       </section>
 
@@ -84,8 +84,21 @@ function DiceTab() {
 }
 
 // ── Tab: Units ────────────────────────────────────────────────────────────────
+
+/**
+ * Jednotky zobrazené v pravidlech — jen ty z veřejných scénářů.
+ * Kampaňové a skryté jednotky (pojmenovaní hrdinové, Belisariova éra…)
+ * se v přehledu nesmí objevit, dokud nejsou vydané.
+ */
+const PUBLIC_UNIT_TYPES = new Set([
+  'light_infantry', 'heavy_infantry', 'archers', 'light_cavalry',
+  'heavy_cavalry', 'horse_archers', 'scout', 'siege_machine', 'elite_guard',
+  'militia', 'arquebusier', 'pikeman', 'gendarme', 'stradiot', 'rodelero',
+  'crossbowman', 'culverin', 'condottiero',
+]);
+
 function UnitsTab() {
-  const units = Object.values(UNIT_DEFINITIONS);
+  const units = Object.values(UNIT_DEFINITIONS).filter(u => PUBLIC_UNIT_TYPES.has(u.type));
 
   function specials(u: (typeof units)[0]): string {
     const s: string[] = [];
@@ -188,11 +201,11 @@ function TerrainTab() {
     },
     {
       icon: '⛰', name: 'Kopec', color: 'text-yellow-600',
-      desc: 'Pohyb se zastaví při vstupu. Výšková výhoda blokuje výhled pro jednotky níže. Obranca na kopci: +1 obrana. Kilikie protiútok +1 kostka z kopce.',
+      desc: 'Pohyb se zastaví při vstupu. Výšková výhoda blokuje výhled pro jednotky níže. Obranca na kopci: +1 obrana. Modrá strana: protiútok +1 kostka z kopce.',
     },
     {
       icon: '🏰', name: 'Pevnost', color: 'text-gray-400',
-      desc: 'Jízda sem nemůže vstoupit. Pohyb se zastaví. Blokuje výhled. Obranca: +1 obrana a ignoruje první ústup (přemění ho na zásah). Kilikie protiútok +1 kostka z pevnosti.',
+      desc: 'Jízda sem nemůže vstoupit. Pohyb se zastaví. Blokuje výhled. Obranca: +1 obrana a ignoruje první ústup (přemění ho na zásah). Modrá strana: protiútok +1 kostka z pevnosti.',
     },
   ];
 
@@ -223,9 +236,9 @@ function TerrainTab() {
             </div>
           </div>
           <div className="bg-gray-700 rounded p-2.5">
-            <div className="text-red-400 font-bold text-xs mb-1">🏰 Tamerlánovo zvláštní vítězství</div>
+            <div className="text-red-400 font-bold text-xs mb-1">🏰 Vítězství obsazením pevnosti</div>
             <div className="text-gray-400 text-xs">
-              Pokud Tamerlánova pěchota (lehká nebo těžká) stojí na <span className="text-gray-300">pevnosti</span> na konci kola, Tamerlán vítězí okamžitě.
+              Pokud tvá pěchota (lehká nebo těžká) stojí na <span className="text-gray-300">pevnosti</span> na konci kola, vítězíš okamžitě — platí ve scénářích, kde je to uvedeno jako cíl.
             </div>
           </div>
         </div>

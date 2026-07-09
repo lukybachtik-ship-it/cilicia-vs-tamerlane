@@ -8,9 +8,9 @@ export function VictoryModal() {
 
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
   const isCilicia = state.victor === 'cilicia';
-  const victorLabel = isCilicia
-    ? (scenario?.ciliciaLabel ?? 'Kilikie')
-    : (scenario?.tamerlaneLabel ?? 'Tamerlán');
+  const blueLabel = scenario?.ciliciaLabel ?? 'Modrá strana';
+  const redLabel = scenario?.tamerlaneLabel ?? 'Červená strana';
+  const victorLabel = isCilicia ? blueLabel : redLabel;
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
@@ -27,8 +27,8 @@ export function VictoryModal() {
         <p className="text-gray-300 text-sm mb-6">{state.victoryCause}</p>
         <div className="text-gray-400 text-xs mb-4">
           Tah #{state.turnNumber} •{' '}
-          Kilikie ztráty: {state.destroyedUnits.filter(u => u.faction === 'cilicia').length} •{' '}
-          Tamerlán ztráty: {state.destroyedUnits.filter(u => u.faction === 'tamerlane').length}
+          {blueLabel} ztráty: {state.destroyedUnits.filter(u => u.faction === 'cilicia').length} •{' '}
+          {redLabel} ztráty: {state.destroyedUnits.filter(u => u.faction === 'tamerlane').length}
         </div>
         <button
           onClick={() => { playSelectSound(); openScenarioSelect(); }}

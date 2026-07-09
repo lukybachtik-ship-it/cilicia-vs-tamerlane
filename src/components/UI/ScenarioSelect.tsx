@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '../../state/GameContext';
-import { ALL_SCENARIOS } from '../../constants/scenarios';
+import { getVisibleScenarios } from '../../constants/scenarios';
+import { APP_TITLE, APP_SUBTITLE, isAdminUnlocked } from '../../constants/branding';
 import { HowToContent } from './HowToContent';
 
 const SCENARIO_ICONS: Record<string, string> = {
@@ -31,11 +32,9 @@ export function ScenarioSelect() {
         {/* Title */}
         <div className="text-center mb-5 flex-shrink-0">
           <h1 className="text-4xl font-bold text-white mb-1 tracking-wide">
-            ⚔ <span className="text-blue-400">Kilikie</span>
-            <span className="text-gray-500 text-2xl mx-3">vs</span>
-            <span className="text-red-400">Tamerlán</span>
+            ⚔ <span className="text-amber-300">{APP_TITLE}</span>
           </h1>
-          <p className="text-gray-500 text-sm">Taktická tahová válečná hra</p>
+          <p className="text-gray-500 text-sm">{APP_SUBTITLE}</p>
         </div>
 
         {/* Tabs */}
@@ -61,7 +60,7 @@ export function ScenarioSelect() {
         {/* ── Scenarios tab ── */}
         {tab === 'scenarios' && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 overflow-y-auto">
-            {ALL_SCENARIOS.filter(s => !s.isCampaignScenario).map(scenario => (
+            {getVisibleScenarios(isAdminUnlocked()).map(scenario => (
               <button
                 key={scenario.id}
                 onClick={() => dispatch({ type: 'RESTART_GAME', scenarioId: scenario.id })}

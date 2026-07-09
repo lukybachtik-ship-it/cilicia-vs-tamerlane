@@ -121,8 +121,8 @@ export function Board() {
   const rows = Array.from({ length: state.gridRows }, (_, i) => i + 1);
   const cols = Array.from({ length: state.gridCols }, (_, i) => i + 1);
   const scenario = ALL_SCENARIOS.find(s => s.id === state.scenarioId);
-  const topLabel = scenario?.ciliciaLabel ?? 'Kilikie';
-  const bottomLabel = scenario?.tamerlaneLabel ?? 'Tamerlán';
+  const topLabel = scenario?.ciliciaLabel ?? 'Modrá strana';
+  const bottomLabel = scenario?.tamerlaneLabel ?? 'Červená strana';
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function getTerrainAt(row: number, col: number): TerrainType {
