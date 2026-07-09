@@ -41,10 +41,6 @@ export interface CombatResult {
   breakthroughPosition: { row: number; col: number } | null;
   // Support system
   supportBlocked: boolean;
-  // New: pike wall auto-hit on cavalry attacker
-  pikeWallAutoHits: number;
-  attackerNewHp: number;
-  attackerDestroyedByPikeWall: boolean;
   // New: applies gunpowder panic to defender
   gunpowderPanicApplied: boolean;
   // New: pilum attack was consumed
@@ -72,62 +68,6 @@ export function resolveAttack(
   const defenderElev = getElevation(defender.position, state);
 
   const range = chebyshevDistance(attacker.position, defender.position);
-
-  // ── 0. Pike wall pre-check — cavalry attacking a pikeman in melee ──────────
-  let pikeWallAutoHits = 0;
-  let attackerNewHp = attacker.hp;
-  let attackerDestroyedByPikeWall = false;
-  if (
-    !isCounter &&
-    range === 1 &&
-    defenderDef.pikeWall &&
-    isCavalryType(attacker.definitionType)
-  ) {
-    pikeWallAutoHits = 1;
-    attackerNewHp = attacker.hp - 1;
-    if (attackerNewHp <= 0) {
-      attackerNewHp = 0;
-      attackerDestroyedByPikeWall = true;
-    }
-  }
-
-  // If pike wall killed the attacker, end combat early.
-  if (attackerDestroyedByPikeWall) {
-    const logEntry: CombatLogEntry = {
-      id: generateId('combat'),
-      turn: state.turnNumber,
-      attackerName: `${attackerDef.nameCs} (${getFactionLabel(state.scenarioId, attacker.faction)})`,
-      defenderName: `${defenderDef.nameCs} (${getFactionLabel(state.scenarioId, defender.faction)})`,
-      diceCount: 0,
-      diceResults: [],
-      hits: 0,
-      retreats: 0,
-      isCounter: false,
-      outcome: 'no_effect',
-    };
-    return {
-      diceCount: 0,
-      diceResults: [],
-      hits: 0,
-      retreats: 0,
-      defenderDestroyed: false,
-      defenderRetreated: false,
-      defenderNewHp: defender.hp,
-      defenderNewPosition: defender.position,
-      counterResult: null,
-      logEntry,
-      hitAndRunPosition: null,
-      breakthroughPosition: null,
-      supportBlocked: false,
-      pikeWallAutoHits,
-      attackerNewHp,
-      attackerDestroyedByPikeWall: true,
-      gunpowderPanicApplied: false,
-      pilumConsumed: false,
-      chargedAttack: false,
-      volleyApplied: false,
-    };
-  }
 
   // ── 1. Base dice count ──────────────────────────────────────────────────────
   // Base = definition + card bonus + sum of all active modifiers
@@ -167,8 +107,8 @@ export function resolveAttack(
     diceCount += 2;
   }
 
-  // ── 4c. Charge bonus (Gendarm): +2 dice if moved 3+ hex in straight line ───
-  const chargedAttack = !isCounter && isChargingThisTurn(attacker);
+  // ── 4c. Charge bonus (Rytíř): +2 dice if it moved its full movement this turn ─
+  const chargedAttack = !isCounter && isChargingThisTurn(attacker, state);
   if (chargedAttack) {
     diceCount += 2;
   }
@@ -195,7 +135,8 @@ export function resolveAttack(
     diceCount = Math.max(1, diceCount - 1);
   }
 
-  // ── 4h. Pike wall reduces cavalry attack by 1 (formation deflects blows) ───
+  // ── 4h. Pike wall: cavalry attacking a pikeman in melee rolls 1 fewer die ──
+  //        (the pike hedge blunts the charge — single, non-overpowered effect)
   if (
     !isCounter &&
     range === 1 &&
@@ -304,7 +245,7 @@ export function resolveAttack(
   ) {
     counterResult = resolveAttack(
       { ...defender, position: defenderNewPosition ?? defender.position, hp: defenderNewHp },
-      { ...attacker, hp: attackerNewHp },
+      { ...attacker },
       state,
       true
     );
@@ -343,9 +284,6 @@ export function resolveAttack(
     hitAndRunPosition,
     breakthroughPosition,
     supportBlocked,
-    pikeWallAutoHits,
-    attackerNewHp,
-    attackerDestroyedByPikeWall: false,
     gunpowderPanicApplied,
     pilumConsumed,
     chargedAttack,

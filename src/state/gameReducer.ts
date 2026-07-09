@@ -397,30 +397,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       let newDestroyed = [...state.destroyedUnits];
       const newLog = [...state.combatLog, result.logEntry];
 
-      // Pike wall auto-hit kills attacker — defender untouched
-      if (result.attackerDestroyedByPikeWall) {
-        newUnits = newUnits.filter(u => u.id !== attacker.id);
-        newDestroyed = [...newDestroyed, { ...attacker, hp: 0 }];
-
-        const tmpState: GameState = {
-          ...state,
-          units: newUnits,
-          destroyedUnits: newDestroyed,
-          combatLog: newLog,
-        };
-        const { victor, cause } = checkVictory(tmpState);
-        return {
-          ...tmpState,
-          victor,
-          victoryCause: cause,
-          currentPhase: victor ? 'game_over' : state.currentPhase,
-          validMoveTargets: [],
-          validAttackTargets: [],
-          validAttackTerrainTargets: [],
-          selectedUnitId: null,
-        };
-      }
-
       // Normal defender damage
       let gunpowderModToAdd: ReturnType<typeof makeGunpowderPanicModifier> | null = null;
       if (result.defenderDestroyed) {
@@ -448,18 +424,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             hp: cr.defenderNewHp,
             position: cr.defenderNewPosition ?? attacker.position,
           });
-        }
-      }
-
-      // Apply pike wall auto-hit (if attacker survived)
-      if (result.pikeWallAutoHits > 0 && newUnits.find(u => u.id === attacker.id)) {
-        const cur = newUnits.find(u => u.id === attacker.id)!;
-        const newHp = cur.hp - result.pikeWallAutoHits;
-        if (newHp <= 0) {
-          newUnits = newUnits.filter(u => u.id !== attacker.id);
-          newDestroyed = [...newDestroyed, { ...cur, hp: 0 }];
-        } else {
-          newUnits = updateUnit(newUnits, attacker.id, { hp: newHp });
         }
       }
 

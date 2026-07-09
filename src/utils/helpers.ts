@@ -50,7 +50,7 @@ export function getZone(col: number): 'left' | 'center' | 'right' {
 /**
  * Všechny jezdecké jednotky — single source of truth pro:
  *   • card filter 'cavalry' (Jízdní zteč)
- *   • pike wall check (+1 auto-hit, −1 kostka útoku při melee)
+ *   • pike wall check (jízda útočící na kopiníka hází o 1 kostku méně)
  *   • combat charge bonus (skrz isChargingThisTurn)
  *   • victory conditions (Ankara encirclement)
  *

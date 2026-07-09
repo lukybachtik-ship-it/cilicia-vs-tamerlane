@@ -7,6 +7,7 @@ import { TerrainGlyph, TERRAIN_NAMES, TERRAIN_EFFECTS } from '../Board/TerrainGl
 import {
   AbilityGlyph, ChargeGlyph, VolleyGlyph, PanicGlyph, CrownGlyph,
 } from '../Units/StatusGlyphs';
+import { MECHANICS } from '../../constants/mechanics';
 
 /**
  * Shown in the left sidebar below the player's hand, replacing the (useless)
@@ -124,18 +125,18 @@ export function ScenarioLegend() {
                 <svg width={14} height={14} viewBox="-7 -7 14 14" className="flex-shrink-0 mt-0.5">
                   <ChargeGlyph />
                 </svg>
-                <span><b>Nárazový útok</b>: jízda +2 kostky po 3+ hexech v linii</span>
+                <span><b>{MECHANICS.charge.label}</b>: {MECHANICS.charge.desc}</span>
               </li>
             )}
             {mechanicFlags.pikeWall && (
-              <li><b>Hradba kopí</b>: kopiník proti útočící jízdě +2 obrana, 1 auto-zásah</li>
+              <li><b>{MECHANICS.pikeWall.label}</b>: {MECHANICS.pikeWall.desc}</li>
             )}
             {mechanicFlags.volleyFireBonus && (
               <li className="flex items-start gap-1.5">
                 <svg width={14} height={14} viewBox="-7 -7 14 14" className="flex-shrink-0 mt-0.5">
                   <VolleyGlyph />
                 </svg>
-                <span><b>Salva</b>: 3+ mušketýrů v řadě → +1 kostka každému</span>
+                <span><b>{MECHANICS.volleyFire.label}</b>: {MECHANICS.volleyFire.desc}</span>
               </li>
             )}
             {mechanicFlags.gunpowderWeapon && (
@@ -143,17 +144,17 @@ export function ScenarioLegend() {
                 <svg width={14} height={14} viewBox="-7 -7 14 14" className="flex-shrink-0 mt-0.5">
                   <PanicGlyph />
                 </svg>
-                <span><b>Prachová panika</b>: po zásahu palnou zbraní cíl −1 útok příští kolo</span>
+                <span><b>{MECHANICS.gunpowderWeapon.label}</b>: {MECHANICS.gunpowderWeapon.desc}</span>
               </li>
             )}
             {mechanicFlags.setupRequired && (
-              <li><b>Příprava děla</b>: dělostřelectvo nemůže střílet v kole, kdy se pohnulo</li>
+              <li><b>{MECHANICS.setupRequired.label}</b>: {MECHANICS.setupRequired.desc}</li>
             )}
             {mechanicFlags.antiHeavyCavalry && (
-              <li><b>Anti-jízda</b>: šermíř +1 kostka proti těžké jízdě / rytířům</li>
+              <li><b>{MECHANICS.antiHeavyCavalry.label}</b>: {MECHANICS.antiHeavyCavalry.desc}</li>
             )}
             {mechanicFlags.destroysWalls && (
-              <li><b>Ničení hradeb</b>: dělo může střílet přímo na hex hradby a probourat v ní průchod (hradba má vlastní HP)</li>
+              <li><b>{MECHANICS.destroysWalls.label}</b>: {MECHANICS.destroysWalls.desc}</li>
             )}
           </ul>
         </div>

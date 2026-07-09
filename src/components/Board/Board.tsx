@@ -599,7 +599,7 @@ export function Board() {
           const isBetrayalTarget = !!betrayalSource && canBetray(betrayalSource, unit);
           const hasAbility = hasAvailableAbility(unit) && unit.faction === state.currentPlayer;
           const hasPanic = hasGunpowderPanic(unit, state);
-          const charging = isChargingThisTurn(unit);
+          const charging = isChargingThisTurn(unit, state);
           const volleying = getVolleyBonus(unit, state) > 0;
 
           const terrain   = getTerrainAt(unit.position.row, unit.position.col);

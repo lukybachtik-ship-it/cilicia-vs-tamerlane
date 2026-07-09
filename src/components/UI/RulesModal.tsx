@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { UNIT_DEFINITIONS } from '../../constants/unitDefinitions';
 import { CARD_DEFINITIONS } from '../../constants/cardDefinitions';
+import { mechanicLine } from '../../constants/mechanics';
 
 type TabId = 'dice' | 'units' | 'cards' | 'terrain';
 
@@ -102,20 +103,21 @@ function UnitsTab() {
 
   function specials(u: (typeof units)[0]): string {
     const s: string[] = [];
-    if (u.hitAndRun)           s.push('Hit & Run (volný ústup po útoku)');
-    if (u.breakthrough)        s.push('Průlom (postup na místo po zabití)');
-    if (u.parthianShot)        s.push('Parthský výstřel (pohyb→útok→pohyb)');
-    if (u.pikeWall)            s.push('Hradba kopí (útočící jízda se napíchne: 1 auto-zásah, −1 kostka)');
-    if (u.chargeRequires3Hex)  s.push('Zteč (+2 kostky po rozjezdu 3+ hexů v přímce)');
-    if (u.volleyFireBonus)     s.push('Salva (+1 kostka, když útočí víc střelců ve stejné řadě)');
-    if (u.antiHeavyCavalry)    s.push('+1 kostka proti těžké jízdě');
-    if (u.setupRequired)       s.push('Nemůže střílet v tahu, kdy se pohnulo');
-    if (u.siegeBonus)          s.push('+2 kostky proti pevnosti');
-    if (u.destroysWalls)       s.push('Ničí hradby — může střílet na hex hradby (ve scénářích s hradbami)');
-    if (u.ignoresTerrainStop)  s.push('Nezastavuje v lese/pevnosti');
-    if (u.reducedMeleeDefense) s.push('−1 kostka v protiútoku v přímém boji');
-    if (u.movedAttackPenalty)  s.push('Pohyb → jen 1 kostka útoku');
-    if (u.meleeAttackPenalty)  s.push('−1 kostka při útoku z bezprostřední blízkosti');
+    if (u.hitAndRun)           s.push(mechanicLine('hitAndRun'));
+    if (u.breakthrough)        s.push(mechanicLine('breakthrough'));
+    if (u.parthianShot)        s.push(mechanicLine('parthianShot'));
+    if (u.pikeWall)            s.push(mechanicLine('pikeWall'));
+    if (u.chargeRequires3Hex)  s.push(mechanicLine('charge'));
+    if (u.volleyFireBonus)     s.push(mechanicLine('volleyFire'));
+    if (u.gunpowderWeapon)     s.push(mechanicLine('gunpowderWeapon'));
+    if (u.antiHeavyCavalry)    s.push(mechanicLine('antiHeavyCavalry'));
+    if (u.setupRequired)       s.push(mechanicLine('setupRequired'));
+    if (u.siegeBonus)          s.push(mechanicLine('siegeBonus'));
+    if (u.destroysWalls)       s.push(mechanicLine('destroysWalls'));
+    if (u.ignoresTerrainStop)  s.push(mechanicLine('ignoresTerrainStop'));
+    if (u.reducedMeleeDefense) s.push(mechanicLine('reducedMeleeDefense'));
+    if (u.movedAttackPenalty)  s.push(mechanicLine('movedAttackPenalty'));
+    if (u.meleeAttackPenalty)  s.push(mechanicLine('meleeAttackPenalty'));
     return s.join('; ') || '—';
   }
 

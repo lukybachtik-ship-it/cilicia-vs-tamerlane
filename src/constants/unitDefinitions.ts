@@ -347,7 +347,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     nameCs: 'Kopiník',
     abbrevCs: 'KP',
   },
-  // Gendarm — francouzská těžká jízda; lance charge (+2 kostky po 3+ hex linii).
+  // Rytíř — francouzská těžká jízda; nárazový útok (+2 kostky, pohnul-li se o celý pohyb).
   gendarme: {
     ...DEFAULTS,
     type: 'gendarme',
@@ -817,7 +817,7 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     attack: 4,
     maxHp: 4,
     breakthrough: true,
-    chargeRequires3Hex: true,  // +2 kostky po 3+ hex v linii (reused flag)
+    chargeRequires3Hex: true,  // +2 kostky, pohnul-li se o celý pohyb (reused flag)
     isCommander: true,
     commanderDeathEffect: {
       descriptionCs: 'Pád Jana Arménského: byzantská jízda −1 kostka útoku (2 kola)',

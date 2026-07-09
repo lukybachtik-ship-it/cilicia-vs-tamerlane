@@ -2,12 +2,12 @@ import type { GameState } from '../types/game';
 import type { UnitInstance, FactionId } from '../types/unit';
 import { UNIT_DEFINITIONS } from '../constants/unitDefinitions';
 import { chebyshevDistance } from '../utils/helpers';
-import { offsetToCube } from '../utils/hexGrid';
 import {
   makeWarcryModifier,
   makePilumReadyModifier,
   makeAmbushSignalModifier,
   modifierApplies,
+  getMoveBonus,
 } from './modifiers';
 
 /**
@@ -19,26 +19,28 @@ export function hasAvailableAbility(unit: UnitInstance): boolean {
 }
 
 /**
- * Returns true if the charge (3+ hex straight line this turn) is active for the unit.
- * Only meaningful for units with chargeRequires3Hex.
- * Uses cube-coord check: start and end must be on a straight hex line >=3 hexes apart.
+ * Nárazový útok (charge): active when a charge-capable unit ended its move
+ * displaced by its FULL movement — i.e. it ran the whole distance toward the
+ * enemy in one clean gallop. Simpler and more intuitive than the old
+ * "3+ hexes in a straight line" rule.
+ *
+ * Note: this checks net displacement (straight-line hex distance from start
+ * to end), not movement-points spent — a full-move run around obstacles that
+ * ends closer than maxMove does not count, which is intended: a charge is a
+ * straight run at full speed. Only meaningful for units with chargeRequires3Hex.
  */
-export function isChargingThisTurn(unit: UnitInstance): boolean {
+export function isChargingThisTurn(unit: UnitInstance, state: GameState): boolean {
   const def = UNIT_DEFINITIONS[unit.definitionType];
   if (!def.chargeRequires3Hex) return false;
   if (!unit.hasMoved) return false;
   const start = unit.moveHistoryThisTurn[0];
   if (!start) return false;
-  const end = unit.position;
-  const ca = offsetToCube(start);
-  const cb = offsetToCube(end);
-  const dx = cb.x - ca.x;
-  const dy = cb.y - ca.y;
-  const dz = cb.z - ca.z;
-  const dist = (Math.abs(dx) + Math.abs(dy) + Math.abs(dz)) / 2;
-  if (dist < 3) return false;
-  // Straight hex line: exactly one cube axis unchanged
-  return [dx, dy, dz].filter(d => d === 0).length === 1;
+  // Effective movement this turn (base + card bonus + active modifiers),
+  // matching how getValidMoves computes reachable range.
+  const maxMove = def.move + unit.moveBonus + getMoveBonus(unit, state);
+  if (maxMove < 2) return false; // no real "charge" from a single hex
+  // Displaced the full distance = ended up maxMove hexes away in a straight run.
+  return chebyshevDistance(start, unit.position) >= maxMove;
 }
 
 /**

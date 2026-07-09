@@ -148,9 +148,9 @@ export interface UnitDefinition {
   panicRetreat: boolean;        // Militia: retreat result = 2 hexes instead of 1
   // New flags (Rome + Renaissance)
   activatedAbility?: ActivatedAbilityKind; // 1× per game activated ability
-  chargeRequires3Hex: boolean;  // Gendarm: +2 dice if moved 3+ hexes in straight line this turn
+  chargeRequires3Hex: boolean;  // Rytíř: +2 dice if it moved its full movement this turn (flag name kept for compat)
   volleyFireBonus: boolean;     // Arquebusier: +1 die if 3+ arquebusiers same row attack same turn
-  pikeWall: boolean;            // Pikeman: +2 def & 1 auto-hit vs attacking cavalry
+  pikeWall: boolean;            // Kopiník: attacking cavalry rolls 1 fewer attack die
   setupRequired: boolean;       // Culverin/Scorpio: cannot attack on a turn it moved
   antiHeavyCavalry: boolean;    // Rodelero: +1 die vs heavy cavalry / gendarme
   gunpowderWeapon: boolean;     // Arquebusier/Culverin: applies gunpowder panic debuff
