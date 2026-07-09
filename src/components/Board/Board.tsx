@@ -332,9 +332,8 @@ export function Board() {
     <div className="flex flex-col items-center select-none w-full">
       <svg
         width="100%"
-        height="auto"
         viewBox={`0 0 ${getSvgSize(state.gridRows, state.gridCols).width} ${getSvgSize(state.gridRows, state.gridCols).height}`}
-        style={{ display: 'block' }}
+        style={{ display: 'block', height: 'auto' }}
       >
         {/* ── Definitions ──────────────────────────────────────────────── */}
         <defs>

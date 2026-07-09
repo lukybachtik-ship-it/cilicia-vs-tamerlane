@@ -57,7 +57,7 @@ export function ScenarioLegend() {
   const ABILITY_DESC: Record<string, string> = {
     warcry:        'Válečný řev — 1×/hru: +2 kostky útoku a +1 pohyb',
     pilum:         'Pilum salva — 1×/hru: ranged 1–2 s +2 kostkami',
-    betrayal:      'Zrada — 1×/hru: obrátit sousedního kondotiéra',
+    betrayal:      'Zrada — 1×/hru: obrátit sousední žoldnéřskou jízdu',
     ambush_signal: 'Signál přepadu — 1×/hru: odhalit germány + +1 útok',
   };
 
@@ -123,14 +123,14 @@ export function ScenarioLegend() {
               </li>
             )}
             {mechanicFlags.pikeWall && (
-              <li><b>Pike wall</b>: pikenýr proti útočící jízdě +2 obrana, 1 auto-zásah</li>
+              <li><b>Hradba kopí</b>: kopiník proti útočící jízdě +2 obrana, 1 auto-zásah</li>
             )}
             {mechanicFlags.volleyFireBonus && (
               <li className="flex items-start gap-1.5">
                 <svg width={14} height={14} viewBox="-7 -7 14 14" className="flex-shrink-0 mt-0.5">
                   <VolleyGlyph />
                 </svg>
-                <span><b>Volejová palba</b>: 3+ arkebuzírů v řadě → +1 kostka každému</span>
+                <span><b>Salva</b>: 3+ mušketýrů v řadě → +1 kostka každému</span>
               </li>
             )}
             {mechanicFlags.gunpowderWeapon && (
@@ -142,10 +142,10 @@ export function ScenarioLegend() {
               </li>
             )}
             {mechanicFlags.setupRequired && (
-              <li><b>Setup required</b>: dělostřelectvo nemůže střílet v kole, kdy se pohnulo</li>
+              <li><b>Příprava děla</b>: dělostřelectvo nemůže střílet v kole, kdy se pohnulo</li>
             )}
             {mechanicFlags.antiHeavyCavalry && (
-              <li><b>Anti-jízda</b>: rodelero +1 kostka proti těžké jízdě / gendarmovi</li>
+              <li><b>Anti-jízda</b>: šermíř +1 kostka proti těžké jízdě / rytířům</li>
             )}
             {mechanicFlags.destroysWalls && (
               <li><b>Ničení hradeb</b>: dělostřelectvo může ostřelovat zdi (klik na hex)</li>

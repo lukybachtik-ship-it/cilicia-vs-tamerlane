@@ -330,8 +330,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     meleeAttackPenalty: true,
     volleyFireBonus: true,
     gunpowderWeapon: true,
-    nameCs: 'Arkebuzír',
-    abbrevCs: 'AK',
+    nameCs: 'Mušketýr',
+    abbrevCs: 'MU',
   },
   // Pikenýr — velmi pomalý, "pike wall" proti jízdě.
   pikeman: {
@@ -344,8 +344,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     attack: 3,
     maxHp: 3,
     pikeWall: true,
-    nameCs: 'Pikenýr',
-    abbrevCs: 'PK',
+    nameCs: 'Kopiník',
+    abbrevCs: 'KP',
   },
   // Gendarm — francouzská těžká jízda; lance charge (+2 kostky po 3+ hex linii).
   gendarme: {
@@ -359,8 +359,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     maxHp: 3,
     breakthrough: true,
     chargeRequires3Hex: true,
-    nameCs: 'Gendarm',
-    abbrevCs: 'GD',
+    nameCs: 'Rytíř',
+    abbrevCs: 'RY',
   },
   // Stradiot — lehká jízda s džeridem (range 1–2), ignoruje terrain stop.
   stradiot: {
@@ -376,8 +376,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     reducedMeleeDefense: true,
     meleeAttackPenalty: true,
     ignoresTerrainStop: true,
-    nameCs: 'Stradiot',
-    abbrevCs: 'SD',
+    nameCs: 'Nájezdník',
+    abbrevCs: 'NÁ',
   },
   // Rodelero — meč a štít, +1 kostka proti těžké jízdě.
   rodelero: {
@@ -390,8 +390,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     attack: 2,
     maxHp: 3,
     antiHeavyCavalry: true,
-    nameCs: 'Rodelero',
-    abbrevCs: 'RD',
+    nameCs: 'Šermíř',
+    abbrevCs: 'ŠE',
   },
   // Kušiník — range 3, −1 útok proti těžké zbroji (handled in combat).
   crossbowman: {
@@ -425,8 +425,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     destroysWalls: true,
     setupRequired: true,
     gunpowderWeapon: true,
-    nameCs: 'Kulverina',
-    abbrevCs: 'KV',
+    nameCs: 'Polní dělo',
+    abbrevCs: 'DĚ',
   },
   // Kondotiér — těžká jízda, mercenary loyalty check at start of each turn (in reducer).
   condottiero: {
@@ -439,8 +439,8 @@ export const UNIT_DEFINITIONS: Record<UnitType, UnitDefinition> = {
     attack: 3,
     maxHp: 3,
     breakthrough: true,
-    nameCs: 'Kondotiér',
-    abbrevCs: 'KD',
+    nameCs: 'Žoldnéřská jízda',
+    abbrevCs: 'ŽO',
   },
   // Caterina Sforza — named defender, inspirační aura, high HP.
   caterina_sforza: {

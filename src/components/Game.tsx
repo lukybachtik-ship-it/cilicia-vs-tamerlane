@@ -25,7 +25,7 @@ const PHASE_HINTS: Record<string, string> = {
   move: 'Vyber aktivovanou jednotku → klikni na zelené pole. Pak klikni "Potvrdit pohyb" pro přechod k útoku.',
   attack: 'Vyber aktivovanou jednotku → klikni na červeně označeného nepřítele. Pak "Ukončit kolo".',
   choose_reinforcement_flank: 'Posily přicházejí! Vyber, na které křídlo dorazí.',
-  select_betrayal_target: 'Zrada: klikni na sousedního nepřátelského kondotiéra, který přeběhne.',
+  select_betrayal_target: 'Zrada: klikni na sousední nepřátelskou žoldnéřskou jízdu, která přeběhne.',
   game_over: '',
 };
 

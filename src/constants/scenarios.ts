@@ -188,7 +188,7 @@ export const SCENARIO_BREAKTHROUGH: ScenarioDefinition = {
   id: 'breakthrough',
   nameCs: 'Obléhání Pisy',
   descriptionCs: 'Pisa brání dvě bašty městského opevnění. Florencie musí obsadit obě, nebo zničit 5 obránců. Pisané musí vydržet 14 tahů, nebo zničit 4 útočníky.',
-  flavourCs: 'Léto 1500. Florencie si najala francouzské kopiníky a polní kulveriny, aby konečně zlomila odbojnou Pisu. Město ale drží — jako už tolikrát.',
+  flavourCs: 'Léto 1500. Florencie si najala francouzské rytíře a těžká polní děla, aby konečně zlomila odbojnou Pisu. Město ale drží — jako už tolikrát.',
   ciliciaLabel: 'Pisané',
   tamerlaneLabel: 'Florencie',
   difficultyCs: '🔵 Těžká pro Florencii',
@@ -622,7 +622,7 @@ export const SCENARIO_FORLI: ScenarioDefinition = {
   killThresholdCilicia: 99,  // Cesare vyhrává obsazením citadely nebo smrtí Catheriny
   killThresholdTamerlane: 99,// Caterina vyhrává přežitím nebo zničením všech kulverin
   turnLimit: 14,
-  victoryObjectiveCiliciaCs: 'Přežít 14 kol NEBO zničit obě kulveriny',
+  victoryObjectiveCiliciaCs: 'Přežít 14 kol NEBO zničit obě děla',
   victoryObjectiveTamerlaneCs: 'Dobýt citadelu (řada 2, sloupec 5) pěchotou NEBO zabít Caterinu',
   terrain: [
     // Citadela (fortress) uprostřed horní části

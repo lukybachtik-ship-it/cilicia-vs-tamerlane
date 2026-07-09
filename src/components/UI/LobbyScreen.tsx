@@ -37,18 +37,23 @@ export function LobbyScreen() {
 
   const visibleScenarios = getVisibleScenarios(adminUnlocked);
 
-  function handleAdminToggle() {
-    if (adminUnlocked) {
-      lockAdmin();
-      setAdminUnlocked(false);
-      return;
-    }
+  // Dev režim se odemyká přes URL /admin (heslo v branding.ts).
+  // Po zpracování se URL vyčistí zpět na /.
+  useEffect(() => {
+    if (window.location.pathname.replace(/\/+$/, '') !== '/admin') return;
+    window.history.replaceState(null, '', '/');
+    if (isAdminUnlocked()) return; // už odemčeno
     const pw = window.prompt('Heslo dev režimu:');
     if (pw && unlockAdmin(pw)) {
       setAdminUnlocked(true);
     } else if (pw !== null) {
       window.alert('Nesprávné heslo.');
     }
+  }, []);
+
+  function handleAdminLock() {
+    lockAdmin();
+    setAdminUnlocked(false);
   }
 
   // Clear session storage once consumed
@@ -235,7 +240,7 @@ export function LobbyScreen() {
         <div className="w-full max-w-3xl mx-4">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-white">Vyber scénář pro online hru</h2>
-            <p className="text-gray-500 text-sm mt-1">Ty budeš hrát za <span className="text-blue-400 font-semibold">Kilikiję</span> (hraješ jako první)</p>
+            <p className="text-gray-500 text-sm mt-1">Ty budeš hrát za <span className="text-blue-400 font-semibold">modrou stranu</span> (hraješ jako první)</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -522,14 +527,15 @@ export function LobbyScreen() {
 
         <p className="text-gray-700 text-xs mt-8">
           Command &amp; Colors inspired · Hex-based tactics · Czech UI
-          {' '}
-          <button
-            onClick={handleAdminToggle}
-            className="text-gray-800 hover:text-gray-500 transition-colors ml-1"
-            title={adminUnlocked ? 'Zamknout dev režim' : 'Dev režim'}
-          >
-            {adminUnlocked ? '🔓' : '·'}
-          </button>
+          {adminUnlocked && (
+            <button
+              onClick={handleAdminLock}
+              className="text-amber-600 hover:text-amber-400 transition-colors ml-2"
+              title="Zamknout dev režim"
+            >
+              🔓 dev · zamknout
+            </button>
+          )}
         </p>
       </div>
     </FullscreenContainer>

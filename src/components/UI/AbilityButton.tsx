@@ -13,7 +13,7 @@ const ABILITY_LABEL: Record<string, string> = {
 const ABILITY_HINT: Record<string, string> = {
   warcry:        '+2 kostky útoku a +1 pohyb v tomto kole',
   pilum:         'Vrhnout pilum: dosah 1–2, +2 kostky (místo běžného útoku)',
-  betrayal:      'Obrátit sousedního kondotiéra na svou stranu do konce kola',
+  betrayal:      'Obrátit sousední žoldnéřskou jízdu na svou stranu do konce kola',
   ambush_signal: 'Odhalit všechny skryté germány; všichni germáni +1 kostka v tomto kole',
 };
 
@@ -42,7 +42,7 @@ export function AbilityButton() {
     return (
       <div className="flex items-center gap-2">
         <span className="text-yellow-300 text-xs font-bold animate-pulse">
-          Zrada — klikni na sousedního nepřátelského kondotiéra
+          Zrada — klikni na sousední nepřátelskou žoldnéřskou jízdu
         </span>
         <button
           onClick={() => dispatch({ type: 'CANCEL_BETRAYAL' })}

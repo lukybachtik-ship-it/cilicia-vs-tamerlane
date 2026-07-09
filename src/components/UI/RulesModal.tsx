@@ -105,6 +105,13 @@ function UnitsTab() {
     if (u.hitAndRun)           s.push('Hit & Run (volný ústup po útoku)');
     if (u.breakthrough)        s.push('Průlom (postup na místo po zabití)');
     if (u.parthianShot)        s.push('Parthský výstřel (pohyb→útok→pohyb)');
+    if (u.pikeWall)            s.push('Hradba kopí (útočící jízda se napíchne: 1 auto-zásah, −1 kostka)');
+    if (u.chargeRequires3Hex)  s.push('Zteč (+2 kostky po rozjezdu 3+ hexů v přímce)');
+    if (u.volleyFireBonus)     s.push('Salva (+1 kostka, když útočí víc střelců ve stejné řadě)');
+    if (u.antiHeavyCavalry)    s.push('+1 kostka proti těžké jízdě');
+    if (u.setupRequired)       s.push('Nemůže střílet v tahu, kdy se pohnulo');
+    if (u.siegeBonus)          s.push('+2 kostky proti pevnosti');
+    if (u.ignoresTerrainStop)  s.push('Nezastavuje v lese/pevnosti');
     if (u.reducedMeleeDefense) s.push('−1 kostka v protiútoku v přímém boji');
     if (u.movedAttackPenalty)  s.push('Pohyb → jen 1 kostka útoku');
     if (u.meleeAttackPenalty)  s.push('−1 kostka při útoku z bezprostřední blízkosti');
